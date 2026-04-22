@@ -146,9 +146,8 @@ export default function Contact() {
       <section className="section section--sm" style={{ background: 'var(--color-surface)' }}>
         <div className="container container--default">
           <div className="contact-szovetseg">
-            <svg width="32" height="32" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true" style={{ color: 'var(--color-primary)', flexShrink: 0 }}>
-              <circle cx="20" cy="20" r="18"/>
-              <path d="M20 8 L23.5 17 L33 17 L25.5 22.5 L28 32 L20 26.5 L12 32 L14.5 22.5 L7 17 L16.5 17 Z"/>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{ color: 'var(--color-primary)', flexShrink: 0 }}>
+              <path d="M12 2c0 0-2 2.5-2 5 0 1.1.4 2.1 1 2.8C9.4 10.6 8 12.2 8 14c0 1.5.8 2.8 2 3.5V20H9v2h6v-2h-1v-2.5c1.2-.7 2-2 2-3.5 0-1.8-1.4-3.4-3-4.2.6-.7 1-1.7 1-2.8 0-2.5-2-5-2-5z"/>
             </svg>
             <div>
               <h3>Magyar Cserkészszövetség</h3>

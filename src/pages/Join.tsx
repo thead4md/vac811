@@ -41,7 +41,7 @@ export default function Join() {
       {/* Hero */}
       <section className="page-hero" aria-labelledby="join-page-heading">
         <div className="container">
-          <div className="hero-badge">🌟 Csatlakozás</div>
+          <div className="hero-badge">⚜️ Csatlakozás</div>
           <h1 id="join-page-heading" className="section-title section-title--lg">
             Csatlakozz a 811-es csapathoz!
           </h1>
