@@ -1,0 +1,137 @@
+backend:
+  name: github
+  repo: thead4md/vac811
+  branch: main
+  base_url: https://sveltia-cms-auth.pages.dev
+
+# Where Decap CMS stores uploaded images
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+# Use local backend for dev: run `npx decap-server` then add ?backend=file-system to /admin URL
+# local_backend: true
+
+collections:
+
+  # ─── LEADERS ────────────────────────────────────────────────────────────────
+  - name: leaders
+    label: Vezetők
+    label_singular: Vezető
+    description: "Törzs és rajvezetők szerkesztése."
+    files:
+      - name: leaders
+        label: Vezetők listája
+        file: public/content/leaders.json
+        fields:
+          - label: Vezetők
+            name: leaders
+            widget: list
+            label_singular: Vezető
+            fields:
+              - { label: Teljes név, name: name, widget: string }
+              - { label: Beosztás, name: role, widget: string }
+              - { label: E-mail, name: email, widget: string, required: false }
+              - { label: Raj, name: raj, widget: string, required: false, hint: "Pl. Göncöl raj (hagyd üresen ha nem rajvezető)" }
+              - { label: Törzstag?, name: isStaff, widget: boolean, default: false, hint: "Bejelölve → csapatvezető törzs tagja" }
+
+  # ─── CAMPS ──────────────────────────────────────────────────────────────────
+  - name: camps
+    label: Nyári táborok
+    label_singular: Tábor
+    description: "Tábori évkönyv szerkesztése."
+    files:
+      - name: camps
+        label: Táborok listája
+        file: public/content/camps.json
+        fields:
+          - label: Táborok
+            name: camps
+            widget: list
+            label_singular: Tábor
+            summary: "{{fields.year}} – {{fields.location}}"
+            fields:
+              - { label: Év, name: year, widget: number, value_type: int }
+              - { label: Helyszín, name: location, widget: string }
+              - { label: Táborparancsnok, name: commander, widget: string }
+              - { label: Téma, name: theme, widget: string }
+              - { label: Résztvevők száma, name: participants, widget: number, value_type: int, required: false, hint: "0 = nem ismert" }
+              - { label: Megjegyzés, name: notes, widget: string, required: false }
+
+  # ─── EVENTS ─────────────────────────────────────────────────────────────────
+  - name: events
+    label: Programok és hírek
+    label_singular: Program
+    description: "Közelgő programok és hírek szerkesztése."
+    files:
+      - name: events
+        label: Programok listája
+        file: public/content/events.json
+        fields:
+          - label: Programok
+            name: events
+            widget: list
+            label_singular: Program
+            summary: "{{fields.date}} – {{fields.title}}"
+            fields:
+              - { label: Azonosító (ID), name: id, widget: string, hint: "Egyedi, kötőjeles azonosító, pl. tabor-2026" }
+              - { label: Cím, name: title, widget: string }
+              - { label: Dátum (gépi), name: date, widget: string, hint: "ÉÉÉÉ-HH-NN formátumban, pl. 2026-07-15" }
+              - { label: Dátum (megjelenített), name: dateDisplay, widget: string, hint: "Pl. 2026. július 15–20." }
+              - { label: Leírás, name: description, widget: text }
+              - label: Kategória
+                name: category
+                widget: select
+                options:
+                  - { label: Mise, value: mise }
+                  - { label: Portya, value: portya }
+                  - { label: Verseny, value: verseny }
+                  - { label: Tábor, value: tábor }
+                  - { label: Egyéb, value: egyéb }
+
+  # ─── RAJOK ──────────────────────────────────────────────────────────────────
+  - name: rajok
+    label: Rajok
+    label_singular: Raj
+    description: "A csapat rajai és leírásaik."
+    files:
+      - name: rajok
+        label: Rajok listája
+        file: public/content/rajok.json
+        fields:
+          - label: Rajok
+            name: rajok
+            widget: list
+            label_singular: Raj
+            fields:
+              - { label: Raj neve, name: name, widget: string }
+              - { label: Leírás, name: description, widget: text }
+              - label: Korosztály
+                name: ageGroup
+                widget: select
+                options:
+                  - Fiatalabb korosztály
+                  - Középső korosztály
+                  - Idősebb korosztály
+                  - Felnőtt
+                  - Felnőtt / Senior
+
+  # ─── SETTINGS ───────────────────────────────────────────────────────────────
+  - name: settings
+    label: Oldal beállítások
+    description: "Elérhetőségek, közösségi média, statisztikák."
+    files:
+      - name: settings
+        label: Alap beállítások
+        file: public/content/settings.json
+        fields:
+          - { label: Csapat neve, name: siteName, widget: string }
+          - { label: Szlogen, name: tagline, widget: string }
+          - { label: Cím, name: address, widget: string }
+          - { label: Általános e-mail, name: emailMain, widget: string }
+          - { label: Csapatparancsnok e-mail, name: emailCommander, widget: string }
+          - { label: Facebook URL, name: facebook, widget: string }
+          - { label: Instagram URL, name: instagram, widget: string }
+          - { label: Aktív cserkészek száma, name: activeMemberCount, widget: number, value_type: int }
+          - { label: Aktív őrsök száma, name: activeOrsCount, widget: number, value_type: int }
+          - { label: Rajok száma, name: rajCount, widget: number, value_type: int }
+          - { label: Alapítás éve, name: foundedYear, widget: number, value_type: int }

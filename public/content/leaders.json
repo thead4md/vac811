@@ -1,0 +1,95 @@
+{
+  "leaders": [
+    {
+      "name": "Kucsera Boglárka",
+      "role": "Csapatparancsnok",
+      "email": "kucsera.boglarka@vac811.hu",
+      "raj": "",
+      "isStaff": true
+    },
+    {
+      "name": "Bénik Borbála",
+      "role": "Cp. helyettes – Nevelés",
+      "email": "",
+      "raj": "Dorado rajparancsnok",
+      "isStaff": true
+    },
+    {
+      "name": "Kolostori Dániel",
+      "role": "Cp. helyettes – Operatív",
+      "email": "",
+      "raj": "",
+      "isStaff": true
+    },
+    {
+      "name": "Pellet Teréz",
+      "role": "Törzsőrsvezető",
+      "email": "",
+      "raj": "",
+      "isStaff": true
+    },
+    {
+      "name": "Kende Zoltán",
+      "role": "Rajparancsnok",
+      "email": "",
+      "raj": "Göncöl raj",
+      "isStaff": false
+    },
+    {
+      "name": "Király Boglárka",
+      "role": "Rajparancsnok",
+      "email": "",
+      "raj": "Corvus raj",
+      "isStaff": false
+    },
+    {
+      "name": "Simon Luca",
+      "role": "Rajparancsnok",
+      "email": "",
+      "raj": "Anonymus raj",
+      "isStaff": false
+    },
+    {
+      "name": "Sinka Dóra",
+      "role": "Rajparancsnok",
+      "email": "",
+      "raj": "Gemini raj",
+      "isStaff": false
+    },
+    {
+      "name": "Lázi Adél",
+      "role": "Rajvezető",
+      "email": "",
+      "raj": "Szent Hubertusz raj",
+      "isStaff": false
+    },
+    {
+      "name": "Molnár Gergely",
+      "role": "Rajvezető",
+      "email": "",
+      "raj": "Cygnus raj",
+      "isStaff": false
+    },
+    {
+      "name": "Ortutay Abigél",
+      "role": "Rajvezető",
+      "email": "",
+      "raj": "Taurus raj",
+      "isStaff": false
+    },
+    {
+      "name": "Sinka Panna",
+      "role": "Rajvezető",
+      "email": "",
+      "raj": "Anonymus raj",
+      "isStaff": false
+    },
+    {
+      "name": "Szabó Lili",
+      "role": "Rajvezető",
+      "email": "",
+      "raj": "Andromeda raj",
+      "isStaff": false
+    }
+  ]
+}

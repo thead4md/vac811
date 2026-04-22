@@ -1,11 +1,14 @@
 import { Link } from 'react-router-dom';
-import { leaders } from '../data/leaders';
+import { useContent } from '../hooks/useContent';
+import { type Leader, leadersStatic } from '../data/leaders';
 import './Leaders.css';
 
-const staffLeaders = leaders.filter(l => l.isStaff);
-const rajLeaders = leaders.filter(l => !l.isStaff);
-
 export default function Leaders() {
+  const { data, loading } = useContent<Leader[]>('leaders.json', 'leaders');
+  const allLeaders = data ?? leadersStatic;
+  const staffLeaders = allLeaders.filter(l => l.isStaff);
+  const rajLeaders = allLeaders.filter(l => !l.isStaff);
+
   return (
     <main aria-label="Vezetők oldal">
       {/* Hero */}
@@ -30,36 +33,40 @@ export default function Leaders() {
           <p className="section-subtitle" style={{ marginBottom: 'var(--space-10)' }}>
             A csapat irányításáért és a szakmai munkáért felelős vezetők.
           </p>
-          <div className="leaders-staff-grid">
-            {staffLeaders.map(leader => (
-              <article key={leader.name} className="leader-profile">
-                <div className="leader-profile__avatar" aria-hidden="true">
-                  <span>{leader.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</span>
-                </div>
-                <div className="leader-profile__info">
-                  <h3 className="leader-profile__name">{leader.name}</h3>
-                  <p className="leader-profile__role">{leader.role}</p>
-                  {leader.raj && (
-                    <p className="leader-profile__raj">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
-                      </svg>
-                      {leader.raj}
-                    </p>
-                  )}
-                  {leader.email && (
-                    <a href={`mailto:${leader.email}`} className="leader-profile__email">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                        <polyline points="22,6 12,13 2,6"/>
-                      </svg>
-                      {leader.email}
-                    </a>
-                  )}
-                </div>
-              </article>
-            ))}
-          </div>
+          {loading ? (
+            <p style={{ color: 'var(--color-text-muted)' }}>Betöltés…</p>
+          ) : (
+            <div className="leaders-staff-grid">
+              {staffLeaders.map(leader => (
+                <article key={leader.name} className="leader-profile">
+                  <div className="leader-profile__avatar" aria-hidden="true">
+                    <span>{leader.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</span>
+                  </div>
+                  <div className="leader-profile__info">
+                    <h3 className="leader-profile__name">{leader.name}</h3>
+                    <p className="leader-profile__role">{leader.role}</p>
+                    {leader.raj && (
+                      <p className="leader-profile__raj">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                          <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+                        </svg>
+                        {leader.raj}
+                      </p>
+                    )}
+                    {leader.email && (
+                      <a href={`mailto:${leader.email}`} className="leader-profile__email">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                          <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                        {leader.email}
+                      </a>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -71,18 +78,22 @@ export default function Leaders() {
           <p className="section-subtitle" style={{ marginBottom: 'var(--space-10)' }}>
             Minden raj élén egy tapasztalt és elkötelezett vezető áll.
           </p>
-          <div className="leaders-raj-grid">
-            {rajLeaders.map(leader => (
-              <article key={leader.name} className="leader-card">
-                <div className="leader-card__avatar" aria-hidden="true">
-                  <span>{leader.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</span>
-                </div>
-                <h3 className="leader-card__name">{leader.name}</h3>
-                <p className="leader-card__role">{leader.role}</p>
-                {leader.raj && <p className="leader-card__raj">{leader.raj}</p>}
-              </article>
-            ))}
-          </div>
+          {loading ? (
+            <p style={{ color: 'var(--color-text-muted)' }}>Betöltés…</p>
+          ) : (
+            <div className="leaders-raj-grid">
+              {rajLeaders.map(leader => (
+                <article key={leader.name} className="leader-card">
+                  <div className="leader-card__avatar" aria-hidden="true">
+                    <span>{leader.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</span>
+                  </div>
+                  <h3 className="leader-card__name">{leader.name}</h3>
+                  <p className="leader-card__role">{leader.role}</p>
+                  {leader.raj && <p className="leader-card__raj">{leader.raj}</p>}
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

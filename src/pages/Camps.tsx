@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom';
-import { camps } from '../data/camps';
+import { useContent } from '../hooks/useContent';
+import { type Camp, campsStatic } from '../data/camps';
 import './Camps.css';
 
 export default function Camps() {
-  const featured = camps[0]; // 2025
+  const { data, loading } = useContent<Camp[]>('camps.json', 'camps');
+  const camps = data ?? campsStatic;
+  const featured = camps[0];
 
   return (
     <main aria-label="Táborok oldal">
@@ -21,51 +24,53 @@ export default function Camps() {
       </section>
 
       {/* Featured camp */}
-      <section className="section" aria-labelledby="featured-camp-heading">
-        <div className="container">
-          <span className="section-label">Legutóbbi tábor</span>
-          <div className="featured-camp">
-            <div className="featured-camp__badge">
-              <span className="badge">Legutóbbi tábor</span>
-              <span className="featured-camp__year">{featured.year}</span>
-            </div>
-            <h2 id="featured-camp-heading" className="featured-camp__title">
-              {featured.theme}
-            </h2>
-            <div className="featured-camp__meta">
-              <div className="featured-camp__detail">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-                </svg>
-                <span><strong>Helyszín:</strong> {featured.location}</span>
+      {!loading && featured && (
+        <section className="section" aria-labelledby="featured-camp-heading">
+          <div className="container">
+            <span className="section-label">Legutóbbi tábor</span>
+            <div className="featured-camp">
+              <div className="featured-camp__badge">
+                <span className="badge">Legutóbbi tábor</span>
+                <span className="featured-camp__year">{featured.year}</span>
               </div>
-              <div className="featured-camp__detail">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                </svg>
-                <span><strong>Táborparancsnok:</strong> {featured.commander}</span>
-              </div>
-              {featured.participants && (
+              <h2 id="featured-camp-heading" className="featured-camp__title">
+                {featured.theme}
+              </h2>
+              <div className="featured-camp__meta">
                 <div className="featured-camp__detail">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                   </svg>
-                  <span><strong>Résztvevők:</strong> {featured.participants} fő</span>
+                  <span><strong>Helyszín:</strong> {featured.location}</span>
                 </div>
-              )}
-              {featured.notes && (
                 <div className="featured-camp__detail">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                   </svg>
-                  <span>{featured.notes}</span>
+                  <span><strong>Táborparancsnok:</strong> {featured.commander}</span>
                 </div>
-              )}
+                {featured.participants && featured.participants > 0 && (
+                  <div className="featured-camp__detail">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <span><strong>Résztvevők:</strong> {featured.participants} fő</span>
+                  </div>
+                )}
+                {featured.notes && (
+                  <div className="featured-camp__detail">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <span>{featured.notes}</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* What is a camp */}
       <section className="section section--sm" style={{ background: 'var(--color-surface)' }} aria-labelledby="about-camps-heading">
@@ -111,51 +116,57 @@ export default function Camps() {
           <span className="section-label">Tábortörténet</span>
           <h2 id="archive-heading" className="section-title">Az összes tábor</h2>
 
-          {/* Table view for desktop */}
-          <div className="camps-table-wrap">
-            <table className="camps-table" aria-label="Tábortörténet táblázat">
-              <thead>
-                <tr>
-                  <th scope="col">Év</th>
-                  <th scope="col">Helyszín</th>
-                  <th scope="col">Keretmese</th>
-                  <th scope="col">Táborparancsnok</th>
-                  <th scope="col">Létszám</th>
-                </tr>
-              </thead>
-              <tbody>
-                {camps.map(camp => (
-                  <tr key={camp.year} className={camp.year === 2025 ? 'camps-table__row--latest' : ''}>
-                    <td className="camps-table__year">
-                      <strong>{camp.year}</strong>
-                      {camp.year === 2025 && <span className="badge" style={{ marginLeft: '0.4em' }}>Utolsó</span>}
-                    </td>
-                    <td>{camp.location}</td>
-                    <td className="camps-table__theme">{camp.theme}</td>
-                    <td>{camp.commander}</td>
-                    <td>{camp.participants ? `${camp.participants} fő` : '–'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {loading ? (
+            <p style={{ color: 'var(--color-text-muted)', marginTop: 'var(--space-6)' }}>Betöltés…</p>
+          ) : (
+            <>
+              {/* Table view for desktop */}
+              <div className="camps-table-wrap">
+                <table className="camps-table" aria-label="Tábortörténet táblázat">
+                  <thead>
+                    <tr>
+                      <th scope="col">Év</th>
+                      <th scope="col">Helyszín</th>
+                      <th scope="col">Keretmese</th>
+                      <th scope="col">Táborparancsnok</th>
+                      <th scope="col">Létszám</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {camps.map(camp => (
+                      <tr key={camp.year} className={camp === camps[0] ? 'camps-table__row--latest' : ''}>
+                        <td className="camps-table__year">
+                          <strong>{camp.year}</strong>
+                          {camp === camps[0] && <span className="badge" style={{ marginLeft: '0.4em' }}>Utolsó</span>}
+                        </td>
+                        <td>{camp.location}</td>
+                        <td className="camps-table__theme">{camp.theme}</td>
+                        <td>{camp.commander}</td>
+                        <td>{camp.participants && camp.participants > 0 ? `${camp.participants} fő` : '–'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-          {/* Card view for mobile */}
-          <div className="camps-cards">
-            {camps.map(camp => (
-              <article key={camp.year} className={`camp-card${camp.year === 2025 ? ' camp-card--latest' : ''}`}>
-                <div className="camp-card__year">{camp.year}</div>
-                <div className="camp-card__body">
-                  <h3 className="camp-card__theme">{camp.theme}</h3>
-                  <p className="camp-card__location">📍 {camp.location}</p>
-                  <p className="camp-card__commander">🎖️ {camp.commander}</p>
-                  {camp.participants && (
-                    <p className="camp-card__participants">👥 {camp.participants} fő</p>
-                  )}
-                </div>
-              </article>
-            ))}
-          </div>
+              {/* Card view for mobile */}
+              <div className="camps-cards">
+                {camps.map(camp => (
+                  <article key={camp.year} className={`camp-card${camp === camps[0] ? ' camp-card--latest' : ''}`}>
+                    <div className="camp-card__year">{camp.year}</div>
+                    <div className="camp-card__body">
+                      <h3 className="camp-card__theme">{camp.theme}</h3>
+                      <p className="camp-card__location">📍 {camp.location}</p>
+                      <p className="camp-card__commander">🎖️ {camp.commander}</p>
+                      {camp.participants && camp.participants > 0 && (
+                        <p className="camp-card__participants">👥 {camp.participants} fő</p>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </section>
 

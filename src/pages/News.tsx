@@ -1,4 +1,5 @@
-import { events } from '../data/events';
+import { useContent } from '../hooks/useContent';
+import { type Event, eventsStatic } from '../data/events';
 import './News.css';
 
 const categoryLabel: Record<string, string> = {
@@ -17,7 +18,6 @@ const newsItems = [
     dateDisplay: '2025. augusztus 10.',
     category: 'tábor',
     summary: 'A 811-es cserkészcsapat 2025-ös nyári tábora Süttőn, a Pap-réten 135 fővel zárult sikeresen. A kalózos keretmesével tarkított tábort Sinka Dóra vezette.',
-    content: `Idén is rendkívüli élményekkel tért haza mindenki a nyári táborból. Süttő, Pap-rét adott otthont a 135 fős cserkészsereg kalandjainak. A kalózos keretmese minden korosztálynak izgalmas feladatokat hozott: kincskeresés, hajóépítés cserkészstílusban és természetesen hagyományos tábori programok. Az altábort Lázi Adél és Mészáros Béla vezette. Köszönet minden résztvevőnek és szülőnek!`,
   },
   {
     id: 'news-2',
@@ -26,7 +26,6 @@ const newsItems = [
     dateDisplay: '2026. április 5.',
     category: 'mise',
     summary: 'Csapatunk részt vett a havi csapatmisén a váci székesegyházban. 4 cserkész biztosított baldachint az ünnepségen.',
-    content: `A 811-es cserkészcsapat rendszeres csapatmiséje különleges alkalom az egész közösség számára. Ezúttal 4 cserkész biztosított baldachint a váci székesegyházban — büszkék vagyunk rájuk! A mise egyszerre lelki feltöltődés és közösségformáló alkalom.`,
   },
   {
     id: 'news-3',
@@ -35,11 +34,13 @@ const newsItems = [
     dateDisplay: '2026. április 17–19.',
     category: 'portya',
     summary: 'Április közepén háromnapos csapatportyára indulnak rajjaink. A részletekért kövesd oldalunkat!',
-    content: `Április 17–19. között háromnapos csapatportya vár minden cserkészre. Tájékozódás, főzés, csapatfeladatok és persze az összetartozás erősítése – mindez a természetben. A portya pontos helyszínét és programját a rajvezetők hirdetik ki.`,
   },
 ];
 
 export default function News() {
+  const { data, loading } = useContent<Event[]>('events.json', 'events');
+  const events = data ?? eventsStatic;
+
   return (
     <main aria-label="Hírek és események oldal">
       {/* Hero */}
@@ -60,26 +61,30 @@ export default function News() {
         <div className="container">
           <span className="section-label">Közelgő</span>
           <h2 id="upcoming-heading" className="section-title">Programnaptár</h2>
-          <div className="events-upcoming">
-            {events.map(event => (
-              <article key={event.id} className="event-row">
-                <div className="event-row__date">
-                  <div className="event-row__date-display">
-                    {event.dateDisplay.split('. ')[1]?.split(' ')[0] || ''}
-                    <span>{event.date.split('-')[0]}</span>
+          {loading ? (
+            <p style={{ color: 'var(--color-text-muted)', marginTop: 'var(--space-6)' }}>Betöltés…</p>
+          ) : (
+            <div className="events-upcoming">
+              {events.map(event => (
+                <article key={event.id} className="event-row">
+                  <div className="event-row__date">
+                    <div className="event-row__date-display">
+                      {event.dateDisplay.split('. ')[1]?.split(' ')[0] || ''}
+                      <span>{event.date.split('-')[0]}</span>
+                    </div>
                   </div>
-                </div>
-                <div className="event-row__body">
-                  <span className={`badge event-badge event-badge--${event.category}`}>
-                    {categoryLabel[event.category]}
-                  </span>
-                  <h3 className="event-row__title">{event.title}</h3>
-                  <time dateTime={event.date} className="event-row__time">{event.dateDisplay}</time>
-                  <p className="event-row__desc">{event.description}</p>
-                </div>
-              </article>
-            ))}
-          </div>
+                  <div className="event-row__body">
+                    <span className={`badge event-badge event-badge--${event.category}`}>
+                      {categoryLabel[event.category]}
+                    </span>
+                    <h3 className="event-row__title">{event.title}</h3>
+                    <time dateTime={event.date} className="event-row__time">{event.dateDisplay}</time>
+                    <p className="event-row__desc">{event.description}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

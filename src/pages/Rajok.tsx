@@ -1,8 +1,12 @@
 import { Link } from 'react-router-dom';
-import { rajok } from '../data/rajok';
+import { useContent } from '../hooks/useContent';
+import { type Raj, rajokStatic } from '../data/rajok';
 import './Rajok.css';
 
 export default function Rajok() {
+  const { data, loading } = useContent<Raj[]>('rajok.json', 'rajok');
+  const rajok = data ?? rajokStatic;
+
   return (
     <main aria-label="Rajok oldal">
       <section className="page-hero" aria-labelledby="rajok-page-heading">
@@ -18,21 +22,25 @@ export default function Rajok() {
       <section className="section" aria-labelledby="rajok-list-heading">
         <div className="container">
           <span className="section-label">Szervezet</span>
-          <h2 id="rajok-list-heading" className="section-title">A csapat 11 raja</h2>
+          <h2 id="rajok-list-heading" className="section-title">A csapat rajai</h2>
           <p className="section-subtitle" style={{ marginBottom: 'var(--space-10)' }}>
             Minden raj több őrsből áll, és saját rajparancsnoka vagy rajvezetője irányítja.
           </p>
-          <div className="grid-3">
-            {rajok.map(raj => (
-              <article key={raj.name} className="raj-full-card">
-                <div className="raj-full-card__name-row">
-                  <h3 className="raj-full-card__name">{raj.name}</h3>
-                  <span className="badge">{raj.ageGroup}</span>
-                </div>
-                <p className="raj-full-card__desc">{raj.description}</p>
-              </article>
-            ))}
-          </div>
+          {loading ? (
+            <p style={{ color: 'var(--color-text-muted)' }}>Betöltés…</p>
+          ) : (
+            <div className="grid-3">
+              {rajok.map(raj => (
+                <article key={raj.name} className="raj-full-card">
+                  <div className="raj-full-card__name-row">
+                    <h3 className="raj-full-card__name">{raj.name}</h3>
+                    <span className="badge">{raj.ageGroup}</span>
+                  </div>
+                  <p className="raj-full-card__desc">{raj.description}</p>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

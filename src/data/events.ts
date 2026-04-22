@@ -1,3 +1,5 @@
+// NOTE: Runtime content is fetched from /content/events.json (managed by Decap CMS).
+
 export interface Event {
   id: string;
   title: string;
@@ -7,38 +9,11 @@ export interface Event {
   category: 'mise' | 'portya' | 'verseny' | 'tábor' | 'egyéb';
 }
 
-export const events: Event[] = [
-  {
-    id: 'csapatmise-apr-2026',
-    title: 'Csapatmise',
-    date: '2026-04-05',
-    dateDisplay: '2026. április 5.',
-    description: 'Csapatmise a székesegyházban, 4 fős baldachin közreműködéssel.',
-    category: 'mise',
-  },
-  {
-    id: 'portya-apr-2026',
-    title: 'Csapatportya',
-    date: '2026-04-17',
-    dateDisplay: '2026. április 17–19.',
-    description: 'Háromnapos csapatportya, melyen minden raj részt vesz.',
-    category: 'portya',
-  },
-  {
-    id: 'metabajnoksag-2026',
-    title: 'I–X. korosztályos métabajnokság',
-    date: '2026-04-25',
-    dateDisplay: '2026. április 25.',
-    description: 'Az 1–10. korosztályok métabajnoksága. Gyere és szurkold a csapatod!',
-    category: 'verseny',
-  },
-  // Placeholder – replace with real upcoming events
-  {
-    id: 'nyari-tabor-2026',
-    title: 'Nyári tábor 2026',
-    date: '2026-07-01',
-    dateDisplay: '2026. július (dátum hamarosan)',
-    description: 'Az idei nyári tábor részletei hamarosan elérhetők. Kövesd oldalunkat!',
-    category: 'tábor',
-  },
+export const eventsStatic: Event[] = [
+  { id: 'csapatmise-apr-2026', title: 'Csapatmise', date: '2026-04-05', dateDisplay: '2026. április 5.', description: 'Csapatmise a székesegyházban, 4 fős baldachin közreműködéssel.', category: 'mise' },
+  { id: 'portya-apr-2026', title: 'Csapatportya', date: '2026-04-17', dateDisplay: '2026. április 17–19.', description: 'Háromnapos csapatportya, melyen minden raj részt vesz.', category: 'portya' },
+  { id: 'metabajnoksag-2026', title: 'I–X. korosztályos métabajnokság', date: '2026-04-25', dateDisplay: '2026. április 25.', description: 'Az 1–10. korosztályok métabajnoksága.', category: 'verseny' },
+  { id: 'nyari-tabor-2026', title: 'Nyári tábor 2026', date: '2026-07-01', dateDisplay: '2026. július (dátum hamarosan)', description: 'Az idei nyári tábor részletei hamarosan elérhetők.', category: 'tábor' },
 ];
+
+export const events = eventsStatic;
