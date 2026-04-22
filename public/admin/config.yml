@@ -3,6 +3,7 @@ backend:
   repo: thead4md/vac811
   branch: main
   base_url: https://sveltia-cms-auth.dudas-adam99.workers.dev
+  site_domain: vac811.hu/beta
 
 
 # Where Decap CMS stores uploaded images
