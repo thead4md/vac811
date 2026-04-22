@@ -1,0 +1,161 @@
+/* ============================================
+   TOKENS.CSS — Design system for 811. Cserkészcsapat
+   Art direction: warm forest greens, earthy neutrals,
+   handcrafted community feel, serif + clean sans
+   ============================================ */
+
+:root,
+[data-theme='light'] {
+  /* ── Type scale ── */
+  --text-xs:   clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem);
+  --text-sm:   clamp(0.875rem, 0.8rem  + 0.35vw, 1rem);
+  --text-base: clamp(1rem,     0.95rem + 0.25vw, 1.125rem);
+  --text-lg:   clamp(1.125rem, 1rem    + 0.75vw, 1.5rem);
+  --text-xl:   clamp(1.5rem,   1.2rem  + 1.25vw, 2.25rem);
+  --text-2xl:  clamp(2rem,     1.2rem  + 2.5vw,  3.5rem);
+  --text-3xl:  clamp(2.5rem,   1rem    + 4vw,    5rem);
+  --text-hero: clamp(3rem,     0.5rem  + 7vw,    7rem);
+
+  /* ── Spacing (4px base) ── */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  /* ── Surfaces — warm parchment / linen ── */
+  --color-bg:              #f5f3ef;
+  --color-surface:         #f8f6f2;
+  --color-surface-2:       #fafaf8;
+  --color-surface-offset:  #ede9e3;
+  --color-surface-offset-2:#e6e0d8;
+  --color-surface-dark:    #2a3028;
+  --color-divider:         #d8d3cb;
+  --color-border:          #ccc7be;
+
+  /* ── Text ── */
+  --color-text:         #1f2117;
+  --color-text-muted:   #5e6259;
+  --color-text-faint:   #9ea499;
+  --color-text-inverse: #f5f3ef;
+
+  /* ── Forest Green accent ── */
+  --color-primary:           #2d6a4f;
+  --color-primary-hover:     #1f5241;
+  --color-primary-active:    #163b2e;
+  --color-primary-light:     #d8ece4;
+  --color-primary-highlight: #b7dccf;
+
+  /* ── Earth accent (warm detail) ── */
+  --color-earth:       #8b5e3c;
+  --color-earth-light: #f0e3d5;
+
+  /* ── Gold accent (decorative) ── */
+  --color-gold:       #c49a3c;
+  --color-gold-light: #f5eacc;
+
+  /* ── Semantic ── */
+  --color-success:   #3a7d44;
+  --color-warning:   #9c6f28;
+  --color-error:     #8b2635;
+  --color-info:      #2563a0;
+
+  /* ── Radius ── */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* ── Shadows (warm tone) ── */
+  --shadow-sm: 0 1px 3px rgba(31,33,23,0.06), 0 1px 2px rgba(31,33,23,0.04);
+  --shadow-md: 0 4px 12px rgba(31,33,23,0.08), 0 2px 6px rgba(31,33,23,0.05);
+  --shadow-lg: 0 12px 32px rgba(31,33,23,0.12), 0 4px 12px rgba(31,33,23,0.06);
+  --shadow-xl: 0 24px 64px rgba(31,33,23,0.16), 0 8px 24px rgba(31,33,23,0.08);
+
+  /* ── Transitions ── */
+  --transition-fast:        150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-interactive: 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow:        350ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Content widths ── */
+  --content-narrow:  640px;
+  --content-default: 960px;
+  --content-wide:    1200px;
+  --content-full:    100%;
+
+  /* ── Fonts ── */
+  --font-display: 'Playfair Display', 'Georgia', serif;
+  --font-body:    'Nunito', 'Helvetica Neue', sans-serif;
+}
+
+/* ── DARK MODE ── */
+[data-theme='dark'] {
+  --color-bg:               #171c15;
+  --color-surface:          #1c221a;
+  --color-surface-2:        #21281f;
+  --color-surface-offset:   #1a1f18;
+  --color-surface-offset-2: #232920;
+  --color-surface-dark:     #0f130e;
+  --color-divider:          #2a312a;
+  --color-border:           #343d33;
+  --color-text:             #d4d9cf;
+  --color-text-muted:       #7a8275;
+  --color-text-faint:       #4e5449;
+  --color-text-inverse:     #1f2117;
+  --color-primary:          #52a87e;
+  --color-primary-hover:    #3d8f68;
+  --color-primary-active:   #2d7354;
+  --color-primary-light:    #1e3029;
+  --color-primary-highlight:#264036;
+  --color-earth:            #c4895c;
+  --color-earth-light:      #2d2019;
+  --color-gold:             #e0b85a;
+  --color-gold-light:       #2d2510;
+  --color-success:          #5aaa64;
+  --color-warning:          #d4963c;
+  --color-error:            #d45060;
+  --color-info:             #4d90db;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.25);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.45);
+  --shadow-xl: 0 24px 64px rgba(0,0,0,0.55);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --color-bg:               #171c15;
+    --color-surface:          #1c221a;
+    --color-surface-2:        #21281f;
+    --color-surface-offset:   #1a1f18;
+    --color-surface-offset-2: #232920;
+    --color-surface-dark:     #0f130e;
+    --color-divider:          #2a312a;
+    --color-border:           #343d33;
+    --color-text:             #d4d9cf;
+    --color-text-muted:       #7a8275;
+    --color-text-faint:       #4e5449;
+    --color-text-inverse:     #1f2117;
+    --color-primary:          #52a87e;
+    --color-primary-hover:    #3d8f68;
+    --color-primary-active:   #2d7354;
+    --color-primary-light:    #1e3029;
+    --color-primary-highlight:#264036;
+    --color-earth:            #c4895c;
+    --color-earth-light:      #2d2019;
+    --color-gold:             #e0b85a;
+    --color-gold-light:       #2d2510;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.25);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+    --shadow-lg: 0 12px 32px rgba(0,0,0,0.45);
+  }
+}
