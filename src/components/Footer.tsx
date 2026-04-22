@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import logoUrl from '/logo.svg?url';
 import './Footer.css';
 
 export default function Footer() {
@@ -11,7 +12,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="footer__brand">
             <Link to="/" className="footer__logo" aria-label="811. cserkészcsapat – Főoldal">
-              <img src="/logo.svg" alt="811. Szent József Cserkészcsapat logó" width="40" height="40" style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+              <img src={logoUrl} alt="" width="40" height="40" style={{ objectFit: 'contain', flexShrink: 0, display: 'block', filter: 'brightness(0) invert(1)' }} />
               <span className="footer__logo-name">811. Szent József Cserkészcsapat</span>
             </Link>
             <p className="footer__tagline">

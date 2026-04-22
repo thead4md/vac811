@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import logoUrl from '/logo.svg?url';
 import './Navbar.css';
 
 const navItems = [
@@ -71,7 +72,7 @@ export default function Navbar() {
       <div className="navbar__inner container">
         {/* Logo */}
         <Link to="/" className="navbar__logo" aria-label="811. cserkészcsapat – Főoldal">
-          <img src="/logo.svg" alt="" width="40" height="40" style={{ objectFit: 'contain', flexShrink: 0, display: 'block' }} />
+          <img src={logoUrl} alt="" width="40" height="40" style={{ objectFit: 'contain', flexShrink: 0, display: 'block' }} />
           <span className="navbar__logo-text">
             <strong>811.</strong> Cserkészcsapat
           </span>
