@@ -71,14 +71,7 @@ export default function Navbar() {
       <div className="navbar__inner container">
         {/* Logo */}
         <Link to="/" className="navbar__logo" aria-label="811. cserkészcsapat – Főoldal">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-            <circle cx="20" cy="20" r="19" stroke="currentColor" strokeWidth="2"/>
-            <path d="M20 6 L24 16 L35 16 L26 23 L29 34 L20 27 L11 34 L14 23 L5 16 L16 16 Z"
-              fill="currentColor" opacity="0.15"/>
-            <path d="M20 8 L23.5 17 L33 17 L25.5 22.5 L28 32 L20 26.5 L12 32 L14.5 22.5 L7 17 L16.5 17 Z"
-              stroke="currentColor" strokeWidth="1.5" fill="none"/>
-            <circle cx="20" cy="20" r="3" fill="currentColor"/>
-          </svg>
+          <img src="/logo.svg" alt="811. Szent József Cserkészcsapat logó" width="40" height="40" style={{ objectFit: 'contain' }} />
           <span className="navbar__logo-text">
             <strong>811.</strong> Cserkészcsapat
           </span>
