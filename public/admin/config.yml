@@ -2,7 +2,7 @@ backend:
   name: github
   repo: thead4md/vac811
   branch: main
-  base_url: sveltia-cms-auth.dudas-adam99.workers.dev
+  base_url: https://sveltia-cms-auth.dudas-adam99.workers.dev
 
 
 # Where Decap CMS stores uploaded images
