@@ -72,7 +72,7 @@ export default function Navbar() {
       <div className="navbar__inner container">
         {/* Logo */}
         <Link to="/" className="navbar__logo" aria-label="811. cserkészcsapat – Főoldal">
-          <img src={logoUrl} alt="" width="40" height="40" style={{ objectFit: 'contain', flexShrink: 0, display: 'block' }} />
+          <img src={logoUrl} alt="" width="44" height="44" style={{ objectFit: 'contain', flexShrink: 0, display: 'block' }} />
           <span className="navbar__logo-text">
             <strong>811.</strong> Cserkészcsapat
           </span>
