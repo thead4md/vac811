@@ -10,7 +10,7 @@ media_folder: public/images/uploads
 public_folder: /images/uploads
 
 # Use local backend for dev: run `npx decap-server` then add ?backend=file-system to /admin URL
-local_backend: true
+# local_backend: true
 
 collections:
 
