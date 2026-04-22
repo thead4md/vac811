@@ -58,7 +58,7 @@ const highlights = [
     description: 'Csomózás, tájékozódás, elsősegély, főzés – igazi, hasznos tudás életre szólóan.',
   },
   {
-    icon: '🌟',
+    icon: '⚜️',
     title: 'Egyéni növekedés',
     description: 'Fogadalom, próbák, szalagok és fokozatok – a cserkész életút személyes mérföldkövei.',
   },

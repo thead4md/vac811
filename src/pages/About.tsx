@@ -8,7 +8,7 @@ const values = [
   { icon: '🌲', title: 'Természet', desc: 'Az erdő és a szabadban töltött idő a cserkészélet meghatározó eleme – mozgás, kaland, felfedezés.' },
   { icon: '🧭', title: 'Jellem', desc: 'A cserkész törvény és fogadalom szerint élni – felelősség, becsület, szorgalom és segítőkészség.' },
   { icon: '🇭🇺', title: 'Magyar gyökerek', desc: 'A magyar kulturális hagyományok ápolása és a helyi, váci közösség iránti elkötelezettség.' },
-  { icon: '🌟', title: 'Egyéni növekedés', desc: 'Próbák, fokozatok és szalagok – a személyes fejlődés közösségi keretben, egész életen át.' },
+  { icon: '⚜️', title: 'Egyéni növekedés', desc: 'Próbák, fokozatok és szalagok – a személyes fejlődés közösségi keretben, egész életen át.' },
 ];
 
 export default function About() {
