@@ -96,6 +96,7 @@
   /* ── Fonts ── */
   --font-display: 'Playfair Display', 'Georgia', serif;
   --font-body:    'Nunito', 'Helvetica Neue', sans-serif;
+  --font-ui:      'Sora', 'Helvetica Neue', sans-serif;
 }
 
 /* ── DARK MODE ── */

@@ -97,10 +97,12 @@
   gap: 2px;
 }
 .hero__stat strong {
-  font-family: var(--font-display);
+  font-family: var(--font-ui);
   font-size: var(--text-xl);
+  font-weight: 700;
   color: var(--color-primary);
   line-height: 1;
+  letter-spacing: -0.02em;
 }
 .hero__stat span {
   font-size: var(--text-xs);
