@@ -452,3 +452,77 @@
   opacity: 1;
   transform: translateY(0);
 }
+
+/* ── Korosztály cards ── */
+.korosztaly-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-8);
+}
+.korosztaly-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.korosztaly-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+.korosztaly-card__header { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-4); }
+.korosztaly-card__neckerchief { width: 2.5rem; height: 2.5rem; border-radius: var(--radius-full); flex-shrink: 0; }
+.korosztaly-card__name { font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; color: var(--color-text); }
+.korosztaly-card__age { font-size: var(--text-sm); font-weight: 700; color: var(--color-primary); }
+.korosztaly-card__necktext { font-size: var(--text-xs); color: var(--color-text-muted); }
+.korosztaly-card__desc { font-size: var(--text-sm); line-height: 1.6; color: var(--color-text-muted); }
+.korosztaly-card__probak { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
+.korosztaly-card__probak span {
+  font-size: var(--text-xs); font-weight: 600; color: var(--color-primary);
+  background: var(--color-primary-light); padding: 0.2em 0.6em; border-radius: var(--radius-full);
+}
+
+/* ── Fogadalom blockquote ── */
+.fogadalom-quote {
+  border-left: 4px solid var(--color-primary);
+  background: var(--color-surface-offset);
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  margin: var(--space-4) 0;
+}
+.fogadalom-quote p { font-size: var(--text-lg); line-height: 1.7; color: var(--color-text); font-style: italic; }
+.fogadalom-quote cite { display: block; margin-top: var(--space-3); font-size: var(--text-sm); color: var(--color-text-muted); font-style: normal; }
+
+/* ── Szervezeti felépítés ── */
+.scout-structure { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-top: var(--space-6); }
+.scout-structure__unit {
+  display: flex; flex-direction: column; gap: 2px; text-align: center;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl); padding: var(--space-3) var(--space-4);
+}
+.scout-structure__unit strong { font-family: var(--font-display); color: var(--color-text); }
+.scout-structure__unit span { font-size: var(--text-xs); color: var(--color-text-muted); }
+.scout-structure__arrow { color: var(--color-primary); font-weight: 700; }
+
+/* ── Cserkésztörvény list ── */
+.scout-law { list-style: none; display: grid; gap: var(--space-3); margin-top: var(--space-6); padding: 0; }
+.scout-law li { display: flex; align-items: flex-start; gap: var(--space-4); }
+.scout-law__num {
+  flex-shrink: 0; width: 2rem; height: 2rem; display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 700; color: #fff;
+  background: var(--color-primary); border-radius: var(--radius-full);
+}
+.scout-law__text { line-height: 1.6; color: var(--color-text-muted); padding-top: 0.25rem; }
+
+/* ── Köszöntés + jelszó banner ── */
+.jelszó-banner {
+  max-width: 56rem; margin: var(--space-12) auto; padding: var(--space-8) var(--space-6);
+  text-align: center; background: var(--color-primary); color: #fff; border-radius: var(--radius-xl);
+}
+.jelszó-banner__label { text-transform: uppercase; letter-spacing: 0.08em; font-size: var(--text-xs); font-weight: 700; opacity: 0.8; margin-bottom: var(--space-3); }
+.jelszó-banner__text { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 700; line-height: 1.2; }
+.jelszó-banner--greeting .jelszó-banner__text { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-3); }
+.jelszó-banner__dash { opacity: 0.6; font-weight: 400; }
+.jelszó-banner__response { color: var(--color-accent, #f4c430); }
+.jelszó-banner__sub { margin: var(--space-4) auto 0; max-width: 42rem; font-size: var(--text-sm); line-height: 1.6; opacity: 0.9; }
