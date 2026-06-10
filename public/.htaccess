@@ -1,0 +1,22 @@
+# SPA rewrite for BrowserRouter — deployed under vac811.hu/beta
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /beta/
+
+  # Don't rewrite real files or directories (assets, content JSON, admin, images)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Everything else → index.html so deep links like /beta/naptar resolve
+  RewriteRule . /beta/index.html [L]
+</IfModule>
+
+# Long-cache hashed assets
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 month"
+  ExpiresByType image/webp "access plus 1 month"
+</IfModule>

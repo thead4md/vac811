@@ -1,0 +1,27 @@
+.neckerchief {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.neckerchief__svg {
+  height: 10px;
+  width: 100%;
+  max-width: 240px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.neckerchief--section {
+  margin-block: var(--space-4) var(--space-8);
+  justify-content: flex-start;
+}
+.neckerchief--section .neckerchief__svg {
+  max-width: 180px;
+}
+.neckerchief--footer {
+  margin-block: var(--space-8);
+}
+.neckerchief--footer .neckerchief__svg {
+  height: 8px;
+  max-width: 320px;
+  opacity: 0.9;
+}

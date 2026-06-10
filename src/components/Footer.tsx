@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import logoUrl from '/logo.svg?url';
+import NeckerchiefDivider from './NeckerchiefDivider';
 import './Footer.css';
 
 export default function Footer() {
@@ -55,7 +56,7 @@ export default function Footer() {
                 ['/tortenet', 'Történet'],
                 ['/vezetok', 'Vezetők'],
                 ['/taborok', 'Táborok'],
-                ['/hirek', 'Hírek & Események'],
+                ['/naptar', 'Naptár'],
                 ['/galeria', 'Galéria'],
               ].map(([path, label]) => (
                 <li key={path}>
@@ -97,6 +98,8 @@ export default function Footer() {
             </Link>
           </div>
         </div>
+
+        <NeckerchiefDivider variant="footer" />
 
         <div className="footer__bottom">
           <p>© {year} 811. Szent József Cserkészcsapat, Vác. Magyar Cserkészszövetség tagcsapata.</p>

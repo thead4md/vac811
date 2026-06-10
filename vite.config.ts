@@ -1,13 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+// Deployed under vac811.hu/beta, so production assets are served from /beta/.
+// BrowserRouter (see src/App.tsx) uses basename="/beta" to match these paths.
 export default defineConfig(({ command }) => ({
   plugins: [react()],
-  // Use './' for production build (S3 static hosting needs relative paths)
-  // Use '/' for dev server so /admin/index.html and /content/*.json resolve correctly
-  base: command === 'serve' ? '/' : './',
+  base: command === 'serve' ? '/' : '/beta/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
+    cssCodeSplit: true,
   },
 }))

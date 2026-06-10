@@ -1,0 +1,18 @@
+.scouting-intro p {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-base);
+  line-height: 1.75;
+  color: var(--color-text-secondary);
+}
+.scouting-intro strong {
+  color: var(--color-text);
+}
+.scouting-structure-note {
+  margin-top: var(--space-8);
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
+.scouting-structure-note strong {
+  color: var(--color-primary);
+}

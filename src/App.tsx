@@ -1,18 +1,23 @@
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import BackgroundField from './components/BackgroundField';
 import Home from './pages/Home';
 import About from './pages/About';
 import History from './pages/History';
 import Leaders from './pages/Leaders';
 import Rajok from './pages/Rajok';
 import Camps from './pages/Camps';
-import News from './pages/News';
+import Naptar from './pages/Naptar';
 import Gallery from './pages/Gallery';
 import Join from './pages/Join';
 import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
+import Scouting from './pages/Scouting';
+
+// Derive router basename from Vite base ('/' in dev, '/beta/' in prod build).
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // Scroll to top on route change
 function ScrollReset() {
@@ -31,7 +36,7 @@ const pageTitles: Record<string, string> = {
   '/vezetok': 'Vezetők – 811. Cserkészcsapat',
   '/rajok': 'Rajok – 811. Cserkészcsapat',
   '/taborok': 'Táborok – 811. Cserkészcsapat',
-  '/hirek': 'Hírek & Események – 811. Cserkészcsapat',
+  '/naptar': 'Naptár – 811. Cserkészcsapat',
   '/galeria': 'Galéria – 811. Cserkészcsapat',
   '/csatlakozas': 'Csatlakozz! – 811. Cserkészcsapat',
   '/kapcsolat': 'Kapcsolat – 811. Cserkészcsapat',
@@ -48,6 +53,7 @@ function TitleSetter() {
 function AppLayout() {
   return (
     <>
+      <BackgroundField />
       <a href="#main-content" className="skip-link">Ugrás a tartalomra</a>
       <Navbar />
       <div id="main-content">
@@ -60,10 +66,13 @@ function AppLayout() {
           <Route path="/vezetok" element={<Leaders />} />
           <Route path="/rajok" element={<Rajok />} />
           <Route path="/taborok" element={<Camps />} />
-          <Route path="/hirek" element={<News />} />
+          <Route path="/naptar" element={<Naptar />} />
+          {/* Faithful slug kept; the beta's /hirek redirects here */}
+          <Route path="/hirek" element={<Navigate to="/naptar" replace />} />
           <Route path="/galeria" element={<Gallery />} />
           <Route path="/csatlakozas" element={<Join />} />
           <Route path="/kapcsolat" element={<Contact />} />
+          <Route path="/cserkeszet" element={<Scouting />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
@@ -74,8 +83,8 @@ function AppLayout() {
 
 export default function App() {
   return (
-    <HashRouter>
+    <BrowserRouter basename={basename}>
       <AppLayout />
-    </HashRouter>
+    </BrowserRouter>
   );
 }

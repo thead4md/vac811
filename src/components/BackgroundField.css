@@ -1,0 +1,26 @@
+.bg-field {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  /* Low-contrast topographic tint, separate per theme via color-mix on text */
+  color: color-mix(in oklab, var(--color-primary) 9%, transparent);
+}
+[data-theme='dark'] .bg-field {
+  color: color-mix(in oklab, var(--color-primary) 14%, transparent);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .bg-field {
+    color: color-mix(in oklab, var(--color-primary) 14%, transparent);
+  }
+}
+.bg-field__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* No motion — purely a static decorative layer. */
+}

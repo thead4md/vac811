@@ -1,13 +1,57 @@
+import { Link } from 'react-router-dom';
 import './Join.css';
+
+const korosztályok = [
+  {
+    name: 'Kiscserkész',
+    age: '6–10 év',
+    neckColor: '#3b82f6',
+    neckLabel: 'Kék nyakkendő',
+    desc: 'Játékos formában, természetközelben tanulnak önállóságot és közösségi életet. Három pajzs próbát teljesítenek (piros, fehér, zöld).',
+    icon: '🌱',
+  },
+  {
+    name: 'Cserkész',
+    age: '10–15 év',
+    neckColor: '#2d6a4f',
+    neckLabel: 'Zöld nyakkendő',
+    desc: 'Az újoncév végén leteszi a cserkész fogadalmat — egy életre szóló elköteleződés. Táborozás 14 napig, portya, tájékozódás, elsősegély.',
+    icon: '🌿',
+  },
+  {
+    name: 'Kósza',
+    age: '15–18 év',
+    neckColor: '#2d6a4f',
+    neckLabel: 'Zöld nyakkendő',
+    desc: 'Önállóbb programok, különpróbák, örsvezetői képzés. A kószák már aktívan segítenek a fiatalabb korosztályok nevelésében is.',
+    icon: '🌲',
+  },
+  {
+    name: 'Vándor',
+    age: '19–23 év',
+    neckColor: '#6b7280',
+    neckLabel: 'Szürke nyakkendő',
+    desc: 'Fiatal felnőtt cserkészek, akik önálló programokat szerveznek és a közösség motorjai. Vándorpróba és vezető képzések jellemzik.',
+    icon: '🧭',
+  },
+  {
+    name: 'Felnőtt vezető',
+    age: '18+ év',
+    neckColor: '#2d6a4f',
+    neckLabel: 'Zöld (sárga csíkkal)',
+    desc: 'Képesített segédtisztek és tisztek, akik a csapat szakmai munkáját irányítják. Önkéntesként is csatlakozhatsz — mindig szükség van lelkes felnőttekre!',
+    icon: '🏕️',
+  },
+];
 
 const faq = [
   {
     q: 'Hány éves kortól lehet csatlakozni?',
-    a: 'A kiscserkész program 7 éves kortól indul. Felnőtteknek is van lehetőség csatlakozni önkéntesként vagy aktív cserkészként.',
+    a: 'A kiscserkész program 6 éves kortól indul. Felnőtteknek is van lehetőség csatlakozni önkéntesként vagy aktív cserkészként.',
   },
   {
     q: 'Kell-e előzetes tapasztalat a cserkészethez?',
-    a: 'Nem! Mindenkit befogadunk, legyen az első lépés a cserkész életben. A rajvezető és a tapasztaltabb cserkészek segítenek az indulásban.',
+    a: 'Nem! Mindenkit befogadunk, legyen ez az első lépés a cserkész életben. A rajvezető és a tapasztaltabb cserkészek segítenek az indulásban.',
   },
   {
     q: 'Mikor és hol találkozik a csapat?',
@@ -19,19 +63,19 @@ const faq = [
   },
   {
     q: 'Mit kell hozni az első alkalomra?',
-    a: 'Az első alkalomra nincs szükség felszerelésre. Kényelmes, sportruházat ajánlott. A cserkész egyenruhára akkor lesz szükség, amikor a gyermek tagként csatlakozik.',
+    a: 'Az első alkalomra nincs szükség felszerelésre — kényelmes sportruházat ajánlott. A cserkész egyenruhára (ing, nyakkendő) akkor lesz szükség, amikor a gyermek tagként csatlakozik.',
   },
   {
     q: 'Hogyan értesülök a programokról?',
-    a: 'A csapat Facebook- és Instagram-oldalain, valamint a csapatparancsnokkal való kommunikáción keresztül. A belépés után a rajvezető tart majd kapcsolatot.',
+    a: 'A csapat Facebook- és Instagram-oldalain, illetve a rajvezetőn keresztül. Belépés után a rajvezető tartja a kapcsolatot a szülőkkel és a cserkészekkel.',
   },
   {
     q: 'Mit jelent a cserkész fogadalom?',
-    a: 'A cserkész fogadalom a cserkész törvény melletti elköteleződés. Ez nem az első nap, hanem egy fejlődési út eredménye — akkor teszi le a cserkész, amikor felkészült rá.',
+    a: 'A cserkész fogadalom egyszer hangzik el és egész életre szól. Az újoncév végén, ünnepélyes keretek között teszi le a cserkész — ha felkészült rá. Ettől a pillanattól viseli a zöld nyakkendőt.',
   },
   {
     q: 'Biztosított-e a felügyelet a programokon?',
-    a: 'Igen, minden programon felnőtt vezető felügyel. A táborokon és portyákon minden raj élén tapasztalt felnőtt vezető áll.',
+    a: 'Igen, minden programon felnőtt vezető felügyel. A táborokon és portyákon minden raj élén tapasztalt, képesített felnőtt vezető áll.',
   },
 ];
 
@@ -47,52 +91,77 @@ export default function Join() {
           </h1>
           <p className="page-hero__subtitle">
             Legyen szó gyermekedről vagy önmagadról — szívesen fogadunk mindenkit,
-            aki nyitott a cserkészéletre.
+            aki nyitott a cserkészéletre. A jelszó: <strong>Légy résen!</strong>
           </p>
         </div>
       </section>
 
-      {/* Who can join */}
-      <section className="section" aria-labelledby="who-join-heading">
+      {/* Korosztályok */}
+      <section className="section" aria-labelledby="korosztaly-heading">
         <div className="container">
-          <div className="join-who-grid">
-            <div>
-              <span className="section-label">Kinek szól?</span>
-              <h2 id="who-join-heading" className="section-title">Mindenkinek van helye</h2>
-              <div className="prose">
-                <p>
-                  A 811. cserkészcsapat nyitott minden Vácott vagy a közelben élő
-                  gyermek, fiatal és felnőtt számára, aki elkötelezett a cserkész értékek iránt.
-                </p>
-                <p>
-                  Nem szükséges előzetes tapasztalat — a cserkészet tanulható és érdemes
-                  elkezdeni! Minden korosztálynak megfelelő programot, rajt és közösséget kínálunk.
-                </p>
-              </div>
-            </div>
-            <div className="join-agegroups">
-              {[
-                { emoji: '🌱', name: 'Kiscserkész', age: '7–10 év', desc: 'Játékos bevezetés a cserkész életbe.' },
-                { emoji: '🌿', name: 'Cserkész', age: '11–14 év', desc: 'Portya, tábor, cserkésztudás.' },
-                { emoji: '🌲', name: 'Öregcserkész', age: '15–18 év', desc: 'Önálló projektek, közösségi munka.' },
-                { emoji: '🏕️', name: 'Felnőtt', age: '18+ év', desc: 'Önkéntes vezető, mentor, aktív cserkész.' },
-              ].map(g => (
-                <div key={g.name} className="join-age-card">
-                  <span className="join-age-card__emoji" aria-hidden="true">{g.emoji}</span>
+          <span className="section-label">Kinek szól?</span>
+          <h2 id="korosztaly-heading" className="section-title">Melyik korosztályba tartozol?</h2>
+          <p className="section-subtitle" style={{ marginBottom: 'var(--space-10)' }}>
+            A cserkészetben 6 éves kortól felnőttkorig mindenki megtalálja a helyét.
+            Minden korosztálynak saját program, próbák és nyakkendőszín jár.
+          </p>
+          <div className="korosztaly-grid">
+            {korosztályok.map(k => (
+              <article key={k.name} className="korosztaly-card">
+                <div className="korosztaly-card__header">
+                  <div
+                    className="korosztaly-card__neckerchief"
+                    style={{ background: k.neckColor }}
+                    aria-label={k.neckLabel}
+                    title={k.neckLabel}
+                  />
                   <div>
-                    <strong>{g.name}</strong>
-                    <span className="join-age-card__age">{g.age}</span>
-                    <p>{g.desc}</p>
+                    <h3 className="korosztaly-card__name">{k.name}</h3>
+                    <p className="korosztaly-card__age">{k.age}</p>
+                    <p className="korosztaly-card__necktext">{k.neckLabel}</p>
                   </div>
                 </div>
-              ))}
-            </div>
+                <p className="korosztaly-card__desc">{k.desc}</p>
+              </article>
+            ))}
           </div>
+          <p style={{ textAlign: 'center', marginTop: 'var(--space-6)', color: 'var(--color-text-muted)', fontSize: 'var(--text-sm)' }}>
+            A korosztályokról részletesebben:{' '}
+            <Link to="/cserkeszet" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>
+              A cserkészetről →
+            </Link>
+          </p>
+        </div>
+      </section>
+
+      {/* Cserkésztörvény teaser */}
+      <section className="section section--sm" style={{ background: 'var(--color-surface-offset)' }} aria-labelledby="torveny-teaser-heading">
+        <div className="container container--default">
+          <span className="section-label">Mire kötelezi magát?</span>
+          <h2 id="torveny-teaser-heading" className="section-title">A fogadalom és a törvény</h2>
+          <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-6)' }}>
+            Minden cserkész — az újoncév sikeres lezárása után — leteszi a cserkész fogadalmat.
+            Ez nem kötelezettség az első naptól, hanem egy fejlődési út természetes állomása.
+          </p>
+          <blockquote className="fogadalom-quote">
+            <p>
+              „Én, [név], fogadom, hogy híven teljesítem kötelességeimet, amelyekkel
+              Istennek, hazámnak és embertársaimnak tartozom. Minden lehetőt megteszek,
+              hogy másokon segítsek. Ismerem a cserkésztörvényt és azt mindenkor megtartom."
+            </p>
+            <cite>— Cserkész fogadalom</cite>
+          </blockquote>
+          <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--space-4)', fontSize: 'var(--text-sm)' }}>
+            A fogadalom a tíz cserkésztörvényre utal — amelyeket{' '}
+            <Link to="/cserkeszet" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>
+              itt olvashatsz el részletesen.
+            </Link>
+          </p>
         </div>
       </section>
 
       {/* How to join */}
-      <section className="section" style={{ background: 'var(--color-surface-offset)' }} aria-labelledby="how-join-heading">
+      <section className="section" aria-labelledby="how-join-heading">
         <div className="container container--default">
           <span className="section-label">Hogyan?</span>
           <h2 id="how-join-heading" className="section-title">A csatlakozás lépései</h2>
@@ -111,12 +180,12 @@ export default function Join() {
               {
                 num: '3',
                 title: 'Regisztráció és csatlakozás',
-                desc: 'Ha csatlakoznál, kitöltünk egy regisztrációs lapot (gyermek esetén szülővel együtt), és befizetjük az éves tagsági díjat. Ettől kezdve teljes jogú cserkész vagy!',
+                desc: 'Ha csatlakoznál, kitöltjük a regisztrációs lapot (gyermek esetén szülővel együtt) és befizetjük az éves tagsági díjat. Ettől kezdve teljes jogú cserkész vagy!',
               },
               {
                 num: '4',
                 title: 'Beilleszkedés a rajba',
-                desc: 'A rajvezető személyesen fogad, és segít beilleszkedni. Az első időszakban megismered a cserkész törvényt, a fogadalmat és a cserkész tudnivalókat.',
+                desc: 'A rajvezető személyesen fogad és segít beilleszkedni. Az újoncév során megismered a cserkésztörvényt, a fogadalmat és az alapvető cserkésztudást.',
               },
             ].map(step => (
               <div key={step.num} className="join-step">
@@ -144,10 +213,6 @@ export default function Join() {
             </div>
             <div className="join-contact-box__actions">
               <a href="mailto:kucsera.boglarka@vac811.hu" className="btn btn--primary btn--lg">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                  <polyline points="22,6 12,13 2,6"/>
-                </svg>
                 kucsera.boglarka@vac811.hu
               </a>
               <a href="mailto:811@cserkesz.hu" className="btn btn--outline btn--lg">

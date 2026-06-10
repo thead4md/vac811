@@ -10,12 +10,13 @@ const navItems = [
     path: '/rolunk',
     children: [
       { label: 'Történet', path: '/tortenet' },
+      { label: 'A cserkészetről', path: '/cserkeszet' },
       { label: 'Vezetők', path: '/vezetok' },
       { label: 'Rajok', path: '/rajok' },
+      { label: 'Táborok', path: '/taborok' },
     ],
   },
-  { label: 'Táborok', path: '/taborok' },
-  { label: 'Hírek', path: '/hirek' },
+  { label: 'Naptár', path: '/naptar' },
   { label: 'Galéria', path: '/galeria' },
   { label: 'Kapcsolat', path: '/kapcsolat' },
 ];

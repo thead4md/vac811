@@ -8,26 +8,30 @@ const ageGroups = [
   {
     icon: '🌱',
     name: 'Kiscserkész',
-    age: '7–10 év',
-    description: 'Az első lépések a cserkész életben. Játékos feladatok, közösség, természet.',
+    age: '6–10 év',
+    neckColor: '#3b82f6',
+    description: 'Játékos formában, természetközelben tanulnak önállóságot. Piros, fehér és zöld pajzs próbákkal bizonyítják tudásukat.',
   },
   {
     icon: '🌿',
     name: 'Cserkész',
-    age: '11–14 év',
-    description: 'Portya, táborozás, készségfejlesztés, barátság és felelősségvállalás.',
+    age: '10–15 év',
+    neckColor: '#2d6a4f',
+    description: 'Az újoncév végén leteszi a fogadalmat — egy életre. Táborozás, portya, tájékozódás és valódi cserkésztudás.',
   },
   {
     icon: '🌲',
-    name: 'Öregcserkész',
+    name: 'Kósza',
     age: '15–18 év',
-    description: 'Önálló projektek, közösségi szolgálat, komoly cserkész életmód.',
+    neckColor: '#2d6a4f',
+    description: 'Önállóbb programok, különpróbák és örsvezetői képzés. A kószák aktívan segítenek a fiatalabb rajok életében.',
   },
   {
     icon: '🏕️',
-    name: 'Felnőtt',
+    name: 'Vándor & Vezető',
     age: '18+ év',
-    description: 'Vezetők, mentorok – tapasztalatod átadásával a közösség gerince lehetsz.',
+    neckColor: '#6b7280',
+    description: 'Fiatal felnőttek és képesített vezetők — segédtisztek, tisztek — akik a csapat gerincét alkotják.',
   },
 ];
 
@@ -108,8 +112,8 @@ export default function Home() {
             <span className="hero__title-accent">Cserkészcsapat</span>
           </h1>
           <p className="hero__subtitle animate-fade-in animate-delay-2">
-            1929 óta neveljük Vác ifjúságát kalandok, közösség és keresztény értékek mentén.
-            232 aktív cserkész, 11 raj, egy összekovácsolt közösség.
+            „Emberebb embert és magyarabb magyart nevelni" — ez a cserkészet célja 1929 óta.
+            232 aktív cserkész, 11 raj, 26 őrs. Jelszavunk: Légy résen!
           </p>
           <div className="hero__ctas animate-fade-in animate-delay-3">
             <Link to="/csatlakozas" className="btn btn--primary btn--lg">

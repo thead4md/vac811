@@ -93,10 +93,12 @@
   --content-wide:    1200px;
   --content-full:    100%;
 
-  /* ── Fonts ── */
-  --font-display: 'Playfair Display', 'Georgia', serif;
-  --font-body:    'Nunito', 'Helvetica Neue', sans-serif;
-  --font-ui:      'Sora', 'Helvetica Neue', sans-serif;
+  /* ── Fonts ──
+     Sora: geometric/architectural display, used only for headings/hero (≥ --text-xl).
+     General Sans: warm, high-x-height body (Work Sans fallback). */
+  --font-display: 'Sora', 'Work Sans', 'Helvetica Neue', sans-serif;
+  --font-body:    'General Sans', 'Work Sans', 'Helvetica Neue', sans-serif;
+  --font-ui:      'Sora', 'Work Sans', 'Helvetica Neue', sans-serif;
 }
 
 /* ── DARK MODE ── */
