@@ -268,6 +268,179 @@
 .animate-delay-3 { animation-delay: 0.3s; opacity: 0; }
 .animate-delay-4 { animation-delay: 0.4s; opacity: 0; }
 
+/* ============================================
+   SHARED SCOUTING CONTENT
+   Used across /cserkeszet (Scouting), /csatlakozas (Join)
+   and /rolunk (About). Kept here (globally imported via
+   main.tsx) so every page renders them consistently.
+   ============================================ */
+
+/* ── Jelszó banner (scout motto) ── */
+.jelszó-banner {
+  background: var(--color-surface-dark);
+  color: var(--color-text-inverse);
+  text-align: center;
+  padding: clamp(var(--space-8), 6vw, var(--space-16)) var(--space-4);
+}
+.jelszó-banner__label {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  margin-bottom: var(--space-3);
+}
+.jelszó-banner__text {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  line-height: 1.1;
+}
+.jelszó-banner__sub {
+  font-size: var(--text-base);
+  color: var(--color-text-faint);
+  margin-top: var(--space-3);
+}
+
+/* ── Korosztály (age-group) cards ── */
+.korosztaly-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6);
+}
+.korosztaly-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  transition: box-shadow var(--transition-interactive), transform var(--transition-interactive);
+}
+.korosztaly-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.korosztaly-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+.korosztaly-card__neckerchief {
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+.korosztaly-card__name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.15;
+}
+.korosztaly-card__age {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-top: var(--space-1);
+}
+.korosztaly-card__necktext {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+.korosztaly-card__desc {
+  font-size: var(--text-base);
+  line-height: 1.65;
+  color: var(--color-text-muted);
+}
+.korosztaly-card__probak {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: auto;
+}
+.korosztaly-card__probak span {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2em 0.7em;
+  border-radius: var(--radius-full);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+/* ── Fogadalom (scout promise) blockquote ── */
+.fogadalom-quote {
+  margin: 0;
+  padding: var(--space-6) var(--space-8);
+  background: var(--color-surface);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+.fogadalom-quote p {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+.fogadalom-quote cite {
+  display: block;
+  margin-top: var(--space-4);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-style: normal;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* ── Cserkésztörvény (scout law) list ── */
+.scout-law {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-4);
+  padding: 0;
+}
+.scout-law li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+.scout-law__num {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+.scout-law__text {
+  font-size: var(--text-base);
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
 /* ── Intersection Observer reveal ── */
 .reveal {
   opacity: 0;

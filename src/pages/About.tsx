@@ -123,7 +123,7 @@ export default function About() {
         <div className="container container--default">
           <span className="section-label">Cserkésztörvény</span>
           <h2 id="law-heading" className="section-title">A tíz cserkésztörvény</h2>
-          <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-8)' }}>
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-8)' }}>
             A cserkész nem csupán kívülről tanulja meg a törvényeket — megéli őket.
             Ez az a 10 pont, amely egy cserkész mindennapjait irányítja.
           </p>

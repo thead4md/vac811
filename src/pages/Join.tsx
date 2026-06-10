@@ -139,7 +139,7 @@ export default function Join() {
         <div className="container container--default">
           <span className="section-label">Mire kötelezi magát?</span>
           <h2 id="torveny-teaser-heading" className="section-title">A fogadalom és a törvény</h2>
-          <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-6)' }}>
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-6)' }}>
             Minden cserkész — az újoncév sikeres lezárása után — leteszi a cserkész fogadalmat.
             Ez nem kötelezettség az első naptól, hanem egy fejlődési út természetes állomása.
           </p>
@@ -151,7 +151,7 @@ export default function Join() {
             </p>
             <cite>— Cserkész fogadalom</cite>
           </blockquote>
-          <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--space-4)', fontSize: 'var(--text-sm)' }}>
+          <p style={{ color: 'var(--color-text-muted)', marginTop: 'var(--space-4)', fontSize: 'var(--text-sm)' }}>
             A fogadalom a tíz cserkésztörvényre utal — amelyeket{' '}
             <Link to="/cserkeszet" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>
               itt olvashatsz el részletesen.

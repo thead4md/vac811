@@ -2,7 +2,7 @@
   margin-bottom: var(--space-4);
   font-size: var(--text-base);
   line-height: 1.75;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
 }
 .scouting-intro strong {
   color: var(--color-text);
@@ -10,9 +10,54 @@
 .scouting-structure-note {
   margin-top: var(--space-8);
   text-align: center;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   font-size: var(--text-sm);
 }
 .scouting-structure-note strong {
   color: var(--color-primary);
+}
+
+/* ── Szervezeti felépítés (org structure) ── */
+.scout-structure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--space-3);
+}
+.scout-structure__unit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1 1 140px;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+.scout-structure__unit strong {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text);
+}
+.scout-structure__unit span {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+.scout-structure__arrow {
+  display: flex;
+  align-items: center;
+  color: var(--color-primary);
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+@media (max-width: 640px) {
+  .scout-structure {
+    flex-direction: column;
+  }
+  .scout-structure__arrow {
+    justify-content: center;
+    transform: rotate(90deg);
+  }
 }
