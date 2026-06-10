@@ -24,28 +24,25 @@ const navItems = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'light' || stored === 'dark') return stored;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const location = useLocation();
   const navRef = useRef<HTMLElement>(null);
 
+  // Sync the chosen theme to the DOM (runs on mount and whenever it changes).
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const initial = mq.matches ? 'dark' : 'light';
-    setTheme(initial);
-    document.documentElement.setAttribute('data-theme', initial);
-  }, []);
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  useEffect(() => {
-    setMenuOpen(false);
-    setOpenDropdown(null);
-  }, [location]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -60,7 +57,13 @@ export default function Navbar() {
   const toggleTheme = () => {
     const next = theme === 'light' ? 'dark' : 'light';
     setTheme(next);
-    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+  };
+
+  // Close the mobile menu / open dropdown after navigating.
+  const closeMenus = () => {
+    setMenuOpen(false);
+    setOpenDropdown(null);
   };
 
   const isActive = (path: string) => {
@@ -72,7 +75,7 @@ export default function Navbar() {
     <header className={`navbar${scrolled ? ' navbar--scrolled' : ''}`} ref={navRef}>
       <div className="navbar__inner container">
         {/* Logo */}
-        <Link to="/" className="navbar__logo" aria-label="811. cserkészcsapat – Főoldal">
+        <Link to="/" className="navbar__logo" aria-label="811. cserkészcsapat – Főoldal" onClick={closeMenus}>
           <img src={logoUrl} alt="" width="44" height="44" style={{ objectFit: 'contain', flexShrink: 0, display: 'block' }} />
           <span className="navbar__logo-text">
             <strong>811.</strong> Cserkészcsapat
@@ -105,6 +108,7 @@ export default function Navbar() {
                             <Link
                               to={child.path}
                               className={`navbar__dropdown-link${isActive(child.path) ? ' active' : ''}`}
+                              onClick={closeMenus}
                             >
                               {child.label}
                             </Link>
@@ -117,6 +121,7 @@ export default function Navbar() {
                   <Link
                     to={item.path}
                     className={`navbar__link${isActive(item.path) ? ' active' : ''}`}
+                    onClick={closeMenus}
                   >
                     {item.label}
                   </Link>
@@ -145,7 +150,7 @@ export default function Navbar() {
             )}
           </button>
 
-          <Link to="/csatlakozas" className="btn btn--primary navbar__cta">
+          <Link to="/csatlakozas" className="btn btn--primary navbar__cta" onClick={closeMenus}>
             Csatlakozz!
           </Link>
 
@@ -167,14 +172,14 @@ export default function Navbar() {
           <ul role="list">
             {navItems.map((item) => (
               <li key={item.path}>
-                <Link to={item.path} className={`navbar__mobile-link${isActive(item.path) ? ' active' : ''}`}>
+                <Link to={item.path} className={`navbar__mobile-link${isActive(item.path) ? ' active' : ''}`} onClick={closeMenus}>
                   {item.label}
                 </Link>
                 {item.children && (
                   <ul className="navbar__mobile-sub" role="list">
                     {item.children.map((child) => (
                       <li key={child.path}>
-                        <Link to={child.path} className="navbar__mobile-sublink">
+                        <Link to={child.path} className="navbar__mobile-sublink" onClick={closeMenus}>
                           — {child.label}
                         </Link>
                       </li>
