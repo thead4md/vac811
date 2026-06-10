@@ -194,7 +194,7 @@ export default function Scouting() {
         <div className="container container--default">
           <span className="section-label">Fogadalom</span>
           <h2 id="fogadalom-heading" className="section-title">Egy életre szóló ígéret</h2>
-          <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-6)' }}>
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-6)' }}>
             A cserkész fogadalom egyszer hangzik el — és egész életre szól. Az újoncév végén,
             ha a jelölt bizonyította rátermettségét, ünnepélyes keretek között teszi le.
             Ettől a pillanattól viseli a zöld nyakkendőt.
@@ -211,7 +211,7 @@ export default function Scouting() {
           <h3 style={{ fontFamily: 'Playfair Display, serif', marginTop: 'var(--space-10)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-xl)' }}>
             Kiscserkész ígéret
           </h3>
-          <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-4)' }}>
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-4)' }}>
             A kiscserkészek még nem fogadalmat tesznek, hanem ígéretet — a saját koruknak megfelelő, egyszerűbb szavakkal:
           </p>
           <blockquote className="fogadalom-quote">
@@ -226,7 +226,7 @@ export default function Scouting() {
         <div className="container container--default">
           <span className="section-label">Cserkésztörvény</span>
           <h2 id="torveny-heading" className="section-title">A tíz cserkésztörvény</h2>
-          <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-8)' }}>
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-8)' }}>
             Baden-Powell, a cserkészet megalapítója tíz pontban foglalta össze azokat a szabályokat,
             amelyek alapján egy cserkész él. Nem elég kívülről megtanulni — meg kell élni őket.
           </p>
