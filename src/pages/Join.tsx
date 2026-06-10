@@ -1,48 +1,6 @@
 import { Link } from 'react-router-dom';
+import { korosztalyok as korosztályok } from '../data/korosztalyok';
 import './Join.css';
-
-const korosztályok = [
-  {
-    name: 'Kiscserkész',
-    age: '6–10 év',
-    neckColor: '#3b82f6',
-    neckLabel: 'Kék nyakkendő',
-    desc: 'Játékos formában, természetközelben tanulnak önállóságot és közösségi életet. Három pajzs próbát teljesítenek (piros, fehér, zöld).',
-    icon: '🌱',
-  },
-  {
-    name: 'Cserkész',
-    age: '10–15 év',
-    neckColor: '#2d6a4f',
-    neckLabel: 'Zöld nyakkendő',
-    desc: 'Az újoncév végén leteszi a cserkész fogadalmat — egy életre szóló elköteleződés. Táborozás 14 napig, portya, tájékozódás, elsősegély.',
-    icon: '🌿',
-  },
-  {
-    name: 'Kósza',
-    age: '15–18 év',
-    neckColor: '#2d6a4f',
-    neckLabel: 'Zöld nyakkendő',
-    desc: 'Önállóbb programok, különpróbák, örsvezetői képzés. A kószák már aktívan segítenek a fiatalabb korosztályok nevelésében is.',
-    icon: '🌲',
-  },
-  {
-    name: 'Vándor',
-    age: '19–23 év',
-    neckColor: '#6b7280',
-    neckLabel: 'Szürke nyakkendő',
-    desc: 'Fiatal felnőtt cserkészek, akik önálló programokat szerveznek és a közösség motorjai. Vándorpróba és vezető képzések jellemzik.',
-    icon: '🧭',
-  },
-  {
-    name: 'Felnőtt vezető',
-    age: '18+ év',
-    neckColor: '#2d6a4f',
-    neckLabel: 'Zöld (sárga csíkkal)',
-    desc: 'Képesített segédtisztek és tisztek, akik a csapat szakmai munkáját irányítják. Önkéntesként is csatlakozhatsz — mindig szükség van lelkes felnőttekre!',
-    icon: '🏕️',
-  },
-];
 
 const faq = [
   {
@@ -121,7 +79,7 @@ export default function Join() {
                     <p className="korosztaly-card__necktext">{k.neckLabel}</p>
                   </div>
                 </div>
-                <p className="korosztaly-card__desc">{k.desc}</p>
+                <p className="korosztaly-card__desc">{k.descShort}</p>
               </article>
             ))}
           </div>

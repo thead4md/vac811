@@ -1,53 +1,6 @@
 import { Link } from 'react-router-dom';
+import { korosztalyok } from '../data/korosztalyok';
 import './Scouting.css';
-
-const korosztályok = [
-  {
-    name: 'Kiscserkész',
-    age: '6–10 év',
-    neckColor: '#3b82f6',
-    neckLabel: 'Kék nyakkendő',
-    desc: 'A legfiatalabb cserkészek közössége. Játékos formában, természetközelben tanulnak önállóságot, közösségi életet és az alapvető cserkésztudást.',
-    probák: ['Piros pajzs próba', 'Fehér pajzs próba', 'Zöld pajzs próba'],
-    promise: 'kiscserkész ígéret',
-  },
-  {
-    name: 'Cserkész',
-    age: '10–15 év',
-    neckColor: '#2d6a4f',
-    neckLabel: 'Zöld nyakkendő',
-    desc: 'Az újoncév végén fogadalmat tesz a cserkész — egy életre szóló elkötelezettség. Táborozás, portyázás, tájékozódás, elsősegély és közösségi élet jellemzi ezt a kort.',
-    probák: ['Újoncpróba', 'I. próba (szalag)', 'II. próba (nyílhegy)', 'III. próba'],
-    promise: 'cserkész fogadalom',
-  },
-  {
-    name: 'Kósza',
-    age: '15–18 év',
-    neckColor: '#2d6a4f',
-    neckLabel: 'Zöld nyakkendő',
-    desc: 'Önállóbb programok, komolyabb cserkésztudás és aktív közösségi szolgálat. A kószák már részt vesznek a fiatalabbak nevelésében is.',
-    probák: ['Különpróbák', 'Örsvezetői képzés'],
-    promise: 'cserkész fogadalom',
-  },
-  {
-    name: 'Vándor',
-    age: '19–23 év',
-    neckColor: '#6b7280',
-    neckLabel: 'Szürke nyakkendő',
-    desc: 'Fiatal felnőtt cserkészek, akik önálló programokat szerveznek, túrákat vezényelnek és a cserkész közösség aktív mozgatói.',
-    probák: ['Vándorpróba', 'Vezető képzések'],
-    promise: 'cserkész fogadalom',
-  },
-  {
-    name: 'Felnőtt vezető',
-    age: '18+ év',
-    neckColor: '#2d6a4f',
-    neckLabel: 'Zöld (sárga csíkkal)',
-    desc: 'Képesített cserkészvezetők — segédtisztek és tisztek — akik a rajok és az egész csapat szakmai munkáját irányítják.',
-    probák: ['Segédtiszti képzés', 'Tiszti képzés'],
-    promise: 'cserkész fogadalom',
-  },
-];
 
 const törvények = [
   'A cserkész egyeneslelkű és feltétlenül igazat mond.',
@@ -102,15 +55,27 @@ export default function Scouting() {
               a <strong>Reménység Egyesület</strong> és a <strong>Dunakanyur Ifjúságáért Alapítvány</strong> háttérszervezetei
               által működik Vácott, 232 aktív cserkésszel.
             </p>
+            <p>
+              Csapatunk védőszentje <strong>Szent József</strong>, akinek ünnepét március 19-én tartjuk —
+              ő a csapat névadója és égi pártfogója.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Jelszó banner */}
-      <div className="jelszó-banner" role="banner" aria-label="Cserkész jelszó">
-        <p className="jelszó-banner__label">A cserkész jelszava</p>
-        <p className="jelszó-banner__text">Légy résen!</p>
-        <p className="jelszó-banner__sub">— készen állni mindenre, amit a nap hoz</p>
+      {/* Köszöntés + jelszó banner */}
+      <div className="jelszó-banner jelszó-banner--greeting" role="banner" aria-label="Cserkész köszöntés és jelszó">
+        <p className="jelszó-banner__label">A cserkészek köszöntése</p>
+        <p className="jelszó-banner__text">
+          <span className="jelszó-banner__call">Jó munkát!</span>
+          <span className="jelszó-banner__dash" aria-hidden="true">→</span>
+          <span className="jelszó-banner__response">Légy résen!</span>
+        </p>
+        <p className="jelszó-banner__sub">
+          A köszöntő cserkész „Jó munkát!"-ot mond, a másik „Légy résen!"-nel felel — közben
+          bal kézzel fognak kezet és jobb kézzel tisztelegnek. A „Légy résen!" a cserkészek
+          jelszava: készen állni mindenre, amit a nap hoz.
+        </p>
       </div>
 
       {/* Korosztályok */}
@@ -123,7 +88,7 @@ export default function Scouting() {
             Minden korosztálynak saját program, saját próbák és saját nyakkendőszín jár.
           </p>
           <div className="korosztaly-grid">
-            {korosztályok.map(k => (
+            {korosztalyok.map(k => (
               <article key={k.name} className="korosztaly-card">
                 <div className="korosztaly-card__header">
                   <div
@@ -189,12 +154,32 @@ export default function Scouting() {
         </div>
       </section>
 
+      {/* Jelképeink */}
+      <section className="section" aria-labelledby="jelkepek-heading">
+        <div className="container container--default">
+          <span className="section-label">Jelképeink</span>
+          <h2 id="jelkepek-heading" className="section-title">A cserkészliliom és a kézfogás</h2>
+          <div className="prose scouting-intro">
+            <p>
+              A cserkészet jelképe a <strong>cserkészliliom</strong> (⚜️). Három szirma a fogadalom
+              három fő kötelességére emlékeztet: <strong>Isten, haza és embertárs</strong> szolgálatára.
+              A magyar cserkészliliom közepén gyakran a magyar címer és a „Légy résen!" jelmondat is megjelenik.
+            </p>
+            <p>
+              A cserkészek <strong>bal kézzel</strong> fognak kezet — a szív felőli kézzel, a bizalom és
+              testvériség jeleként —, miközben jobb kézzel tisztelegnek. A köszöntés: „Jó munkát!", amire
+              a másik „Légy résen!"-nel felel.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Fogadalom */}
       <section className="section" aria-labelledby="fogadalom-heading">
         <div className="container container--default">
           <span className="section-label">Fogadalom</span>
           <h2 id="fogadalom-heading" className="section-title">Egy életre szóló ígéret</h2>
-          <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-6)' }}>
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-6)' }}>
             A cserkész fogadalom egyszer hangzik el — és egész életre szól. Az újoncév végén,
             ha a jelölt bizonyította rátermettségét, ünnepélyes keretek között teszi le.
             Ettől a pillanattól viseli a zöld nyakkendőt.
@@ -211,7 +196,7 @@ export default function Scouting() {
           <h3 style={{ fontFamily: 'Playfair Display, serif', marginTop: 'var(--space-10)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-xl)' }}>
             Kiscserkész ígéret
           </h3>
-          <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-4)' }}>
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-4)' }}>
             A kiscserkészek még nem fogadalmat tesznek, hanem ígéretet — a saját koruknak megfelelő, egyszerűbb szavakkal:
           </p>
           <blockquote className="fogadalom-quote">
@@ -226,7 +211,7 @@ export default function Scouting() {
         <div className="container container--default">
           <span className="section-label">Cserkésztörvény</span>
           <h2 id="torveny-heading" className="section-title">A tíz cserkésztörvény</h2>
-          <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-8)' }}>
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-8)' }}>
             Baden-Powell, a cserkészet megalapítója tíz pontban foglalta össze azokat a szabályokat,
             amelyek alapján egy cserkész él. Nem elég kívülről megtanulni — meg kell élni őket.
           </p>

@@ -2,7 +2,7 @@
   margin-bottom: var(--space-4);
   font-size: var(--text-base);
   line-height: 1.75;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
 }
 .scouting-intro strong {
   color: var(--color-text);
@@ -10,7 +10,7 @@
 .scouting-structure-note {
   margin-top: var(--space-8);
   text-align: center;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   font-size: var(--text-sm);
 }
 .scouting-structure-note strong {
