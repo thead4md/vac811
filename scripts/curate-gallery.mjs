@@ -257,6 +257,16 @@ function loadExisting() {
   }
 }
 
+function saveGallery(items) {
+  const sorted = [...items].sort((a, b) => {
+    if (String(b.year) !== String(a.year)) return String(b.year).localeCompare(String(a.year));
+    if (!!b.approved !== !!a.approved) return (b.approved ? 1 : 0) - (a.approved ? 1 : 0);
+    return (b.score ?? 0) - (a.score ?? 0);
+  });
+  mkdirSync(dirname(GALLERY_PATH), { recursive: true });
+  writeFileSync(GALLERY_PATH, JSON.stringify({ gallery: sorted }, null, 2) + '\n', 'utf-8');
+}
+
 async function main() {
   const now = new Date();
   const currentYear = now.getUTCFullYear();
@@ -274,7 +284,8 @@ async function main() {
   }
 
   const existing = loadExisting();
-  const knownIds = new Set(existing.gallery.map((i) => i.id));
+  const liveGallery = [...existing.gallery];
+  const knownIds = new Set(liveGallery.map((i) => i.id));
 
   // Map year name → folder id
   const rootFolders = await driveList(FOLDER_ID);
@@ -369,7 +380,13 @@ async function main() {
         : '';
       console.log(`    ${year}/${event} [${primary ? 'PRIMARY' : 'minor'}]${preflightSummary} → ${top.length} candidate(s) kept (cap=${cap}, threshold>=${threshold})`);
 
-      if (top.length) newCandidates.push(...top);
+      if (top.length) {
+        newCandidates.push(...top);
+        liveGallery.push(...top);
+        top.forEach((item) => knownIds.add(item.id));
+        saveGallery(liveGallery);
+        console.log(`    → saved to gallery.json (${liveGallery.length} total)`);
+      }
     }
   }
 
@@ -382,20 +399,7 @@ async function main() {
     console.log(`Estimated savings: ~$${haikuSaved.toFixed(3)} Haiku saved − ~$${geminiCost.toFixed(3)} Gemini cost = ~$${netSaving.toFixed(3)} net`);
   }
 
-  // Merge: keep all existing items (preserving human-set approved/name),
-  // append new candidates that aren't already present.
-  const merged = [...existing.gallery, ...newCandidates];
-  // Sort: newest year first, approved first within a year, then by score.
-  merged.sort((a, b) => {
-    if (String(b.year) !== String(a.year)) return String(b.year).localeCompare(String(a.year));
-    if (!!b.approved !== !!a.approved) return (b.approved ? 1 : 0) - (a.approved ? 1 : 0);
-    return (b.score ?? 0) - (a.score ?? 0);
-  });
-
-  mkdirSync(dirname(GALLERY_PATH), { recursive: true });
-  writeFileSync(GALLERY_PATH, JSON.stringify({ gallery: merged }, null, 2) + '\n', 'utf-8');
-
-  console.log(`\nAdded ${newCandidates.length} new candidate(s); ${merged.length} total in gallery.json`);
+  console.log(`\nAdded ${newCandidates.length} new candidate(s); ${liveGallery.length} total in gallery.json`);
 }
 
 main().catch((err) => {
