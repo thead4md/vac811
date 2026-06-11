@@ -72,7 +72,7 @@ async function getAccessToken() {
 const MODEL = process.env.GALLERY_MODEL || 'claude-haiku-4-5';
 const MAX_PRIMARY = Number(process.env.GALLERY_MAX_PRIMARY_EVENT || 12);
 const MAX_MINOR = Number(process.env.GALLERY_MAX_PER_EVENT || 1); // was global cap (default 4) — now minor-only
-const SCORE_THRESHOLD = Number(process.env.GALLERY_SCORE_THRESHOLD || 70);
+const SCORE_THRESHOLD = Number(process.env.GALLERY_SCORE_THRESHOLD || 50);
 const MINOR_THRESHOLD = Number(process.env.GALLERY_MINOR_THRESHOLD || 80);
 const PRIMARY_KEYWORDS = (process.env.GALLERY_PRIMARY_KEYWORDS || 'tábor,táborozás,nyári')
   .split(',')
@@ -122,17 +122,24 @@ When in doubt, reply KEEP.`;
 async function driveList(parentId) {
   const token = await getAccessToken();
   const q = encodeURIComponent(`'${parentId}' in parents and trashed = false`);
-  const fields = encodeURIComponent('files(id,name,mimeType)');
+  const fields = encodeURIComponent('files(id,name,mimeType),nextPageToken');
   // supportsAllDrives + includeItemsFromAllDrives are required when the folder
   // lives in a Shared Drive; without them the API returns an empty list.
-  const url = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=${fields}&pageSize=1000&supportsAllDrives=true&includeItemsFromAllDrives=true`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Drive API error ${res.status}: ${body}`);
-  }
-  const json = await res.json();
-  return json.files ?? [];
+  const baseUrl = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=${fields}&pageSize=1000&supportsAllDrives=true&includeItemsFromAllDrives=true`;
+  const files = [];
+  let pageToken = null;
+  do {
+    const url = pageToken ? `${baseUrl}&pageToken=${pageToken}` : baseUrl;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`Drive API error ${res.status}: ${body}`);
+    }
+    const json = await res.json();
+    files.push(...(json.files ?? []));
+    pageToken = json.nextPageToken ?? null;
+  } while (pageToken);
+  return files;
 }
 
 function cdnUrl(fileId, width = 512) {
@@ -152,10 +159,9 @@ function detectPrimaryEvent(byEvent) {
   const sorted = [...byEvent.entries()]
     .map(([event, imgs]) => ({ event, count: imgs.length }))
     .sort((a, b) => b.count - a.count);
-  if (sorted.length === 0) return null;
-  const first = sorted[0];
-  const second = sorted[1];
-  if (!second || first.count >= second.count * 2) return first.event;
+  if (sorted.length < 2) return null;
+  const [first, second] = sorted;
+  if (first.count >= second.count * 2) return first.event;
   return null;
 }
 
@@ -244,6 +250,7 @@ async function scoreImage(fileId) {
     ],
     output_config: { format: zodOutputFormat(ScoreSchema) },
   });
+  if (!response.parsed_output) throw new Error('Claude returned unparseable response');
   return response.parsed_output;
 }
 
