@@ -59,7 +59,7 @@ export default defineConfig([
 | Technology | Version / Detail |
 |------------|-----------------|
 | Language | TypeScript / Node.js |
-| Key dependencies | @anthropic-ai/sdk, @types/react-router-dom, react, react-dom, react-router, react-router-dom, zod |
+| Key dependencies | @anthropic-ai/sdk, @types/react-router-dom, google-auth-library, react, react-dom, react-router, react-router-dom, zod |
 | Infrastructure | GitHub Actions |
 <!-- AUTO:END:tech_stack -->
 
@@ -189,6 +189,7 @@ _Module map available for Python projects only._
 | `GALLERY_YEARS` | `—` | source code |
 | `GOOGLE_DRIVE_API_KEY` | `—` | source code |
 | `GOOGLE_DRIVE_FOLDER_ID` | `—` | source code |
+| `GOOGLE_SERVICE_ACCOUNT_KEY` | `—` | source code |
 <!-- AUTO:END:env_vars -->
 
 ## Open TODOs
@@ -207,6 +208,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+a46cbb1 fix: service account auth + Node 24 + prompt caching for gallery curation (#11)
+2b7b9e5 chore: update CONTEXT.md [auto]
 459ab01 chore: remove stale sync-gallery workflow (replaced by curate-gallery)
 f0031f6 chore: update CONTEXT.md [auto]
 d199906 feat: ML-curated gallery via Claude vision + Decap CMS approval (#10)
@@ -215,12 +218,10 @@ da8843d chore: install claude-context-sync
 a171dae fix: add empty gallery.json so gallery page loads before first Drive sync (#9)
 33306ca feat: Google Drive gallery sync + Instagram post wall (#8)
 6a67bc6 Fix responsive layout, Cspk. titles, split age groups (#7)
-d6b64b6 Bump brace-expansion from 1.1.14 to 1.1.15 (#3)
-7cbd369 Replace procedural contours with the csapat_gomba line-art pattern (#6)
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 13.5s. Stack: TypeScript / Node.js._
+_Generated in 10.5s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
