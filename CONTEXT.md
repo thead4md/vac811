@@ -184,9 +184,14 @@ _Module map available for Python projects only._
 |----------|---------|--------|
 | `ANTHROPIC_API_KEY` | `—` | source code |
 | `GALLERY_MAX_PER_EVENT` | `—` | source code |
+| `GALLERY_MAX_PRIMARY_EVENT` | `—` | source code |
+| `GALLERY_MINOR_THRESHOLD` | `—` | source code |
 | `GALLERY_MODEL` | `—` | source code |
+| `GALLERY_PREFLIGHT_MODEL` | `—` | source code |
+| `GALLERY_PRIMARY_KEYWORDS` | `—` | source code |
 | `GALLERY_SCORE_THRESHOLD` | `—` | source code |
 | `GALLERY_YEARS` | `—` | source code |
+| `GEMINI_API_KEY` | `—` | source code |
 | `GOOGLE_DRIVE_API_KEY` | `—` | source code |
 | `GOOGLE_DRIVE_FOLDER_ID` | `—` | source code |
 | `GOOGLE_SERVICE_ACCOUNT_KEY` | `—` | source code |
@@ -208,6 +213,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+2748d83 feat: weighted photo allocation + Gemini Flash pre-filter (#12)
+c6d56e0 chore: update CONTEXT.md [auto]
 24d1ffb fix: query Shared Drive content in gallery curation
 bdae23f chore: update CONTEXT.md [auto]
 49a735a debug: probe SA identity and folder metadata
@@ -216,12 +223,10 @@ bdae23f chore: update CONTEXT.md [auto]
 66ccc37 chore: update CONTEXT.md [auto]
 a46cbb1 fix: service account auth + Node 24 + prompt caching for gallery curation (#11)
 2b7b9e5 chore: update CONTEXT.md [auto]
-459ab01 chore: remove stale sync-gallery workflow (replaced by curate-gallery)
-f0031f6 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 15.6s. Stack: TypeScript / Node.js._
+_Generated in 15.5s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
