@@ -59,15 +59,15 @@ export const korosztalyok: Korosztaly[] = [
     icon: '🧭',
   },
   {
-    name: 'Felnőtt vezető',
-    age: '18+ év',
+    name: 'Felnőtt',
+    age: '23+ év',
     neckColor: '#2d6a4f',
     neckLabel: 'Zöld (sárga csíkkal)',
-    desc: 'Képesített cserkészvezetők — segédtisztek és tisztek — akik a rajok és az egész csapat szakmai munkáját irányítják.',
-    descShort: 'Képesített segédtisztek és tisztek, akik a csapat szakmai munkáját irányítják. Önkéntesként is csatlakozhatsz — mindig szükség van lelkes felnőttekre!',
+    desc: 'Felnőtt cserkészek és önkéntesek, akik tapasztalatukkal és elkötelezettségükkel a közösség gerincét alkotják. Önkéntesként is csatlakozhatsz — mindig szükség van lelkes felnőttekre!',
+    descShort: 'Felnőtt tagok és önkéntesek, akik tapasztalatukkal a csapat gerincét alkotják. Önkéntesként is csatlakozhatsz — mindig szükség van lelkes felnőttekre!',
     probák: ['Segédtiszti képzés', 'Tiszti képzés'],
     promise: 'cserkész fogadalom',
-    icon: '🏕️',
+    icon: '⚜️',
   },
 ]
 
@@ -103,10 +103,17 @@ export const korosztalyokSummary: KorosztalySummary[] = [
     description: 'Önállóbb programok, különpróbák és örsvezetői képzés. A kószák aktívan segítenek a fiatalabb rajok életében.',
   },
   {
-    icon: '🏕️',
-    name: 'Vándor & Vezető',
-    age: '18+ év',
+    icon: '🧭',
+    name: 'Vándor',
+    age: '19–23 év',
     neckColor: '#6b7280',
-    description: 'Fiatal felnőttek és képesített vezetők — segédtisztek, tisztek — akik a csapat gerincét alkotják.',
+    description: 'Fiatal felnőtt cserkészek, akik önálló programokat szerveznek és a közösség motorjai. Vándorpróba és vezető képzések jellemzik.',
+  },
+  {
+    icon: '⚜️',
+    name: 'Felnőtt',
+    age: '23+ év',
+    neckColor: '#2d6a4f',
+    description: 'Felnőtt tagok és önkéntesek, akik tapasztalatukkal és elkötelezettségükkel a csapat gerincét alkotják. Mindig szükség van lelkes felnőttekre!',
   },
 ]

@@ -12,8 +12,8 @@ export interface Leader {
 
 export const leadersStatic: Leader[] = [
   { name: 'Kucsera Boglárka', role: 'Csapatparancsnok', email: 'kucsera.boglarka@vac811.hu', isStaff: true },
-  { name: 'Bénik Borbála', role: 'Cp. helyettes – Nevelés', raj: 'Dorado rajparancsnok', isStaff: true },
-  { name: 'Kolostori Dániel', role: 'Cp. helyettes – Operatív', isStaff: true },
+  { name: 'Bénik Borbála', role: 'Cspk. helyettes – Nevelés', raj: 'Dorado rajparancsnok', isStaff: true },
+  { name: 'Kolostori Dániel', role: 'Cspk. helyettes – Operatív', isStaff: true },
   { name: 'Pellet Teréz', role: 'Törzsőrsvezető', isStaff: true },
   { name: 'Kende Zoltán', role: 'Rajparancsnok', raj: 'Göncöl raj', isStaff: false },
   { name: 'Király Boglárka', role: 'Rajparancsnok', raj: 'Corvus raj', isStaff: false },
