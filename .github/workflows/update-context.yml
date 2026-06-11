@@ -1,0 +1,27 @@
+name: Update CONTEXT.md
+
+on:
+  push:
+    branches: [main, master]
+    paths-ignore:
+      - "CONTEXT.md"
+      - "*.md"
+      - "docs/**"
+  pull_request:
+    branches: [main, master]
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  update-context:
+    uses: thead4md/claude-context-sync/.github/workflows/reusable-context-update.yml@main
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    with:
+      python-version: "3.12"
+      context-sync-ref: "latest"
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
