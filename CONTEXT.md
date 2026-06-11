@@ -155,7 +155,9 @@ vac811/
 │   ├── App.tsx
 │   └── main.tsx
 ├── CLAUDE.md
+├── CONTEXT.md
 ├── eslint.config.js
+├── generate.log
 ├── index.html
 ├── package-lock.json
 ├── package.json
@@ -199,11 +201,20 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+da8843d chore: install claude-context-sync
 a171dae fix: add empty gallery.json so gallery page loads before first Drive sync (#9)
+33306ca feat: Google Drive gallery sync + Instagram post wall (#8)
+6a67bc6 Fix responsive layout, Cspk. titles, split age groups (#7)
+d6b64b6 Bump brace-expansion from 1.1.14 to 1.1.15 (#3)
+7cbd369 Replace procedural contours with the csapat_gomba line-art pattern (#6)
+455bef5 Merge pull request #5 from thead4md/claude/clever-hermann-3b41ed
+3f665cf Scouting authenticity & MCSSZ compliance update + tests
+1ec04a6 Style undefined scouting classes; fix missing --color-text-secondary token (#4)
+16dad2c Bump react-router to 7.16.0 (clears DoS advisory)
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 13.1s. Stack: TypeScript / Node.js._
+_Generated in 14.5s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
