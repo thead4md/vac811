@@ -208,6 +208,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+89305bc debug: log root folder contents in curate-gallery
+66ccc37 chore: update CONTEXT.md [auto]
 a46cbb1 fix: service account auth + Node 24 + prompt caching for gallery curation (#11)
 2b7b9e5 chore: update CONTEXT.md [auto]
 459ab01 chore: remove stale sync-gallery workflow (replaced by curate-gallery)
@@ -216,12 +218,10 @@ d199906 feat: ML-curated gallery via Claude vision + Decap CMS approval (#10)
 4660c6e chore: update CONTEXT.md [auto]
 da8843d chore: install claude-context-sync
 a171dae fix: add empty gallery.json so gallery page loads before first Drive sync (#9)
-33306ca feat: Google Drive gallery sync + Instagram post wall (#8)
-6a67bc6 Fix responsive layout, Cspk. titles, split age groups (#7)
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 10.5s. Stack: TypeScript / Node.js._
+_Generated in 12.6s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
