@@ -7,6 +7,18 @@ on:
         description: 'Comma-separated year folders to process (e.g. 2026,2025,2024). Leave blank for current + previous year.'
         required: false
         default: ''
+      max_primary:
+        description: 'Max photos from the primary (tábor) event per year'
+        required: false
+        default: '12'
+      max_minor:
+        description: 'Max photos from each minor event'
+        required: false
+        default: '1'
+      preflight:
+        description: 'Enable Gemini Flash pre-filter (true/false)'
+        required: false
+        default: 'true'
   schedule:
     # Every Monday at 06:00 UTC
     - cron: '0 6 * * 1'
@@ -32,7 +44,11 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
           GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GALLERY_YEARS: ${{ github.event.inputs.years }}
+          GALLERY_MAX_PRIMARY_EVENT: ${{ github.event.inputs.max_primary || '12' }}
+          GALLERY_MAX_PER_EVENT: ${{ github.event.inputs.max_minor || '1' }}
+          GALLERY_PREFLIGHT_MODEL: ${{ github.event.inputs.preflight == 'false' && '' || 'gemini-2.0-flash' }}
         run: node scripts/curate-gallery.mjs
 
       - name: Commit updated gallery.json

@@ -9,11 +9,18 @@
 //   GOOGLE_DRIVE_FOLDER_ID     – ID of the root "811 Galéria" Drive folder
 //   ANTHROPIC_API_KEY          – Claude API key (vision scoring)
 // Optional:
-//   GALLERY_YEARS            – comma-separated year folders to process
-//                              (default: current year + previous year)
-//   GALLERY_MAX_PER_EVENT    – cap per event folder (default 4)
-//   GALLERY_SCORE_THRESHOLD  – minimum score to keep (default 70)
-//   GALLERY_MODEL            – Claude model id (default claude-haiku-4-5)
+//   GALLERY_YEARS              – comma-separated year folders to process
+//                                (default: current year + previous year)
+//   GALLERY_MAX_PRIMARY_EVENT  – cap for the primary (largest) event (default 12)
+//   GALLERY_MAX_PER_EVENT      – cap for every minor event (default 1)
+//   GALLERY_SCORE_THRESHOLD    – minimum score for primary events (default 70)
+//   GALLERY_MINOR_THRESHOLD    – minimum score for minor events (default 80)
+//   GALLERY_PRIMARY_KEYWORDS   – comma-separated Hungarian keywords to force-classify
+//                                an event as primary (default "tábor,táborozás,nyári")
+//   GALLERY_MODEL              – Claude model id (default claude-haiku-4-5)
+//   GALLERY_PREFLIGHT_MODEL    – Gemini model for binary pre-filter; omit to skip
+//                                (default "gemini-2.0-flash" when GEMINI_API_KEY is set)
+//   GEMINI_API_KEY             – Google AI Studio key (required for pre-filter)
 //
 // gallery.json item schema:
 //   { id, name, year, event, score, reason, approved }
@@ -63,9 +70,23 @@ async function getAccessToken() {
 }
 
 const MODEL = process.env.GALLERY_MODEL || 'claude-haiku-4-5';
-const MAX_PER_EVENT = Number(process.env.GALLERY_MAX_PER_EVENT || 4);
+const MAX_PRIMARY = Number(process.env.GALLERY_MAX_PRIMARY_EVENT || 12);
+const MAX_MINOR = Number(process.env.GALLERY_MAX_PER_EVENT || 1);
 const SCORE_THRESHOLD = Number(process.env.GALLERY_SCORE_THRESHOLD || 70);
+const MINOR_THRESHOLD = Number(process.env.GALLERY_MINOR_THRESHOLD || 80);
+const PRIMARY_KEYWORDS = (process.env.GALLERY_PRIMARY_KEYWORDS || 'tábor,táborozás,nyári')
+  .split(',')
+  .map((s) => s.trim().toLowerCase())
+  .filter(Boolean);
+const PREFLIGHT_MODEL = process.env.GALLERY_PREFLIGHT_MODEL ||
+  (process.env.GEMINI_API_KEY ? 'gemini-2.0-flash' : null);
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || null;
 const MAX_RECURSION_DEPTH = 2; // year → event → (person)
+
+if (PREFLIGHT_MODEL && !GEMINI_API_KEY) {
+  console.error('GALLERY_PREFLIGHT_MODEL is set but GEMINI_API_KEY is missing');
+  process.exit(1);
+}
 
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
 const IMAGE_MIME_TYPES = new Set([
@@ -93,6 +114,11 @@ const SCORE_PROMPT = `Te egy magyar cserkészcsapat (811. Szent József) nyilvá
 - jelöld meg, ha bármi nem alkalmas egy ifjúsági szervezet nyilvános oldalára (kínos, nem hízelgő, magánjellegű helyzet)
 Adj egy 0–100 pontszámot és egy rövid, természetes magyar képaláírást.`;
 
+const PREFLIGHT_PROMPT = `You are a photo curator for a Hungarian scout troop's public website.
+Reply with KEEP or SKIP only — no other text.
+SKIP if: clearly blurry, severely underexposed/dark, accidental shot (ground/sky/finger covering lens), or obviously a near-identical duplicate of a standard group pose.
+When in doubt, reply KEEP.`;
+
 async function driveList(parentId) {
   const token = await getAccessToken();
   const q = encodeURIComponent(`'${parentId}' in parents and trashed = false`);
@@ -111,6 +137,74 @@ async function driveList(parentId) {
 
 function cdnUrl(fileId, width = 512) {
   return `https://lh3.googleusercontent.com/d/${fileId}=w${width}`;
+}
+
+// Returns true if the event name matches a primary keyword or the auto-detected primary.
+function isPrimary(eventName, detectedPrimary) {
+  const lower = (eventName ?? '').toLowerCase();
+  if (PRIMARY_KEYWORDS.some((k) => lower.includes(k))) return true;
+  return eventName === detectedPrimary;
+}
+
+// Detect the dominant event for a year: the largest event if it has at least
+// 2× the image count of the second-largest. Returns null if no clear winner.
+function detectPrimaryEvent(byEvent) {
+  const sorted = [...byEvent.entries()]
+    .map(([event, imgs]) => ({ event, count: imgs.length }))
+    .sort((a, b) => b.count - a.count);
+  if (sorted.length === 0) return null;
+  const first = sorted[0];
+  const second = sorted[1];
+  if (!second || first.count >= second.count * 2) return first.event;
+  return null;
+}
+
+// Gemini Flash binary pre-filter: returns true → proceed to Haiku, false → skip.
+async function quickScoreImage(fileId) {
+  const url = cdnUrl(fileId, 512);
+  let imageRes;
+  try {
+    imageRes = await fetch(url);
+    if (!imageRes.ok) throw new Error(`HTTP ${imageRes.status}`);
+  } catch (err) {
+    // If we can't fetch the image, let Haiku try anyway.
+    console.warn(`    [preflight] fetch failed for ${fileId}: ${err.message} — defaulting to KEEP`);
+    return true;
+  }
+  const buffer = await imageRes.arrayBuffer();
+  const base64 = Buffer.from(buffer).toString('base64');
+  const mimeType = imageRes.headers.get('content-type') || 'image/jpeg';
+
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${PREFLIGHT_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+  let res;
+  try {
+    res = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { inlineData: { mimeType, data: base64 } },
+            { text: PREFLIGHT_PROMPT },
+          ],
+        }],
+        generationConfig: { maxOutputTokens: 10, temperature: 0 },
+      }),
+    });
+  } catch (err) {
+    console.warn(`    [preflight] Gemini API error for ${fileId}: ${err.message} — defaulting to KEEP`);
+    return true;
+  }
+
+  if (!res.ok) {
+    const body = await res.text();
+    console.warn(`    [preflight] Gemini ${res.status} for ${fileId}: ${body.slice(0, 120)} — defaulting to KEEP`);
+    return true;
+  }
+
+  const json = await res.json();
+  const text = (json.candidates?.[0]?.content?.parts?.[0]?.text ?? 'KEEP').trim().toUpperCase();
+  return !text.startsWith('SKIP');
 }
 
 // Recursively collect image files under a folder, tracking the top-level event name.
@@ -171,6 +265,13 @@ async function main() {
     : [String(currentYear), String(currentYear - 1)];
 
   console.log(`Curating years: ${years.join(', ')} (model: ${MODEL})`);
+  console.log(`Caps: primary=${MAX_PRIMARY}, minor=${MAX_MINOR} | Thresholds: primary>=${SCORE_THRESHOLD}, minor>=${MINOR_THRESHOLD}`);
+  console.log(`Primary keywords: ${PRIMARY_KEYWORDS.join(', ')}`);
+  if (PREFLIGHT_MODEL) {
+    console.log(`Preflight enabled: ${PREFLIGHT_MODEL}`);
+  } else {
+    console.log('Preflight disabled (set GEMINI_API_KEY to enable)');
+  }
 
   const existing = loadExisting();
   const knownIds = new Set(existing.gallery.map((i) => i.id));
@@ -184,6 +285,8 @@ async function main() {
   );
 
   const newCandidates = [];
+  let totalPreflightSeen = 0;
+  let totalPreflightSkipped = 0;
 
   for (const year of years) {
     const yearFolderId = yearFolderByName.get(year);
@@ -196,22 +299,52 @@ async function main() {
     const images = [];
     await collectImages(yearFolderId, null, 0, images);
     const fresh = images.filter((img) => !knownIds.has(img.id));
-    console.log(`  ${year}: ${images.length} image(s), ${fresh.length} new to score`);
+    console.log(`\n  ${year}: ${images.length} image(s), ${fresh.length} new to score`);
 
-    // Group fresh images by event, score, keep top N per event.
+    // Group fresh images by event.
     const byEvent = new Map();
     for (const img of fresh) {
       if (!byEvent.has(img.event)) byEvent.set(img.event, []);
       byEvent.get(img.event).push(img);
     }
 
+    // Classify primary event for this year.
+    const detectedPrimary = detectPrimaryEvent(byEvent);
+    const keywordPrimaries = [...byEvent.keys()].filter((e) =>
+      PRIMARY_KEYWORDS.some((k) => e.toLowerCase().includes(k))
+    );
+    const effectivePrimary = keywordPrimaries.length > 0
+      ? keywordPrimaries.join(', ')
+      : (detectedPrimary ?? 'none — all treated as minor');
+    console.log(`  Primary event for ${year}: "${effectivePrimary}"`);
+
     for (const [event, imgs] of byEvent) {
+      const primary = isPrimary(event, detectedPrimary);
+      const cap = primary ? MAX_PRIMARY : MAX_MINOR;
+      const threshold = primary ? SCORE_THRESHOLD : MINOR_THRESHOLD;
+
+      let preflightSeen = 0;
+      let preflightSkipped = 0;
       const scored = [];
+
       for (const img of imgs) {
+        // Pass 1: Gemini Flash pre-filter (opt-in)
+        if (PREFLIGHT_MODEL) {
+          preflightSeen++;
+          totalPreflightSeen++;
+          const keep = await quickScoreImage(img.id);
+          if (!keep) {
+            preflightSkipped++;
+            totalPreflightSkipped++;
+            continue;
+          }
+        }
+
+        // Pass 2: Claude Haiku full score
         try {
           const result = await scoreImage(img.id);
           if (!result.suitableForPublicYouthSite) continue;
-          if (result.score < SCORE_THRESHOLD) continue;
+          if (result.score < threshold) continue;
           scored.push({
             id: img.id,
             name: result.caption,
@@ -227,13 +360,26 @@ async function main() {
           console.warn(`    Failed to score ${img.id}: ${err.message}`);
         }
       }
+
       scored.sort((a, b) => b.score - a.score);
-      const top = scored.slice(0, MAX_PER_EVENT);
-      if (top.length) {
-        console.log(`    ${year}/${event}: ${top.length} candidate(s) kept`);
-        newCandidates.push(...top);
-      }
+      const top = scored.slice(0, cap);
+
+      const preflightSummary = PREFLIGHT_MODEL
+        ? ` | preflight: ${preflightSeen - preflightSkipped}/${preflightSeen} passed`
+        : '';
+      console.log(`    ${year}/${event} [${primary ? 'PRIMARY' : 'minor'}]${preflightSummary} → ${top.length} candidate(s) kept (cap=${cap}, threshold>=${threshold})`);
+
+      if (top.length) newCandidates.push(...top);
     }
+  }
+
+  // Preflight cost summary
+  if (PREFLIGHT_MODEL && totalPreflightSeen > 0) {
+    const haikuSaved = totalPreflightSkipped * 0.0008;
+    const geminiCost = totalPreflightSeen * 0.00004;
+    const netSaving = haikuSaved - geminiCost;
+    console.log(`\nPreflight summary: ${totalPreflightSkipped}/${totalPreflightSeen} images skipped`);
+    console.log(`Estimated savings: ~$${haikuSaved.toFixed(3)} Haiku saved − ~$${geminiCost.toFixed(3)} Gemini cost = ~$${netSaving.toFixed(3)} net`);
   }
 
   // Merge: keep all existing items (preserving human-set approved/name),
