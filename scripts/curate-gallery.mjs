@@ -5,9 +5,9 @@
 // approves them in Decap CMS before they appear on the site.
 //
 // Required env vars:
-//   GOOGLE_DRIVE_API_KEY     – read-only Drive API key
-//   GOOGLE_DRIVE_FOLDER_ID   – ID of the root "811 Galéria" Drive folder
-//   ANTHROPIC_API_KEY        – Claude API key (vision scoring)
+//   GOOGLE_SERVICE_ACCOUNT_KEY – Google service account JSON (full contents)
+//   GOOGLE_DRIVE_FOLDER_ID     – ID of the root "811 Galéria" Drive folder
+//   ANTHROPIC_API_KEY          – Claude API key (vision scoring)
 // Optional:
 //   GALLERY_YEARS            – comma-separated year folders to process
 //                              (default: current year + previous year)
@@ -31,21 +31,35 @@ import { fileURLToPath } from 'url';
 import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
+import { GoogleAuth } from 'google-auth-library';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const GALLERY_PATH = join(ROOT, 'public', 'content', 'gallery.json');
 
-const API_KEY = process.env.GOOGLE_DRIVE_API_KEY;
 const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
 
-if (!API_KEY || !FOLDER_ID) {
-  console.error('Missing GOOGLE_DRIVE_API_KEY or GOOGLE_DRIVE_FOLDER_ID');
+if (!process.env.GOOGLE_SERVICE_ACCOUNT_KEY || !FOLDER_ID) {
+  console.error('Missing GOOGLE_SERVICE_ACCOUNT_KEY or GOOGLE_DRIVE_FOLDER_ID');
   process.exit(1);
 }
 if (!process.env.ANTHROPIC_API_KEY) {
   console.error('Missing ANTHROPIC_API_KEY');
   process.exit(1);
+}
+
+const auth = new GoogleAuth({
+  credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY),
+  scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+});
+let _accessToken = null;
+async function getAccessToken() {
+  if (!_accessToken) {
+    const client = await auth.getClient();
+    const tokenResponse = await client.getAccessToken();
+    _accessToken = tokenResponse.token;
+  }
+  return _accessToken;
 }
 
 const MODEL = process.env.GALLERY_MODEL || 'claude-haiku-4-5';
@@ -80,10 +94,11 @@ const SCORE_PROMPT = `Te egy magyar cserkészcsapat (811. Szent József) nyilvá
 Adj egy 0–100 pontszámot és egy rövid, természetes magyar képaláírást.`;
 
 async function driveList(parentId) {
+  const token = await getAccessToken();
   const q = encodeURIComponent(`'${parentId}' in parents and trashed = false`);
   const fields = encodeURIComponent('files(id,name,mimeType)');
-  const url = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=${fields}&key=${API_KEY}&pageSize=1000`;
-  const res = await fetch(url);
+  const url = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=${fields}&pageSize=1000`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) {
     const body = await res.text();
     throw new Error(`Drive API error ${res.status}: ${body}`);
