@@ -213,6 +213,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+4f603b4 fix: throttle Gemini preflight to ≤15 req/min (free tier limit) (#16)
+93faa5a chore: update CONTEXT.md [auto]
 d579eb9 fix: pagination, null parsed_output, threshold default, single-event primary (#15)
 16c7a56 chore: update CONTEXT.md [auto]
 4ae69ce fix: commit gallery.json even when scoring step is cancelled (#14)
@@ -221,12 +223,10 @@ d579eb9 fix: pagination, null parsed_output, threshold default, single-event pri
 d4edf8c chore: update CONTEXT.md [auto]
 2748d83 feat: weighted photo allocation + Gemini Flash pre-filter (#12)
 c6d56e0 chore: update CONTEXT.md [auto]
-24d1ffb fix: query Shared Drive content in gallery curation
-bdae23f chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 12.7s. Stack: TypeScript / Node.js._
+_Generated in 11.4s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
