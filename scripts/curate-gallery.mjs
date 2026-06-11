@@ -71,7 +71,7 @@ async function getAccessToken() {
 
 const MODEL = process.env.GALLERY_MODEL || 'claude-haiku-4-5';
 const MAX_PRIMARY = Number(process.env.GALLERY_MAX_PRIMARY_EVENT || 12);
-const MAX_MINOR = Number(process.env.GALLERY_MAX_PER_EVENT || 1);
+const MAX_MINOR = Number(process.env.GALLERY_MAX_PER_EVENT || 1); // was global cap (default 4) — now minor-only
 const SCORE_THRESHOLD = Number(process.env.GALLERY_SCORE_THRESHOLD || 70);
 const MINOR_THRESHOLD = Number(process.env.GALLERY_MINOR_THRESHOLD || 80);
 const PRIMARY_KEYWORDS = (process.env.GALLERY_PRIMARY_KEYWORDS || 'tábor,táborozás,nyári')
@@ -173,14 +173,14 @@ async function quickScoreImage(fileId) {
   }
   const buffer = await imageRes.arrayBuffer();
   const base64 = Buffer.from(buffer).toString('base64');
-  const mimeType = imageRes.headers.get('content-type') || 'image/jpeg';
+  const mimeType = (imageRes.headers.get('content-type') || 'image/jpeg').split(';')[0].trim();
 
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${PREFLIGHT_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${PREFLIGHT_MODEL}:generateContent`;
   let res;
   try {
     res = await fetch(apiUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI_API_KEY },
       body: JSON.stringify({
         contents: [{
           parts: [
