@@ -97,7 +97,9 @@ async function driveList(parentId) {
   const token = await getAccessToken();
   const q = encodeURIComponent(`'${parentId}' in parents and trashed = false`);
   const fields = encodeURIComponent('files(id,name,mimeType)');
-  const url = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=${fields}&pageSize=1000`;
+  // supportsAllDrives + includeItemsFromAllDrives are required when the folder
+  // lives in a Shared Drive; without them the API returns an empty list.
+  const url = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=${fields}&pageSize=1000&supportsAllDrives=true&includeItemsFromAllDrives=true`;
   const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) {
     const body = await res.text();
@@ -173,23 +175,8 @@ async function main() {
   const existing = loadExisting();
   const knownIds = new Set(existing.gallery.map((i) => i.id));
 
-  // --- DIAGNOSTICS ---
-  const saEmail = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY).client_email;
-  console.log(`  Authenticated as service account: ${saEmail}`);
-  console.log(`  Querying root folder id: ${FOLDER_ID}`);
-  try {
-    const token = await getAccessToken();
-    const metaUrl = `https://www.googleapis.com/drive/v3/files/${FOLDER_ID}?fields=id,name,mimeType,owners(emailAddress)&supportsAllDrives=true`;
-    const metaRes = await fetch(metaUrl, { headers: { Authorization: `Bearer ${token}` } });
-    console.log(`  Folder metadata probe: HTTP ${metaRes.status} – ${await metaRes.text()}`);
-  } catch (e) {
-    console.log(`  Folder metadata probe failed: ${e.message}`);
-  }
-  // --- END DIAGNOSTICS ---
-
   // Map year name → folder id
   const rootFolders = await driveList(FOLDER_ID);
-  console.log(`  Root folder contains ${rootFolders.length} item(s): ${rootFolders.map(f => f.name).join(', ') || '(none)'}`);
   const yearFolderByName = new Map(
     rootFolders
       .filter((f) => f.mimeType === FOLDER_MIME)
