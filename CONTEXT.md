@@ -213,6 +213,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+d579eb9 fix: pagination, null parsed_output, threshold default, single-event primary (#15)
+16c7a56 chore: update CONTEXT.md [auto]
 4ae69ce fix: commit gallery.json even when scoring step is cancelled (#14)
 7282ef9 chore: update CONTEXT.md [auto]
 846bda5 fix: write gallery.json incrementally after each event (#13)
@@ -221,12 +223,10 @@ d4edf8c chore: update CONTEXT.md [auto]
 c6d56e0 chore: update CONTEXT.md [auto]
 24d1ffb fix: query Shared Drive content in gallery curation
 bdae23f chore: update CONTEXT.md [auto]
-49a735a debug: probe SA identity and folder metadata
-1617747 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 17.0s. Stack: TypeScript / Node.js._
+_Generated in 12.7s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
