@@ -19,6 +19,14 @@ on:
         description: 'Enable Gemini Flash pre-filter (true/false)'
         required: false
         default: 'true'
+      score_threshold:
+        description: 'Min score for primary event photos (0–100)'
+        required: false
+        default: '50'
+      minor_threshold:
+        description: 'Min score for minor event photos (0–100)'
+        required: false
+        default: '80'
   schedule:
     # Every Monday at 06:00 UTC
     - cron: '0 6 * * 1'
@@ -49,6 +57,8 @@ jobs:
           GALLERY_MAX_PRIMARY_EVENT: ${{ github.event.inputs.max_primary || '12' }}
           GALLERY_MAX_PER_EVENT: ${{ github.event.inputs.max_minor || '1' }}
           GALLERY_PREFLIGHT_MODEL: ${{ github.event.inputs.preflight == 'false' && '' || 'gemini-2.0-flash' }}
+          GALLERY_SCORE_THRESHOLD: ${{ github.event.inputs.score_threshold || '50' }}
+          GALLERY_MINOR_THRESHOLD: ${{ github.event.inputs.minor_threshold || '80' }}
         run: node scripts/curate-gallery.mjs
 
       - name: Commit updated gallery.json
