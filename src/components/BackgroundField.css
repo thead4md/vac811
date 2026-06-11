@@ -1,26 +1,25 @@
+/* Fixed full-page line-art backdrop — mirrors the WP site's body::before:
+   csapat_gomba pattern, centered, cover, no-repeat, very faint, behind content. */
 .bg-field {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  overflow: hidden;
-  /* Low-contrast topographic tint, separate per theme via color-mix on text */
-  color: color-mix(in oklab, var(--color-primary) 9%, transparent);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  opacity: 0.1; /* matches the WP site exactly */
 }
+/* The art is dark brown line work; on dark surfaces lift opacity and invert
+   it to a light tint so the motif stays visible without altering the shapes. */
 [data-theme='dark'] .bg-field {
-  color: color-mix(in oklab, var(--color-primary) 14%, transparent);
+  opacity: 0.16;
+  filter: invert(1) brightness(1.4);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) .bg-field {
-    color: color-mix(in oklab, var(--color-primary) 14%, transparent);
+    opacity: 0.16;
+    filter: invert(1) brightness(1.4);
   }
-}
-.bg-field__svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-@media (prefers-reduced-motion: no-preference) {
-  /* No motion — purely a static decorative layer. */
 }
