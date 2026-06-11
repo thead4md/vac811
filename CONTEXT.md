@@ -72,7 +72,6 @@ vac811/
 │   └── workflows
 │       ├── curate-gallery.yml
 │       ├── deploy.yml
-│       ├── sync-gallery.yml
 │       └── update-context.yml
 ├── public
 │   ├── admin
@@ -208,6 +207,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+459ab01 chore: remove stale sync-gallery workflow (replaced by curate-gallery)
+f0031f6 chore: update CONTEXT.md [auto]
 d199906 feat: ML-curated gallery via Claude vision + Decap CMS approval (#10)
 4660c6e chore: update CONTEXT.md [auto]
 da8843d chore: install claude-context-sync
@@ -216,12 +217,10 @@ a171dae fix: add empty gallery.json so gallery page loads before first Drive syn
 6a67bc6 Fix responsive layout, Cspk. titles, split age groups (#7)
 d6b64b6 Bump brace-expansion from 1.1.14 to 1.1.15 (#3)
 7cbd369 Replace procedural contours with the csapat_gomba line-art pattern (#6)
-455bef5 Merge pull request #5 from thead4md/claude/clever-hermann-3b41ed
-3f665cf Scouting authenticity & MCSSZ compliance update + tests
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 12.2s. Stack: TypeScript / Node.js._
+_Generated in 13.5s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
