@@ -7,6 +7,7 @@ interface GalleryItem {
   id: string;
   name: string;
   year: string;
+  approved?: boolean;
 }
 
 function driveImgUrl(fileId: string) {
@@ -17,16 +18,25 @@ export default function Gallery() {
   const { data: items, loading, error } = useContent<GalleryItem[]>('gallery.json', 'gallery');
   const [activeYear, setActiveYear] = useState('all');
 
-  const years = useMemo(() => {
-    if (!items) return [];
-    const set = new Set(items.map((i) => i.year).filter(Boolean));
-    return Array.from(set).sort((a, b) => b.localeCompare(a));
-  }, [items]);
+  // Only approved photos are shown publicly; AI candidates stay hidden until
+  // an editor approves them in Decap CMS.
+  const approvedItems = useMemo(
+    () => (items ? items.filter((i) => i.approved) : []),
+    [items],
+  );
 
-  const filtered = useMemo(() => {
-    if (!items) return [];
-    return activeYear === 'all' ? items : items.filter((i) => i.year === activeYear);
-  }, [items, activeYear]);
+  const years = useMemo(() => {
+    const set = new Set(approvedItems.map((i) => i.year).filter(Boolean));
+    return Array.from(set).sort((a, b) => b.localeCompare(a));
+  }, [approvedItems]);
+
+  const filtered = useMemo(
+    () =>
+      activeYear === 'all'
+        ? approvedItems
+        : approvedItems.filter((i) => i.year === activeYear),
+    [approvedItems, activeYear],
+  );
 
   return (
     <main aria-label="Galéria oldal">
