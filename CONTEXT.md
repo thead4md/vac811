@@ -208,6 +208,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+24d1ffb fix: query Shared Drive content in gallery curation
+bdae23f chore: update CONTEXT.md [auto]
 49a735a debug: probe SA identity and folder metadata
 1617747 chore: update CONTEXT.md [auto]
 89305bc debug: log root folder contents in curate-gallery
@@ -216,12 +218,10 @@ a46cbb1 fix: service account auth + Node 24 + prompt caching for gallery curatio
 2b7b9e5 chore: update CONTEXT.md [auto]
 459ab01 chore: remove stale sync-gallery workflow (replaced by curate-gallery)
 f0031f6 chore: update CONTEXT.md [auto]
-d199906 feat: ML-curated gallery via Claude vision + Decap CMS approval (#10)
-4660c6e chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 10.5s. Stack: TypeScript / Node.js._
+_Generated in 15.6s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
