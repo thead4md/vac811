@@ -175,6 +175,7 @@ async function main() {
 
   // Map year name → folder id
   const rootFolders = await driveList(FOLDER_ID);
+  console.log(`  Root folder contains ${rootFolders.length} item(s): ${rootFolders.map(f => f.name).join(', ') || '(none)'}`);
   const yearFolderByName = new Map(
     rootFolders
       .filter((f) => f.mimeType === FOLDER_MIME)
