@@ -30,6 +30,54 @@
   gap: var(--space-3);
 }
 
+/* Category filter */
+.gallery-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+}
+.gallery-filter__btn {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: background var(--transition-interactive), color var(--transition-interactive), border-color var(--transition-interactive);
+}
+.gallery-filter__btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.gallery-filter__btn--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+/* Loading skeleton */
+.gallery-grid--skeleton {}
+.gallery-skeleton {
+  border-radius: var(--radius-lg);
+  background: linear-gradient(90deg, var(--color-surface-offset) 25%, var(--color-surface) 50%, var(--color-surface-offset) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.gallery-error,
+.gallery-empty {
+  color: var(--color-text-muted);
+  font-size: var(--text-base);
+  padding: var(--space-12) 0;
+  text-align: center;
+}
+
 /* Gallery grid */
 .gallery-grid {
   display: grid;
@@ -58,24 +106,13 @@
 .gallery-item--medium {
   grid-column: span 2;
 }
-.gallery-item__placeholder {
+.gallery-item__img {
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-surface-offset);
-  gap: var(--space-2);
-}
-.gallery-item__placeholder-icon {
-  font-size: 2rem;
-  opacity: 0.4;
-}
-.gallery-item__placeholder-text {
-  font-size: var(--text-xs);
-  color: var(--color-text-faint);
-  text-align: center;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 .gallery-item__caption {
   position: absolute;

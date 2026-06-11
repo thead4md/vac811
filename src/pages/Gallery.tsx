@@ -1,33 +1,33 @@
+import { useMemo, useState } from 'react';
+import { useContent } from '../hooks/useContent';
+import InstagramWall from '../components/InstagramWall';
 import './Gallery.css';
 
-const galleryCategories = [
-  { id: 'taborok', label: 'Táborok' },
-  { id: 'portyak', label: 'Portyák' },
-  { id: 'kozosseg', label: 'Közösség' },
-];
+interface GalleryItem {
+  id: string;
+  name: string;
+  year: string;
+}
 
-// Placeholder gallery items — replace with real photos
-const placeholderItems = Array.from({ length: 12 }, (_, i) => ({
-  id: `photo-${i + 1}`,
-  alt: `Cserkész fotó ${i + 1}`,
-  category: galleryCategories[i % 3].id,
-  caption: [
-    'Nyári tábor 2025 – Süttő',
-    'Tábortűz est a rajokkal',
-    'Csapatportya a Dunakanyarban',
-    'Közösségi foglalkozás',
-    'Tájékozódási verseny',
-    'Csapatmise a székesegyházban',
-    'Nyári tábor 2024 – Bernecebaráti',
-    'Kézügyességi verseny',
-    'Tábori főzőverseny',
-    'Cserkész fogadalom',
-    'Rajgyűlés',
-    'Fesztiválszerű program',
-  ][i],
-}));
+function driveImgUrl(fileId: string) {
+  return `https://lh3.googleusercontent.com/d/${fileId}`;
+}
 
 export default function Gallery() {
+  const { data: items, loading, error } = useContent<GalleryItem[]>('gallery.json', 'gallery');
+  const [activeYear, setActiveYear] = useState('all');
+
+  const years = useMemo(() => {
+    if (!items) return [];
+    const set = new Set(items.map((i) => i.year).filter(Boolean));
+    return Array.from(set).sort((a, b) => b.localeCompare(a));
+  }, [items]);
+
+  const filtered = useMemo(() => {
+    if (!items) return [];
+    return activeYear === 'all' ? items : items.filter((i) => i.year === activeYear);
+  }, [items, activeYear]);
+
   return (
     <main aria-label="Galéria oldal">
       {/* Hero */}
@@ -43,54 +43,95 @@ export default function Gallery() {
         </div>
       </section>
 
-      {/* Gallery note */}
-      <section className="section section--sm" style={{ background: 'var(--color-surface)' }}>
-        <div className="container container--default">
-          <div className="gallery-notice">
-            <div className="gallery-notice__icon" aria-hidden="true">📸</div>
-            <div>
-              <h2>Fotók hamarosan</h2>
-              <p>
-                A galéria feltöltése folyamatban van. Addig is, nézz be Facebook- és Instagram-oldalunkra,
-                ahol rendszeresen osztunk meg képeket és videókat cserkészéletünkből!
-              </p>
-              <div className="gallery-notice__links">
-                <a href="https://facebook.com/vac811" target="_blank" rel="noopener noreferrer" className="btn btn--primary">
-                  Facebook – vac811
-                </a>
-                <a href="https://instagram.com/811szentjozsef" target="_blank" rel="noopener noreferrer" className="btn btn--outline">
-                  Instagram – @811szentjozsef
-                </a>
-              </div>
+      {/* Photo grid */}
+      <section className="section" aria-labelledby="gallery-grid-heading">
+        <div className="container">
+          <span className="section-label">Fotók</span>
+          <h2 id="gallery-grid-heading" className="section-title">Cserkészéletünk</h2>
+
+          {/* Year filter — only shown once data is loaded and has years */}
+          {!loading && years.length > 0 && (
+            <div className="gallery-filter" role="group" aria-label="Év szűrő">
+              <button
+                className={`gallery-filter__btn${activeYear === 'all' ? ' gallery-filter__btn--active' : ''}`}
+                onClick={() => setActiveYear('all')}
+                aria-pressed={activeYear === 'all'}
+              >
+                Összes
+              </button>
+              {years.map((year) => (
+                <button
+                  key={year}
+                  className={`gallery-filter__btn${activeYear === year ? ' gallery-filter__btn--active' : ''}`}
+                  onClick={() => setActiveYear(year)}
+                  aria-pressed={activeYear === year}
+                >
+                  {year}
+                </button>
+              ))}
             </div>
-          </div>
+          )}
+
+          {loading && (
+            <div className="gallery-grid gallery-grid--skeleton">
+              {Array.from({ length: 12 }, (_, i) => (
+                <div
+                  key={i}
+                  className={`gallery-skeleton gallery-item--${i === 0 ? 'large' : i === 4 ? 'medium' : 'small'}`}
+                  aria-hidden="true"
+                />
+              ))}
+            </div>
+          )}
+
+          {error && (
+            <p className="gallery-error">
+              A fotók betöltése nem sikerült. Kérjük, próbáld újra később.
+            </p>
+          )}
+
+          {!loading && !error && filtered.length === 0 && (
+            <p className="gallery-empty">
+              Erre az évre még nincsenek feltöltött fotók.
+            </p>
+          )}
+
+          {!loading && !error && filtered.length > 0 && (
+            <div className="gallery-grid">
+              {filtered.map((item, i) => (
+                <figure
+                  key={item.id}
+                  className={`gallery-item gallery-item--${i === 0 ? 'large' : i === 4 ? 'medium' : 'small'}`}
+                  aria-label={item.name}
+                >
+                  <img
+                    src={driveImgUrl(item.id)}
+                    alt={item.name}
+                    loading="lazy"
+                    decoding="async"
+                    className="gallery-item__img"
+                  />
+                  <figcaption className="gallery-item__caption">{item.name}</figcaption>
+                </figure>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Placeholder grid */}
-      <section className="section" aria-labelledby="gallery-grid-heading">
-        <div className="container">
-          <span className="section-label">Előnézet</span>
-          <h2 id="gallery-grid-heading" className="section-title">Cserkészéletünk</h2>
+      {/* Instagram wall */}
+      <section
+        className="section section--sm"
+        style={{ background: 'var(--color-surface)' }}
+        aria-labelledby="instagram-wall-heading"
+      >
+        <div className="container container--default">
+          <span className="section-label">Közösségi média</span>
+          <h2 id="instagram-wall-heading" className="section-title">Instagram</h2>
           <p style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-8)', maxWidth: '60ch' }}>
-            Az alábbi helyek valós fotókkal lesznek feltöltve. A csillagszabású cserkészkalandok képeiért
-            kövesd közösségi oldalainkat!
+            Kövess minket Instagramon a legfrissebb cserkészélményekért!
           </p>
-          <div className="gallery-grid">
-            {placeholderItems.map((item, i) => (
-              <figure
-                key={item.id}
-                className={`gallery-item gallery-item--${i === 0 ? 'large' : i === 4 ? 'medium' : 'small'}`}
-                aria-label={item.alt}
-              >
-                <div className="gallery-item__placeholder" aria-hidden="true">
-                  <div className="gallery-item__placeholder-icon">📷</div>
-                  <span className="gallery-item__placeholder-text">Fotó hamarosan</span>
-                </div>
-                <figcaption className="gallery-item__caption">{item.caption}</figcaption>
-              </figure>
-            ))}
-          </div>
+          <InstagramWall />
         </div>
       </section>
     </main>

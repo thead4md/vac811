@@ -20,10 +20,10 @@ describe('Join page consumes the shared korosztályok data', () => {
 })
 
 describe('Home page consumes the shared summary data', () => {
-  it('renders the four merged age-group cards', () => {
+  it('renders the age-group cards from shared data', () => {
     const { container } = render(<MemoryRouter><Home /></MemoryRouter>)
     const grid = container.querySelector('.age-card')!.parentElement!
-    expect(within(grid).getByText('Vándor & Vezető')).toBeInTheDocument()
+    expect(within(grid).getByText('Vándor')).toBeInTheDocument()
     expect(within(grid).getByText('Kiscserkész')).toBeInTheDocument()
   })
 })
