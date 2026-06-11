@@ -116,12 +116,18 @@ async function scoreImage(fileId) {
   const response = await anthropic.messages.parse({
     model: MODEL,
     max_tokens: 1024,
+    system: [
+      {
+        type: 'text',
+        text: SCORE_PROMPT,
+        cache_control: { type: 'ephemeral' },
+      },
+    ],
     messages: [
       {
         role: 'user',
         content: [
           { type: 'image', source: { type: 'url', url: cdnUrl(fileId) } },
-          { type: 'text', text: SCORE_PROMPT },
         ],
       },
     ],
