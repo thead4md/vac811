@@ -165,17 +165,6 @@ function detectPrimaryEvent(byEvent) {
   return null;
 }
 
-// Enforce ≤15 req/min for the Gemini free tier (one call per 4 s minimum).
-const GEMINI_MIN_INTERVAL_MS = 4000;
-let _lastGeminiCall = 0;
-async function geminiRateLimit() {
-  const elapsed = Date.now() - _lastGeminiCall;
-  if (elapsed < GEMINI_MIN_INTERVAL_MS) {
-    await new Promise((r) => setTimeout(r, GEMINI_MIN_INTERVAL_MS - elapsed));
-  }
-  _lastGeminiCall = Date.now();
-}
-
 // Gemini Flash binary pre-filter: returns true → proceed to Haiku, false → skip.
 async function quickScoreImage(fileId) {
   const url = cdnUrl(fileId, 512);
@@ -192,7 +181,6 @@ async function quickScoreImage(fileId) {
   const base64 = Buffer.from(buffer).toString('base64');
   const mimeType = (imageRes.headers.get('content-type') || 'image/jpeg').split(';')[0].trim();
 
-  await geminiRateLimit();
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${PREFLIGHT_MODEL}:generateContent`;
   let res;
   try {
