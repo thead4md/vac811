@@ -103,15 +103,15 @@ const ScoreSchema = z.object({
   score: z.number().describe('Scouting relevance and website value 0–100: how well does this represent the spirit, activities, and atmosphere of the scout troop?'),
   caption: z.string().describe('Short, natural Hungarian caption describing the activity or moment shown'),
   activityType: z.enum([
-    'tábor',        // overnight/summer camp
-    'túra',         // hiking or outdoor expedition
-    'tábortűz',     // campfire or evening programme
-    'foglalkozás',  // skill workshop, crafts, games
-    'ünnepség',     // ceremony, parade, badge presentation
-    'természet',    // nature scene with scouts present
-    'csapatélet',   // everyday troop life, candid moment
-    'egyéb',        // other
-  ]).describe('Primary activity type visible in the photo'),
+    'tabor',        // overnight/summer camp (tábor)
+    'tura',         // hiking or outdoor expedition (túra)
+    'tabortuz',     // campfire or evening programme (tábortűz)
+    'foglalkozas',  // skill workshop, crafts, games (foglalkozás)
+    'unnepseg',     // ceremony, parade, badge presentation (ünnepség)
+    'termeszet',    // nature scene with scouts present (természet)
+    'csapatelete',  // everyday troop life, candid moment (csapatélet)
+    'egyeb',        // other (egyéb)
+  ]).describe('Primary activity type visible in the photo. Use ASCII-only values: tabor, tura, tabortuz, foglalkozas, unnepseg, termeszet, csapatelete, egyeb'),
   hasIdentifiablePeople: z.boolean().describe('Are recognizable faces clearly visible?'),
   suitableForPublicYouthSite: z.boolean().describe('Appropriate and flattering for a public youth-organization gallery?'),
 });
