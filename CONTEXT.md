@@ -91,6 +91,7 @@ vac811/
 │   ├── curate-gallery.mjs
 │   ├── generate_context.py
 │   ├── sync-gallery.mjs
+│   ├── test-preflight.mjs
 │   └── validate_context.py
 ├── src
 │   ├── assets
@@ -213,20 +214,20 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+de31e78 fix: use ASCII-only activityType enum values to prevent structured output parse failures (#22)
+b690971 fix: probe OpenAI API at startup to catch silent preflight failures (#20)
+7d80211 feat: scouting-relevance prompts, diversity picker, OpenAI startup probe (#21)
+5eef7a1 chore: update CONTEXT.md [auto]
 1c8849a fix: switch preflight from Gemini to OpenAI gpt-4o-mini (#19)
 0ce1d56 chore: update CONTEXT.md [auto]
 9e9d9f5 fix: throttle Gemini preflight to stay within free-tier rate limits (#18)
 5060786 chore: curate gallery candidates from Google Drive
 92803c6 chore: update CONTEXT.md [auto]
 a153a42 chore: update CONTEXT.md [auto]
-570e0d9 revert: remove Gemini rate limit delay (#17)
-2585cee chore: update CONTEXT.md [auto]
-4f603b4 fix: throttle Gemini preflight to ≤15 req/min (free tier limit) (#16)
-93faa5a chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 16.5s. Stack: TypeScript / Node.js._
+_Generated in 12.4s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
