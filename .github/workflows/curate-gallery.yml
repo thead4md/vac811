@@ -16,7 +16,7 @@ on:
         required: false
         default: '1'
       preflight:
-        description: 'Enable Gemini Flash pre-filter (true/false)'
+        description: 'Enable OpenAI gpt-4o-mini pre-filter (true/false)'
         required: false
         default: 'true'
       score_threshold:
@@ -59,6 +59,8 @@ jobs:
           GALLERY_PREFLIGHT_MODEL: ${{ github.event.inputs.preflight == 'false' && '' || 'gpt-4o-mini' }}
           GALLERY_SCORE_THRESHOLD: ${{ github.event.inputs.score_threshold || '50' }}
           GALLERY_MINOR_THRESHOLD: ${{ github.event.inputs.minor_threshold || '80' }}
+          GALLERY_PREFLIGHT_BUDGET: ${{ vars.GALLERY_PREFLIGHT_BUDGET || '200' }}
+          GALLERY_HAIKU_BUDGET: ${{ vars.GALLERY_HAIKU_BUDGET || '120' }}
         run: node scripts/curate-gallery.mjs
 
       - name: Commit updated gallery.json
@@ -67,8 +69,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add public/content/gallery.json
+          [ -f public/content/gallery-pipeline-state.json ] && git add public/content/gallery-pipeline-state.json || true
           if git diff --cached --quiet; then
-            echo "No changes to gallery.json"
+            echo "No changes to commit"
           else
             git commit -m "chore: curate gallery candidates from Google Drive"
             git pull --rebase origin main

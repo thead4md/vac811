@@ -21,6 +21,16 @@
 //   GALLERY_PREFLIGHT_MODEL    – OpenAI model for binary pre-filter; omit to skip
 //                                (default "gpt-4o-mini" when OPENAI_API_KEY is set)
 //   OPENAI_API_KEY             – OpenAI API key (required for pre-filter)
+//   GALLERY_PREFLIGHT_BUDGET   – hard cap on OpenAI preflight calls per run (default 200)
+//   GALLERY_HAIKU_BUDGET       – hard cap on Claude Haiku scoring calls per run (default 120)
+//
+// Resumability:
+//   Every Drive image the pipeline finishes deciding about (kept, skipped,
+//   below-threshold, unsuitable, errored, or scored-but-not-picked) is recorded
+//   in public/content/gallery-pipeline-state.json so it is never re-fetched or
+//   re-charged on a later run. A re-run over an unchanged Drive is a no-op.
+//   When a per-run budget cap is hit the run flushes progress and exits 0 (a
+//   partial run is success); the next run resumes from where it stopped.
 //
 // gallery.json item schema:
 //   { id, name, year, event, activity, bucket, score, reason, approved }
@@ -46,6 +56,7 @@ import { bucketActivity, diversePick } from './curate-lib.mjs';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const GALLERY_PATH = join(ROOT, 'public', 'content', 'gallery.json');
+const STATE_PATH = join(ROOT, 'public', 'content', 'gallery-pipeline-state.json');
 
 const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
 
@@ -84,6 +95,8 @@ const PRIMARY_KEYWORDS = (process.env.GALLERY_PRIMARY_KEYWORDS || 'tábor,tábor
 const PREFLIGHT_MODEL = process.env.GALLERY_PREFLIGHT_MODEL ||
   (process.env.OPENAI_API_KEY ? 'gpt-4o-mini' : null);
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || null;
+const PREFLIGHT_BUDGET = Number(process.env.GALLERY_PREFLIGHT_BUDGET || 200);
+const HAIKU_BUDGET = Number(process.env.GALLERY_HAIKU_BUDGET || 120);
 const MAX_RECURSION_DEPTH = 2; // year → event → (person)
 
 if (PREFLIGHT_MODEL && !OPENAI_API_KEY) {
@@ -290,6 +303,32 @@ function loadExisting() {
   }
 }
 
+// Persistent "seen" state: the authoritative set of Drive IDs the pipeline has
+// already decided about. Tolerates a missing/malformed file by resetting.
+function loadState() {
+  if (!existsSync(STATE_PATH)) return { seenIds: [], lastRun: null, runCount: 0 };
+  try {
+    const json = JSON.parse(readFileSync(STATE_PATH, 'utf-8'));
+    return {
+      seenIds: Array.isArray(json.seenIds) ? json.seenIds : [],
+      lastRun: json.lastRun ?? null,
+      runCount: Number(json.runCount) || 0,
+    };
+  } catch {
+    return { seenIds: [], lastRun: null, runCount: 0 };
+  }
+}
+
+function saveState(seenSet, runCount) {
+  const state = {
+    seenIds: [...seenSet],
+    lastRun: new Date().toISOString(),
+    runCount,
+  };
+  mkdirSync(dirname(STATE_PATH), { recursive: true });
+  writeFileSync(STATE_PATH, JSON.stringify(state, null, 2) + '\n', 'utf-8');
+}
+
 function saveGallery(items) {
   const sorted = [...items].sort((a, b) => {
     if (String(b.year) !== String(a.year)) return String(b.year).localeCompare(String(a.year));
@@ -336,6 +375,16 @@ async function main() {
   const liveGallery = [...existing.gallery];
   const knownIds = new Set(liveGallery.map((i) => i.id));
 
+  // `seen` is the authoritative set of Drive IDs already decided about. It folds
+  // in both prior-run state and every kept candidate in gallery.json, so it is
+  // the single source of truth for "skip on the next run". We mark IDs into it
+  // at every decision point and persist the whole set incrementally.
+  const state = loadState();
+  const runCount = state.runCount + 1;
+  const seen = new Set([...state.seenIds, ...knownIds]);
+  const initialSeenSize = seen.size;
+  console.log(`Resume state: ${state.seenIds.length} seen id(s) from ${state.runCount} prior run(s); budgets: preflight<=${PREFLIGHT_BUDGET}, haiku<=${HAIKU_BUDGET}`);
+
   // Map year name → folder id
   const rootFolders = await driveList(FOLDER_ID);
   const yearFolderByName = new Map(
@@ -347,7 +396,26 @@ async function main() {
   const newCandidates = [];
   let totalPreflightSeen = 0;
   let totalPreflightSkipped = 0;
+  let totalFetched = 0;
+  let openaiCalls = 0;
+  let claudeCalls = 0;
+  let budgetHit = false;
 
+  const logSummary = () => {
+    console.log('RUN_SUMMARY ' + JSON.stringify({
+      years,
+      fetched: totalFetched,
+      preflightSkipped: totalPreflightSkipped,
+      scored: claudeCalls,
+      kept: newCandidates.length,
+      openaiCalls,
+      claudeCalls,
+      budgetHit,
+      seenTotal: seen.size,
+    }));
+  };
+
+  yearLoop:
   for (const year of years) {
     const yearFolderId = yearFolderByName.get(year);
     if (!yearFolderId) {
@@ -358,7 +426,8 @@ async function main() {
     // Collect all images for this year, grouped under their event name.
     const images = [];
     await collectImages(yearFolderId, null, 0, images);
-    const fresh = images.filter((img) => !knownIds.has(img.id));
+    const fresh = images.filter((img) => !seen.has(img.id));
+    totalFetched += fresh.length;
     console.log(`\n  ${year}: ${images.length} image(s), ${fresh.length} new to score`);
 
     // Group fresh images by event.
@@ -390,10 +459,21 @@ async function main() {
       for (const img of imgs) {
         // Pass 1: OpenAI vision pre-filter (opt-in)
         if (PREFLIGHT_MODEL) {
+          if (openaiCalls >= PREFLIGHT_BUDGET) {
+            console.warn(`    [budget] preflight cap (${PREFLIGHT_BUDGET}) reached — stopping run, progress saved`);
+            budgetHit = true;
+            break;
+          }
           preflightSeen++;
           totalPreflightSeen++;
+          openaiCalls++;
           const keep = await quickScoreImage(img.id);
           if (!keep) {
+            // SKIP is a terminal decision — mark seen so we never re-charge it.
+            // A KEEP is only a pass to the Haiku stage, so it is NOT marked here:
+            // if the Haiku budget cuts us off before scoring, the image must
+            // remain unseen and resume next run (re-preflight is cheap).
+            seen.add(img.id);
             preflightSkipped++;
             totalPreflightSkipped++;
             continue;
@@ -401,8 +481,18 @@ async function main() {
         }
 
         // Pass 2: Claude Haiku full score
+        if (claudeCalls >= HAIKU_BUDGET) {
+          console.warn(`    [budget] haiku cap (${HAIKU_BUDGET}) reached — stopping run, progress saved`);
+          budgetHit = true;
+          break;
+        }
+        claudeCalls++;
         try {
           const result = await scoreImage(img.id);
+          // A consumed Haiku call means this image is decided forever — even if
+          // it scores below threshold or is dropped by diversePick later, we
+          // never re-score it (cost-correct; keeps re-runs true no-ops).
+          seen.add(img.id);
           if (!result.suitableForPublicYouthSite) continue;
           if (result.score < threshold) continue;
           const bucket = bucketActivity(result.activity);
@@ -418,6 +508,8 @@ async function main() {
             approved: false,
           });
         } catch (err) {
+          // Mark seen anyway so a permanently-bad image can't retry-loop forever.
+          seen.add(img.id);
           console.warn(`    Failed to score ${img.id}: ${err.message}`);
         }
       }
@@ -437,7 +529,20 @@ async function main() {
         saveGallery(liveGallery);
         console.log(`    → saved to gallery.json (${liveGallery.length} total)`);
       }
+      // Persist seen-state after every event so a crash or budget abort never
+      // loses progress (and never re-charges the images already processed).
+      saveState(seen, runCount);
+
+      if (budgetHit) break; // stop scanning further events this year
     }
+
+    if (budgetHit) break yearLoop; // stop scanning further years
+  }
+
+  if (budgetHit) {
+    saveState(seen, runCount);
+    logSummary();
+    return; // partial run is success — exit 0 so the commit step persists progress
   }
 
   // Preflight cost summary
@@ -450,7 +555,11 @@ async function main() {
     console.log(`Estimated savings: ~$${haikuSaved.toFixed(3)} Haiku saved − ~$${openaiCost.toFixed(4)} OpenAI cost = ~$${netSaving.toFixed(3)} net`);
   }
 
+  // Only rewrite state when something was actually processed — a true no-op
+  // re-run (no fresh images) leaves the file untouched, so there is no git diff.
+  if (seen.size !== initialSeenSize) saveState(seen, runCount);
   console.log(`\nAdded ${newCandidates.length} new candidate(s); ${liveGallery.length} total in gallery.json`);
+  logSummary();
 }
 
 main().catch((err) => {
