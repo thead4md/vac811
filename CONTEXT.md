@@ -186,10 +186,12 @@ _Module map available for Python projects only._
 | Variable | Default | Source |
 |----------|---------|--------|
 | `ANTHROPIC_API_KEY` | `—` | source code |
+| `GALLERY_HAIKU_BUDGET` | `—` | source code |
 | `GALLERY_MAX_PER_EVENT` | `—` | source code |
 | `GALLERY_MAX_PRIMARY_EVENT` | `—` | source code |
 | `GALLERY_MINOR_THRESHOLD` | `—` | source code |
 | `GALLERY_MODEL` | `—` | source code |
+| `GALLERY_PREFLIGHT_BUDGET` | `—` | source code |
 | `GALLERY_PREFLIGHT_MODEL` | `—` | source code |
 | `GALLERY_PRIMARY_KEYWORDS` | `—` | source code |
 | `GALLERY_SCORE_THRESHOLD` | `—` | source code |
@@ -216,6 +218,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+f632fcf feat: make gallery curation pipeline resumable, idempotent, and spend-bounded (#26)
+b9a67d2 chore: update CONTEXT.md [auto]
 6273df1 fix: rebase before push in curate-gallery workflow (#25)
 ff20ee7 chore: update CONTEXT.md [auto]
 927da4e feat: show photo thumbnails in CMS gallery preview pane (#24)
@@ -224,12 +228,10 @@ ff9c870 chore: update CONTEXT.md [auto]
 f98a3db chore: update CONTEXT.md [auto]
 de31e78 fix: use ASCII-only activityType enum values to prevent structured output parse failures (#22)
 b690971 fix: probe OpenAI API at startup to catch silent preflight failures (#20)
-7d80211 feat: scouting-relevance prompts, diversity picker, OpenAI startup probe (#21)
-5eef7a1 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 14.0s. Stack: TypeScript / Node.js._
+_Generated in 20.1s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
