@@ -18,9 +18,9 @@
 //   GALLERY_PRIMARY_KEYWORDS   – comma-separated Hungarian keywords to force-classify
 //                                an event as primary (default "tábor,táborozás,nyári")
 //   GALLERY_MODEL              – Claude model id (default claude-haiku-4-5)
-//   GALLERY_PREFLIGHT_MODEL    – Gemini model for binary pre-filter; omit to skip
-//                                (default "gemini-2.0-flash" when GEMINI_API_KEY is set)
-//   GEMINI_API_KEY             – Google AI Studio key (required for pre-filter)
+//   GALLERY_PREFLIGHT_MODEL    – OpenAI model for binary pre-filter; omit to skip
+//                                (default "gpt-4o-mini" when OPENAI_API_KEY is set)
+//   OPENAI_API_KEY             – OpenAI API key (required for pre-filter)
 //
 // gallery.json item schema:
 //   { id, name, year, event, score, reason, approved }
@@ -79,12 +79,12 @@ const PRIMARY_KEYWORDS = (process.env.GALLERY_PRIMARY_KEYWORDS || 'tábor,tábor
   .map((s) => s.trim().toLowerCase())
   .filter(Boolean);
 const PREFLIGHT_MODEL = process.env.GALLERY_PREFLIGHT_MODEL ||
-  (process.env.GEMINI_API_KEY ? 'gemini-2.0-flash' : null);
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || null;
+  (process.env.OPENAI_API_KEY ? 'gpt-4o-mini' : null);
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || null;
 const MAX_RECURSION_DEPTH = 2; // year → event → (person)
 
-if (PREFLIGHT_MODEL && !GEMINI_API_KEY) {
-  console.error('GALLERY_PREFLIGHT_MODEL is set but GEMINI_API_KEY is missing');
+if (PREFLIGHT_MODEL && !OPENAI_API_KEY) {
+  console.error('GALLERY_PREFLIGHT_MODEL is set but OPENAI_API_KEY is missing');
   process.exit(1);
 }
 
@@ -165,7 +165,7 @@ function detectPrimaryEvent(byEvent) {
   return null;
 }
 
-// Gemini Flash binary pre-filter: returns true → proceed to Haiku, false → skip.
+// OpenAI vision binary pre-filter: returns true → proceed to Haiku, false → skip.
 async function quickScoreImage(fileId) {
   const url = cdnUrl(fileId, 512);
   let imageRes;
@@ -173,7 +173,6 @@ async function quickScoreImage(fileId) {
     imageRes = await fetch(url);
     if (!imageRes.ok) throw new Error(`HTTP ${imageRes.status}`);
   } catch (err) {
-    // If we can't fetch the image, let Haiku try anyway.
     console.warn(`    [preflight] fetch failed for ${fileId}: ${err.message} — defaulting to KEEP`);
     return true;
   }
@@ -181,43 +180,48 @@ async function quickScoreImage(fileId) {
   const base64 = Buffer.from(buffer).toString('base64');
   const mimeType = (imageRes.headers.get('content-type') || 'image/jpeg').split(';')[0].trim();
 
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${PREFLIGHT_MODEL}:generateContent`;
   let res;
   try {
-    res = await fetch(apiUrl, {
+    res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI_API_KEY },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
       body: JSON.stringify({
-        contents: [{
-          parts: [
-            { inlineData: { mimeType, data: base64 } },
-            { text: PREFLIGHT_PROMPT },
+        model: PREFLIGHT_MODEL,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64}`, detail: 'low' } },
+            { type: 'text', text: PREFLIGHT_PROMPT },
           ],
         }],
-        generationConfig: { maxOutputTokens: 10, temperature: 0 },
+        max_tokens: 10,
+        temperature: 0,
       }),
     });
   } catch (err) {
-    console.warn(`    [preflight] Gemini API error for ${fileId}: ${err.message} — defaulting to KEEP`);
+    console.warn(`    [preflight] OpenAI API error for ${fileId}: ${err.message} — defaulting to KEEP`);
     return true;
   }
 
   if (res.status === 429) {
     const retryAfter = Number(res.headers.get('retry-after') || 0);
-    const delay = retryAfter > 0 ? retryAfter * 1000 : 60_000;
-    console.warn(`    [preflight] Gemini 429 for ${fileId} — waiting ${delay / 1000}s then retrying`);
+    const delay = retryAfter > 0 ? retryAfter * 1000 : 10_000;
+    console.warn(`    [preflight] OpenAI 429 for ${fileId} — waiting ${delay / 1000}s then retrying`);
     await new Promise((r) => setTimeout(r, delay));
     return quickScoreImage(fileId);
   }
 
   if (!res.ok) {
     const body = await res.text();
-    console.warn(`    [preflight] Gemini ${res.status} for ${fileId}: ${body.slice(0, 120)} — defaulting to KEEP`);
+    console.warn(`    [preflight] OpenAI ${res.status} for ${fileId}: ${body.slice(0, 120)} — defaulting to KEEP`);
     return true;
   }
 
   const json = await res.json();
-  const text = (json.candidates?.[0]?.content?.parts?.[0]?.text ?? 'KEEP').trim().toUpperCase();
+  const text = (json.choices?.[0]?.message?.content ?? 'KEEP').trim().toUpperCase();
   return !text.startsWith('SKIP');
 }
 
@@ -295,7 +299,7 @@ async function main() {
   if (PREFLIGHT_MODEL) {
     console.log(`Preflight enabled: ${PREFLIGHT_MODEL}`);
   } else {
-    console.log('Preflight disabled (set GEMINI_API_KEY to enable)');
+    console.log('Preflight disabled (set OPENAI_API_KEY to enable)');
   }
 
   const existing = loadExisting();
@@ -353,16 +357,9 @@ async function main() {
       let preflightSkipped = 0;
       const scored = [];
 
-      // Free-tier Gemini: ≤15 RPM (gemini-2.0-flash) or ≤5 RPM (gemini-2.5-flash).
-      // Enforce a minimum gap of 5 s between preflight calls to stay under the limit.
-      let lastPreflightMs = 0;
-
       for (const img of imgs) {
-        // Pass 1: Gemini Flash pre-filter (opt-in)
+        // Pass 1: OpenAI vision pre-filter (opt-in)
         if (PREFLIGHT_MODEL) {
-          const elapsed = Date.now() - lastPreflightMs;
-          if (elapsed < 5_000) await new Promise((r) => setTimeout(r, 5_000 - elapsed));
-          lastPreflightMs = Date.now();
           preflightSeen++;
           totalPreflightSeen++;
           const keep = await quickScoreImage(img.id);
@@ -415,10 +412,11 @@ async function main() {
   // Preflight cost summary
   if (PREFLIGHT_MODEL && totalPreflightSeen > 0) {
     const haikuSaved = totalPreflightSkipped * 0.0008;
-    const geminiCost = totalPreflightSeen * 0.00004;
-    const netSaving = haikuSaved - geminiCost;
+    // gpt-4o-mini low-detail image: ~85 tokens × $0.15/1M = ~$0.000013 per call
+    const openaiCost = totalPreflightSeen * 0.000013;
+    const netSaving = haikuSaved - openaiCost;
     console.log(`\nPreflight summary: ${totalPreflightSkipped}/${totalPreflightSeen} images skipped`);
-    console.log(`Estimated savings: ~$${haikuSaved.toFixed(3)} Haiku saved − ~$${geminiCost.toFixed(3)} Gemini cost = ~$${netSaving.toFixed(3)} net`);
+    console.log(`Estimated savings: ~$${haikuSaved.toFixed(3)} Haiku saved − ~$${openaiCost.toFixed(4)} OpenAI cost = ~$${netSaving.toFixed(3)} net`);
   }
 
   console.log(`\nAdded ${newCandidates.length} new candidate(s); ${liveGallery.length} total in gallery.json`);
