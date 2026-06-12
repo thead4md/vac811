@@ -23,12 +23,14 @@
 //   OPENAI_API_KEY             – OpenAI API key (required for pre-filter)
 //
 // gallery.json item schema:
-//   { id, name, year, event, score, reason, approved }
+//   { id, name, year, event, activity, bucket, score, reason, approved }
 //   - id:       Google Drive file ID (CDN image URL is built from this)
 //   - name:     AI-suggested caption (editable in CMS) — used as the caption
 //   - year:     year folder the photo came from
 //   - event:    event folder name (for context in the CMS)
-//   - score:    0–100 quality score from Claude
+//   - activity: free-form Hungarian activity label from Claude (e.g. "tábor")
+//   - bucket:   normalized activity bucket used for diversity selection
+//   - score:    0–100 scouting-relevance score from Claude
 //   - reason:   one-line justification (CMS hint)
 //   - approved: false until a human approves it in Decap CMS
 
@@ -39,6 +41,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { GoogleAuth } from 'google-auth-library';
+import { bucketActivity, diversePick } from './curate-lib.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -99,22 +102,16 @@ const IMAGE_MIME_TYPES = new Set([
 
 const anthropic = new Anthropic();
 
+// Free-form `activity` (not an enum): the model writes a short label in its own
+// words and code normalizes it into a bucket for diversity. This can never fail
+// validation, so a single image is never lost to a labeling technicality.
 const ScoreSchema = z.object({
   score: z.number().describe('Scouting relevance and website value 0–100: how well does this represent the spirit, activities, and atmosphere of the scout troop?'),
   caption: z.string().describe('Short, natural Hungarian caption describing the activity or moment shown'),
-  activityType: z.enum([
-    'tabor',        // overnight/summer camp (tábor)
-    'tura',         // hiking or outdoor expedition (túra)
-    'tabortuz',     // campfire or evening programme (tábortűz)
-    'foglalkozas',  // skill workshop, crafts, games (foglalkozás)
-    'unnepseg',     // ceremony, parade, badge presentation (ünnepség)
-    'termeszet',    // nature scene with scouts present (természet)
-    'csapatelete',  // everyday troop life, candid moment (csapatélet)
-    'egyeb',        // other (egyéb)
-  ]).describe('Primary activity type visible in the photo. Use ASCII-only values: tabor, tura, tabortuz, foglalkozas, unnepseg, termeszet, csapatelete, egyeb'),
-  hasIdentifiablePeople: z.boolean().describe('Are recognizable faces clearly visible?'),
+  activity: z.string().describe('One or two Hungarian words naming the main activity or scene (e.g. "tábor", "túra", "tábortűz", "kézműves foglalkozás", "ünnepség", "természet", "csapatprogram"). Free text — pick whatever best fits.'),
   suitableForPublicYouthSite: z.boolean().describe('Appropriate and flattering for a public youth-organization gallery?'),
 });
+
 
 const SCORE_PROMPT = `Te egy magyar cserkészcsapat (811. Szent József) nyilvános weboldalának fotókurátora vagy.
 A galéria célja: megmutatni az embereknek, milyen a cserkészélet — programok, természet, közösség, élmények.
@@ -283,29 +280,6 @@ async function scoreImage(fileId) {
   return response.parsed_output;
 }
 
-// Pick up to `cap` items from a scored list while spreading across activityType.
-// Iterates round-robin over types (highest score first within each type) so the
-// result is diverse rather than dominated by one activity.
-function diversePick(scored, cap) {
-  const byType = new Map();
-  for (const item of scored) {
-    const t = item.activityType ?? 'egyéb';
-    if (!byType.has(t)) byType.set(t, []);
-    byType.get(t).push(item);
-  }
-  const queues = [...byType.values()];
-  const result = [];
-  let i = 0;
-  while (result.length < cap) {
-    const active = queues.filter((q) => q.length > 0);
-    if (!active.length) break;
-    const q = active[i % active.length];
-    result.push(q.shift());
-    i++;
-  }
-  return result;
-}
-
 function loadExisting() {
   if (!existsSync(GALLERY_PATH)) return { gallery: [] };
   try {
@@ -413,16 +387,9 @@ async function main() {
       let preflightSkipped = 0;
       const scored = [];
 
-      // Free-tier Gemini: ≤15 RPM (gemini-2.0-flash) or ≤5 RPM (gemini-2.5-flash).
-      // Enforce a minimum gap of 5 s between preflight calls to stay under the limit.
-      let lastPreflightMs = 0;
-
       for (const img of imgs) {
         // Pass 1: OpenAI vision pre-filter (opt-in)
         if (PREFLIGHT_MODEL) {
-          const elapsed = Date.now() - lastPreflightMs;
-          if (elapsed < 5_000) await new Promise((r) => setTimeout(r, 5_000 - elapsed));
-          lastPreflightMs = Date.now();
           preflightSeen++;
           totalPreflightSeen++;
           const keep = await quickScoreImage(img.id);
@@ -438,14 +405,16 @@ async function main() {
           const result = await scoreImage(img.id);
           if (!result.suitableForPublicYouthSite) continue;
           if (result.score < threshold) continue;
+          const bucket = bucketActivity(result.activity);
           scored.push({
             id: img.id,
             name: result.caption,
             year,
             event,
-            activityType: result.activityType,
+            activity: result.activity,
+            bucket,
             score: result.score,
-            reason: `Pontszám ${result.score}. Típus: ${result.activityType}.`,
+            reason: `Pontszám ${result.score}. Tevékenység: ${result.activity}.`,
             approved: false,
           });
         } catch (err) {
