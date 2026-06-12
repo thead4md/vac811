@@ -100,23 +100,49 @@ const IMAGE_MIME_TYPES = new Set([
 const anthropic = new Anthropic();
 
 const ScoreSchema = z.object({
-  score: z.number().describe('Overall quality 0–100 for use on a public scout troop website'),
-  caption: z.string().describe('Short, natural Hungarian caption describing the photo'),
+  score: z.number().describe('Scouting relevance and website value 0–100: how well does this represent the spirit, activities, and atmosphere of the scout troop?'),
+  caption: z.string().describe('Short, natural Hungarian caption describing the activity or moment shown'),
+  activityType: z.enum([
+    'tábor',        // overnight/summer camp
+    'túra',         // hiking or outdoor expedition
+    'tábortűz',     // campfire or evening programme
+    'foglalkozás',  // skill workshop, crafts, games
+    'ünnepség',     // ceremony, parade, badge presentation
+    'természet',    // nature scene with scouts present
+    'csapatélet',   // everyday troop life, candid moment
+    'egyéb',        // other
+  ]).describe('Primary activity type visible in the photo'),
   hasIdentifiablePeople: z.boolean().describe('Are recognizable faces clearly visible?'),
-  qualityIssues: z.array(z.string()).describe('Problems: blur, bad lighting, cluttered, duplicate-looking, etc.'),
   suitableForPublicYouthSite: z.boolean().describe('Appropriate and flattering for a public youth-organization gallery?'),
 });
 
-const SCORE_PROMPT = `Te egy magyar cserkészcsapat (811. Szent József) nyilvános weboldalának fotószerkesztője vagy.
-Értékeld ezt a fotót aszerint, mennyire alkalmas a galériába:
-- kompozíció, élesség, fényviszonyok, mennyire ragadja meg a cserkészélményt/programot
-- vond le a pontszámot, ha homályos, rosszul exponált, zsúfolt, vagy gyengébb duplikátumnak tűnik
-- jelöld meg, ha bármi nem alkalmas egy ifjúsági szervezet nyilvános oldalára (kínos, nem hízelgő, magánjellegű helyzet)
+const SCORE_PROMPT = `Te egy magyar cserkészcsapat (811. Szent József) nyilvános weboldalának fotókurátora vagy.
+A galéria célja: megmutatni az embereknek, milyen a cserkészélet — programok, természet, közösség, élmények.
+A képek technikailag már rendben vannak. A kérdés az: MENNYIRE ÉRDEMES FELTENNI AZ OLDALRA?
+
+Értékelési szempontok (0–100 pont):
+- Jól látható cserkészélmény, tevékenység vagy hangulat (tábor, túra, tábortűz, foglalkozás, ünnepség)?
+- Közösségi pillanat, csapategység, öröm, kaland, természetközelség?
+- Egy látogató megérti-e belőle, milyen ez a csapat?
+
+Levonj pontot, ha:
+- Semmi cserkészre jellemző nem látszik (pl. valaki csak áll, random tárgyak)
+- Nagyon hasonlít egy másik, tipikus csoportképre (duplikátum-jelleg)
+- Nem alkalmas nyilvános ifjúsági oldalra (kínos, magánjellegű)
+
 Adj egy 0–100 pontszámot és egy rövid, természetes magyar képaláírást.`;
 
-const PREFLIGHT_PROMPT = `You are a photo curator for a Hungarian scout troop's public website.
+const PREFLIGHT_PROMPT = `You are a curator for a Hungarian scout troop's public website gallery.
+The photos are already technically good. Your job is to filter out shots that add NO value to the gallery.
+
 Reply with KEEP or SKIP only — no other text.
-SKIP if: clearly blurry, severely underexposed/dark, accidental shot (ground/sky/finger covering lens), or obviously a near-identical duplicate of a standard group pose.
+
+SKIP only if:
+- No scouting context visible: a person just standing/sitting doing nothing, random objects, food without scouts, administrative/indoor logistics shot
+- Obviously a near-identical duplicate of a standard posed group photo
+- Clearly not suitable for a public youth website (embarrassing, private moment)
+
+KEEP if there is any scouting activity, outdoor/nature scene, group moment, emotion, or atmosphere visible — even partially.
 When in doubt, reply KEEP.`;
 
 async function driveList(parentId) {
@@ -167,18 +193,9 @@ function detectPrimaryEvent(byEvent) {
 
 // OpenAI vision binary pre-filter: returns true → proceed to Haiku, false → skip.
 async function quickScoreImage(fileId) {
-  const url = cdnUrl(fileId, 512);
-  let imageRes;
-  try {
-    imageRes = await fetch(url);
-    if (!imageRes.ok) throw new Error(`HTTP ${imageRes.status}`);
-  } catch (err) {
-    console.warn(`    [preflight] fetch failed for ${fileId}: ${err.message} — defaulting to KEEP`);
-    return true;
-  }
-  const buffer = await imageRes.arrayBuffer();
-  const base64 = Buffer.from(buffer).toString('base64');
-  const mimeType = (imageRes.headers.get('content-type') || 'image/jpeg').split(';')[0].trim();
+  // Pass the CDN URL directly so OpenAI fetches it — this activates detail:'low'
+  // (85 tokens flat) instead of the ~2900-token cost of base64 data URIs.
+  const imageUrl = cdnUrl(fileId, 512);
 
   let res;
   try {
@@ -193,7 +210,7 @@ async function quickScoreImage(fileId) {
         messages: [{
           role: 'user',
           content: [
-            { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64}`, detail: 'low' } },
+            { type: 'image_url', image_url: { url: imageUrl, detail: 'low' } },
             { type: 'text', text: PREFLIGHT_PROMPT },
           ],
         }],
@@ -264,6 +281,29 @@ async function scoreImage(fileId) {
   });
   if (!response.parsed_output) throw new Error('Claude returned unparseable response');
   return response.parsed_output;
+}
+
+// Pick up to `cap` items from a scored list while spreading across activityType.
+// Iterates round-robin over types (highest score first within each type) so the
+// result is diverse rather than dominated by one activity.
+function diversePick(scored, cap) {
+  const byType = new Map();
+  for (const item of scored) {
+    const t = item.activityType ?? 'egyéb';
+    if (!byType.has(t)) byType.set(t, []);
+    byType.get(t).push(item);
+  }
+  const queues = [...byType.values()];
+  const result = [];
+  let i = 0;
+  while (result.length < cap) {
+    const active = queues.filter((q) => q.length > 0);
+    if (!active.length) break;
+    const q = active[i % active.length];
+    result.push(q.shift());
+    i++;
+  }
+  return result;
 }
 
 function loadExisting() {
@@ -387,10 +427,9 @@ async function main() {
             name: result.caption,
             year,
             event,
+            activityType: result.activityType,
             score: result.score,
-            reason: result.qualityIssues.length
-              ? `Pontszám ${result.score}. Megjegyzés: ${result.qualityIssues.join(', ')}`
-              : `Pontszám ${result.score}.`,
+            reason: `Pontszám ${result.score}. Típus: ${result.activityType}.`,
             approved: false,
           });
         } catch (err) {
@@ -399,7 +438,7 @@ async function main() {
       }
 
       scored.sort((a, b) => b.score - a.score);
-      const top = scored.slice(0, cap);
+      const top = diversePick(scored, cap);
 
       const preflightSummary = PREFLIGHT_MODEL
         ? ` | preflight: ${preflightSeen - preflightSkipped}/${preflightSeen} passed`
