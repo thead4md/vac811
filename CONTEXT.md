@@ -191,10 +191,10 @@ _Module map available for Python projects only._
 | `GALLERY_PRIMARY_KEYWORDS` | `—` | source code |
 | `GALLERY_SCORE_THRESHOLD` | `—` | source code |
 | `GALLERY_YEARS` | `—` | source code |
-| `GEMINI_API_KEY` | `—` | source code |
 | `GOOGLE_DRIVE_API_KEY` | `—` | source code |
 | `GOOGLE_DRIVE_FOLDER_ID` | `—` | source code |
 | `GOOGLE_SERVICE_ACCOUNT_KEY` | `—` | source code |
+| `OPENAI_API_KEY` | `—` | source code |
 <!-- AUTO:END:env_vars -->
 
 ## Open TODOs
@@ -213,6 +213,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+1c8849a fix: switch preflight from Gemini to OpenAI gpt-4o-mini (#19)
+0ce1d56 chore: update CONTEXT.md [auto]
 9e9d9f5 fix: throttle Gemini preflight to stay within free-tier rate limits (#18)
 5060786 chore: curate gallery candidates from Google Drive
 92803c6 chore: update CONTEXT.md [auto]
@@ -221,12 +223,10 @@ a153a42 chore: update CONTEXT.md [auto]
 2585cee chore: update CONTEXT.md [auto]
 4f603b4 fix: throttle Gemini preflight to ≤15 req/min (free tier limit) (#16)
 93faa5a chore: update CONTEXT.md [auto]
-d579eb9 fix: pagination, null parsed_output, threshold default, single-event primary (#15)
-16c7a56 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 12.4s. Stack: TypeScript / Node.js._
+_Generated in 16.5s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
