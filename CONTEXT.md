@@ -216,6 +216,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+6273df1 fix: rebase before push in curate-gallery workflow (#25)
+ff20ee7 chore: update CONTEXT.md [auto]
 927da4e feat: show photo thumbnails in CMS gallery preview pane (#24)
 ff9c870 chore: update CONTEXT.md [auto]
 25f48ea refactor: replace brittle activityType enum with free-form label + code-side bucketing (#23)
@@ -224,12 +226,10 @@ de31e78 fix: use ASCII-only activityType enum values to prevent structured outpu
 b690971 fix: probe OpenAI API at startup to catch silent preflight failures (#20)
 7d80211 feat: scouting-relevance prompts, diversity picker, OpenAI startup probe (#21)
 5eef7a1 chore: update CONTEXT.md [auto]
-1c8849a fix: switch preflight from Gemini to OpenAI gpt-4o-mini (#19)
-0ce1d56 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 17.1s. Stack: TypeScript / Node.js._
+_Generated in 14.0s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
