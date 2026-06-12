@@ -89,6 +89,8 @@ vac811/
 │   └── logo.svg
 ├── scripts
 │   ├── curate-gallery.mjs
+│   ├── curate-lib.mjs
+│   ├── curate-lib.test.ts
 │   ├── generate_context.py
 │   ├── sync-gallery.mjs
 │   ├── test-preflight.mjs
@@ -207,13 +209,15 @@ _No open TODOs found._
 ## Tests
 
 <!-- AUTO:START:test_count -->
-**3** tests detected.
+**4** tests detected.
 <!-- AUTO:END:test_count -->
 
 ## Recent Commits
 
 <!-- AUTO:START:recent_commits -->
 ```
+25f48ea refactor: replace brittle activityType enum with free-form label + code-side bucketing (#23)
+f98a3db chore: update CONTEXT.md [auto]
 de31e78 fix: use ASCII-only activityType enum values to prevent structured output parse failures (#22)
 b690971 fix: probe OpenAI API at startup to catch silent preflight failures (#20)
 7d80211 feat: scouting-relevance prompts, diversity picker, OpenAI startup probe (#21)
@@ -222,12 +226,10 @@ b690971 fix: probe OpenAI API at startup to catch silent preflight failures (#20
 0ce1d56 chore: update CONTEXT.md [auto]
 9e9d9f5 fix: throttle Gemini preflight to stay within free-tier rate limits (#18)
 5060786 chore: curate gallery candidates from Google Drive
-92803c6 chore: update CONTEXT.md [auto]
-a153a42 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 12.4s. Stack: TypeScript / Node.js._
+_Generated in 13.2s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
