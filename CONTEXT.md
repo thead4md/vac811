@@ -216,6 +216,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+927da4e feat: show photo thumbnails in CMS gallery preview pane (#24)
+ff9c870 chore: update CONTEXT.md [auto]
 25f48ea refactor: replace brittle activityType enum with free-form label + code-side bucketing (#23)
 f98a3db chore: update CONTEXT.md [auto]
 de31e78 fix: use ASCII-only activityType enum values to prevent structured output parse failures (#22)
@@ -224,12 +226,10 @@ b690971 fix: probe OpenAI API at startup to catch silent preflight failures (#20
 5eef7a1 chore: update CONTEXT.md [auto]
 1c8849a fix: switch preflight from Gemini to OpenAI gpt-4o-mini (#19)
 0ce1d56 chore: update CONTEXT.md [auto]
-9e9d9f5 fix: throttle Gemini preflight to stay within free-tier rate limits (#18)
-5060786 chore: curate gallery candidates from Google Drive
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 13.2s. Stack: TypeScript / Node.js._
+_Generated in 17.1s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
