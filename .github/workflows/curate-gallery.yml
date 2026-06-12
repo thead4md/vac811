@@ -52,11 +52,11 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
           GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GALLERY_YEARS: ${{ github.event.inputs.years }}
           GALLERY_MAX_PRIMARY_EVENT: ${{ github.event.inputs.max_primary || '12' }}
           GALLERY_MAX_PER_EVENT: ${{ github.event.inputs.max_minor || '1' }}
-          GALLERY_PREFLIGHT_MODEL: ${{ github.event.inputs.preflight == 'false' && '' || 'gemini-2.0-flash' }}
+          GALLERY_PREFLIGHT_MODEL: ${{ github.event.inputs.preflight == 'false' && '' || 'gpt-4o-mini' }}
           GALLERY_SCORE_THRESHOLD: ${{ github.event.inputs.score_threshold || '50' }}
           GALLERY_MINOR_THRESHOLD: ${{ github.event.inputs.minor_threshold || '80' }}
         run: node scripts/curate-gallery.mjs
