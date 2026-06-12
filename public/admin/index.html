@@ -9,5 +9,78 @@
   </head>
   <body>
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <script>
+      // Build the public Google Drive CDN thumbnail URL from a file ID.
+      function driveThumb(id, width) {
+        return 'https://lh3.googleusercontent.com/d/' + id + '=w' + (width || 400);
+      }
+
+      // Preview pane for the Galéria collection: render every photo as a
+      // thumbnail so editors can see the actual images while approving them.
+      // (The `id` field only stores the Drive file ID; images render here from
+      // the same CDN URL the public site uses.)
+      CMS.registerPreviewTemplate(
+        'gallery',
+        createClass({
+          render: function () {
+            var entry = this.props.entry;
+            var list = entry.getIn(['data', 'gallery']);
+            var photos = list && list.toJS ? list.toJS() : list || [];
+
+            if (!photos.length) {
+              return h('div', { style: { padding: '1rem' } }, 'Nincs fotó.');
+            }
+
+            return h(
+              'div',
+              {
+                style: {
+                  padding: '1rem',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '1rem',
+                  fontFamily: 'system-ui, sans-serif',
+                },
+              },
+              photos.map(function (p, i) {
+                return h(
+                  'div',
+                  {
+                    key: i,
+                    style: {
+                      width: '220px',
+                      border: p.approved ? '3px solid #2e7d32' : '1px solid #ccc',
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      background: '#fff',
+                    },
+                  },
+                  h('img', {
+                    src: driveThumb(p.id, 400),
+                    alt: p.name || '',
+                    loading: 'lazy',
+                    style: { width: '100%', display: 'block', aspectRatio: '4 / 3', objectFit: 'cover' },
+                  }),
+                  h(
+                    'div',
+                    { style: { padding: '0.5rem', fontSize: '0.85rem', lineHeight: 1.4 } },
+                    h('strong', {}, p.name || '(nincs képaláírás)'),
+                    h('div', { style: { color: '#555' } }, [p.year, p.event].filter(Boolean).join(' · ')),
+                    h(
+                      'div',
+                      { style: { marginTop: '0.25rem' } },
+                      'Pontszám: ' + (p.score != null ? p.score : '–'),
+                      p.approved
+                        ? h('span', { style: { color: '#2e7d32', fontWeight: 'bold' } }, ' · ✅ Jóváhagyva')
+                        : h('span', { style: { color: '#999' } }, ' · ⏳ Jóváhagyásra vár')
+                    )
+                  )
+                );
+              })
+            );
+          },
+        })
+      );
+    </script>
   </body>
 </html>
