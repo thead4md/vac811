@@ -71,5 +71,6 @@ jobs:
             echo "No changes to gallery.json"
           else
             git commit -m "chore: curate gallery candidates from Google Drive"
+            git pull --rebase origin main
             git push
           fi
