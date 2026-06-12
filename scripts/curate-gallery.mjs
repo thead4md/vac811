@@ -357,9 +357,16 @@ async function main() {
       let preflightSkipped = 0;
       const scored = [];
 
+      // Free-tier Gemini: ≤15 RPM (gemini-2.0-flash) or ≤5 RPM (gemini-2.5-flash).
+      // Enforce a minimum gap of 5 s between preflight calls to stay under the limit.
+      let lastPreflightMs = 0;
+
       for (const img of imgs) {
         // Pass 1: OpenAI vision pre-filter (opt-in)
         if (PREFLIGHT_MODEL) {
+          const elapsed = Date.now() - lastPreflightMs;
+          if (elapsed < 5_000) await new Promise((r) => setTimeout(r, 5_000 - elapsed));
+          lastPreflightMs = Date.now();
           preflightSeen++;
           totalPreflightSeen++;
           const keep = await quickScoreImage(img.id);

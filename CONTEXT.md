@@ -213,6 +213,9 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+9e9d9f5 fix: throttle Gemini preflight to stay within free-tier rate limits (#18)
+5060786 chore: curate gallery candidates from Google Drive
+92803c6 chore: update CONTEXT.md [auto]
 a153a42 chore: update CONTEXT.md [auto]
 570e0d9 revert: remove Gemini rate limit delay (#17)
 2585cee chore: update CONTEXT.md [auto]
@@ -220,13 +223,10 @@ a153a42 chore: update CONTEXT.md [auto]
 93faa5a chore: update CONTEXT.md [auto]
 d579eb9 fix: pagination, null parsed_output, threshold default, single-event primary (#15)
 16c7a56 chore: update CONTEXT.md [auto]
-4ae69ce fix: commit gallery.json even when scoring step is cancelled (#14)
-7282ef9 chore: update CONTEXT.md [auto]
-846bda5 fix: write gallery.json incrementally after each event (#13)
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 16.1s. Stack: TypeScript / Node.js._
+_Generated in 12.4s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->

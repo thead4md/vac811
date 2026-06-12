@@ -1,3 +1,13 @@
 {
-  "gallery": []
+  "gallery": [
+    {
+      "id": "144gaYnh-EZv3i6ZgK23odsaAuiC_Qevr",
+      "name": "Három cserkész vidám pillanata a természetben",
+      "year": "2025",
+      "event": "Rover próba",
+      "score": 82,
+      "reason": "Pontszám 82.",
+      "approved": false
+    }
+  ]
 }
