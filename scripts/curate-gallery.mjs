@@ -337,7 +337,23 @@ async function main() {
   console.log(`Caps: primary=${MAX_PRIMARY}, minor=${MAX_MINOR} | Thresholds: primary>=${SCORE_THRESHOLD}, minor>=${MINOR_THRESHOLD}`);
   console.log(`Primary keywords: ${PRIMARY_KEYWORDS.join(', ')}`);
   if (PREFLIGHT_MODEL) {
-    console.log(`Preflight enabled: ${PREFLIGHT_MODEL}`);
+    console.log(`Preflight enabled: ${PREFLIGHT_MODEL} — probing API…`);
+    const probeRes = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${OPENAI_API_KEY}` },
+      body: JSON.stringify({
+        model: PREFLIGHT_MODEL,
+        messages: [{ role: 'user', content: 'Reply with OK.' }],
+        max_tokens: 5,
+      }),
+    });
+    if (!probeRes.ok) {
+      const body = await probeRes.text();
+      console.error(`Preflight probe failed (${probeRes.status}): ${body.slice(0, 200)}`);
+      console.error('Fix OPENAI_API_KEY or re-run with preflight=false');
+      process.exit(1);
+    }
+    console.log('Preflight probe OK.');
   } else {
     console.log('Preflight disabled (set OPENAI_API_KEY to enable)');
   }
