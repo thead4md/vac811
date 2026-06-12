@@ -202,6 +202,14 @@ async function quickScoreImage(fileId) {
     return true;
   }
 
+  if (res.status === 429) {
+    const retryAfter = Number(res.headers.get('retry-after') || 0);
+    const delay = retryAfter > 0 ? retryAfter * 1000 : 60_000;
+    console.warn(`    [preflight] Gemini 429 for ${fileId} — waiting ${delay / 1000}s then retrying`);
+    await new Promise((r) => setTimeout(r, delay));
+    return quickScoreImage(fileId);
+  }
+
   if (!res.ok) {
     const body = await res.text();
     console.warn(`    [preflight] Gemini ${res.status} for ${fileId}: ${body.slice(0, 120)} — defaulting to KEEP`);
@@ -345,9 +353,16 @@ async function main() {
       let preflightSkipped = 0;
       const scored = [];
 
+      // Free-tier Gemini: ≤15 RPM (gemini-2.0-flash) or ≤5 RPM (gemini-2.5-flash).
+      // Enforce a minimum gap of 5 s between preflight calls to stay under the limit.
+      let lastPreflightMs = 0;
+
       for (const img of imgs) {
         // Pass 1: Gemini Flash pre-filter (opt-in)
         if (PREFLIGHT_MODEL) {
+          const elapsed = Date.now() - lastPreflightMs;
+          if (elapsed < 5_000) await new Promise((r) => setTimeout(r, 5_000 - elapsed));
+          lastPreflightMs = Date.now();
           preflightSeen++;
           totalPreflightSeen++;
           const keep = await quickScoreImage(img.id);
