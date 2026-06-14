@@ -207,19 +207,44 @@ export default function Curate() {
   };
 
   // ── Render helpers ──────────────────────────────────────────────────────
+  const [pat, setPat] = useState('');
+
   if (!token) {
     return (
       <main className="curate-shell curate-shell--center">
-        <div className="curate-login">
+        <form
+          className="curate-login"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!pat.trim()) return;
+            login(pat);
+            setToken(pat.trim());
+          }}
+        >
           <h1 className="curate-login__title">Fotókuráció</h1>
-          <p className="curate-login__sub">Bejelentkezés GitHub fiókkal szükséges.</p>
-          <button
-            className="curate-btn curate-btn--primary"
-            onClick={() => login().then(setToken).catch(() => {})}
-          >
-            Bejelentkezés GitHubbal
+          <p className="curate-login__sub">
+            GitHub Personal Access Token szükséges (<code>repo</code> scope).{' '}
+            <a
+              href="https://github.com/settings/tokens/new?scopes=repo&description=vac811+kuracio"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Token létrehozása
+            </a>
+          </p>
+          <input
+            className="curate-pat-input"
+            type="password"
+            placeholder="ghp_..."
+            value={pat}
+            onChange={(e) => setPat(e.target.value)}
+            autoComplete="off"
+            spellCheck={false}
+          />
+          <button className="curate-btn curate-btn--primary" type="submit" disabled={!pat.trim()}>
+            Bejelentkezés
           </button>
-        </div>
+        </form>
       </main>
     );
   }
