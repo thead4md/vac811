@@ -7,7 +7,34 @@
       "event": "Rover próba",
       "score": 82,
       "reason": "Pontszám 82.",
-      "approved": true
+      "approved": true,
+      "status": "approved"
+    },
+    {
+      "id": "1KL5z5RtOzB5wv0859FA9ccSI2vmQq521",
+      "name": "Három cserkész mosolyog a természet közepén — az egység összetartozásának jelképe",
+      "year": "2025",
+      "event": "Rover próba",
+      "activity": "csapatprogram, portrék",
+      "bucket": "csapatprogram",
+      "score": 85,
+      "phash": "8282f16044c48c9c",
+      "reason": "Pontszám 85. Tevékenység: csapatprogram, portrék.",
+      "status": "pending",
+      "approved": false
+    },
+    {
+      "id": "1f6mXuIzP0MvN2pQHMfW7jbfXZ0lbbY4r",
+      "name": "A cserkészek közösen dolgoznak egy kreatív feladaton, ahol minden csapattag aktívan részt vesz az alkotásban.",
+      "year": "2025",
+      "event": "Csapat karácsony",
+      "activity": "kézmű foglalkozás",
+      "bucket": "foglalkozas",
+      "score": 85,
+      "phash": "c1e103c692d37024",
+      "reason": "Pontszám 85. Tevékenység: kézmű foglalkozás.",
+      "status": "pending",
+      "approved": false
     }
   ]
 }
