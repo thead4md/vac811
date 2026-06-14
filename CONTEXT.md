@@ -225,6 +225,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+fb719f4 fix: invisible login button + move /kuracio to /admin/kuracio
+d55caf0 chore: update CONTEXT.md [auto]
 9bf9420 fix: add sharp to package-lock.json so CI deploy succeeds
 28df919 chore: update CONTEXT.md [auto]
 c1b5350 feat: pipeline dedup+concurrency, leader swipe app, Sveltia CMS (#27)
@@ -233,12 +235,10 @@ b63c4c3 Update Fotó “gallery”
 60d8943 chore: update CONTEXT.md [auto]
 64eb3f5 chore: update CONTEXT.md [auto]
 0721be5 chore: update CONTEXT.md [auto]
-f632fcf feat: make gallery curation pipeline resumable, idempotent, and spend-bounded (#26)
-b9a67d2 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 12.8s. Stack: TypeScript / Node.js._
+_Generated in 13.3s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
