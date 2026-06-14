@@ -80,6 +80,7 @@ vac811/
 │   ├── content
 │   │   ├── camps.json
 │   │   ├── events.json
+│   │   ├── gallery-pipeline-state.json
 │   │   ├── gallery.json
 │   │   ├── leaders.json
 │   │   ├── rajok.json
@@ -226,6 +227,9 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+d1b30aa kuracio: 2 jóváhagyva, 0 elutasítva
+391aad5 chore: curate gallery candidates from Google Drive
+afe275a chore: update CONTEXT.md [auto]
 425f5d9 fix: skip budget checks in dry-run mode
 9f142dc chore: update CONTEXT.md [auto]
 80c7501 feat: dry-run mode for gallery curation workflow
@@ -233,13 +237,10 @@ ea0bc63 chore: update CONTEXT.md [auto]
 6ba6187 fix: PAT login for kuracio + Node 24 in deploy workflow
 5d4097c chore: update CONTEXT.md [auto]
 fb719f4 fix: invisible login button + move /kuracio to /admin/kuracio
-d55caf0 chore: update CONTEXT.md [auto]
-9bf9420 fix: add sharp to package-lock.json so CI deploy succeeds
-28df919 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 16.6s. Stack: TypeScript / Node.js._
+_Generated in 17.5s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
