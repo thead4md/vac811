@@ -60,14 +60,19 @@ const GALLERY_PATH = join(ROOT, 'public', 'content', 'gallery.json');
 const STATE_PATH = join(ROOT, 'public', 'content', 'gallery-pipeline-state.json');
 
 const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
+const DRY_RUN = process.env.GALLERY_DRY_RUN === 'true';
 
 if (!process.env.GOOGLE_SERVICE_ACCOUNT_KEY || !FOLDER_ID) {
   console.error('Missing GOOGLE_SERVICE_ACCOUNT_KEY or GOOGLE_DRIVE_FOLDER_ID');
   process.exit(1);
 }
 if (!process.env.ANTHROPIC_API_KEY) {
-  console.error('Missing ANTHROPIC_API_KEY');
-  process.exit(1);
+  if (DRY_RUN) {
+    console.log('[DRY RUN] ANTHROPIC_API_KEY not present — skipped (not needed in dry-run mode)');
+  } else {
+    console.error('Missing ANTHROPIC_API_KEY');
+    process.exit(1);
+  }
 }
 
 const auth = new GoogleAuth({
@@ -257,6 +262,7 @@ function detectPrimaryEvent(byEvent) {
 
 // OpenAI vision binary pre-filter: returns true → proceed to Haiku, false → skip.
 async function quickScoreImage(fileId) {
+  if (DRY_RUN) return true; // in dry-run all images pass the pre-filter
   // Pass the CDN URL directly so OpenAI fetches it — this activates detail:'low'
   // (85 tokens flat) instead of the ~2900-token cost of base64 data URIs.
   const imageUrl = cdnUrl(fileId, 512);
@@ -323,6 +329,9 @@ async function collectImages(folderId, eventName, depth, out) {
 }
 
 async function scoreImage(fileId) {
+  if (DRY_RUN) {
+    return { score: 75, caption: '[dry-run] placeholder caption', activity: 'tábor', suitableForPublicYouthSite: true };
+  }
   const response = await anthropic.messages.parse({
     model: MODEL,
     max_tokens: 1024,
@@ -375,6 +384,7 @@ function loadState() {
 }
 
 function saveState(seenSet, runCount, hashes = {}) {
+  if (DRY_RUN) { console.log('[DRY RUN] Would write gallery-pipeline-state.json'); return; }
   const state = {
     seenIds: [...seenSet],
     lastRun: new Date().toISOString(),
@@ -386,6 +396,7 @@ function saveState(seenSet, runCount, hashes = {}) {
 }
 
 function saveGallery(items) {
+  if (DRY_RUN) { console.log('[DRY RUN] Would write gallery.json'); return; }
   const STATUS_ORDER = { approved: 0, pending: 1, rejected: 2 };
   const normalized = items.map((item) => {
     if (item.status == null) {
@@ -406,6 +417,12 @@ function saveGallery(items) {
 }
 
 async function main() {
+  if (DRY_RUN) {
+    console.log('╔══════════════════════════════════════════════════╗');
+    console.log('║  DRY RUN — no API scoring calls, no file writes  ║');
+    console.log('╚══════════════════════════════════════════════════╝');
+  }
+
   const now = new Date();
   const currentYear = now.getUTCFullYear();
   const years = process.env.GALLERY_YEARS
@@ -415,7 +432,7 @@ async function main() {
   console.log(`Curating years: ${years.join(', ')} (model: ${MODEL})`);
   console.log(`Caps: primary=${MAX_PRIMARY}, minor=${MAX_MINOR} | Thresholds: primary>=${SCORE_THRESHOLD}, minor>=${MINOR_THRESHOLD}`);
   console.log(`Primary keywords: ${PRIMARY_KEYWORDS.join(', ')}`);
-  if (PREFLIGHT_MODEL) {
+  if (PREFLIGHT_MODEL && !DRY_RUN) {
     console.log(`Preflight enabled: ${PREFLIGHT_MODEL} — probing API…`);
     const probeRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -433,6 +450,8 @@ async function main() {
       process.exit(1);
     }
     console.log('Preflight probe OK.');
+  } else if (DRY_RUN) {
+    console.log('Preflight skipped (dry-run mode)');
   } else {
     console.log('Preflight disabled (set OPENAI_API_KEY to enable)');
   }

@@ -27,6 +27,10 @@ on:
         description: 'Min score for minor event photos (0–100)'
         required: false
         default: '80'
+      dry_run:
+        description: 'Dry run: list Drive folders and images, skip all API scoring calls and file writes'
+        required: false
+        default: 'false'
   schedule:
     # Every Monday at 06:00 UTC
     - cron: '0 6 * * 1'
@@ -61,10 +65,11 @@ jobs:
           GALLERY_MINOR_THRESHOLD: ${{ github.event.inputs.minor_threshold || '80' }}
           GALLERY_PREFLIGHT_BUDGET: ${{ vars.GALLERY_PREFLIGHT_BUDGET || '200' }}
           GALLERY_HAIKU_BUDGET: ${{ vars.GALLERY_HAIKU_BUDGET || '120' }}
+          GALLERY_DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
         run: node scripts/curate-gallery.mjs
 
       - name: Commit updated gallery.json
-        if: always()
+        if: always() && github.event.inputs.dry_run != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
