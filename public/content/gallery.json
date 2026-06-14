@@ -2,39 +2,39 @@
   "gallery": [
     {
       "id": "144gaYnh-EZv3i6ZgK23odsaAuiC_Qevr",
-      "name": "Három cserkész vidám pillanata a természetben",
+      "name": "HÃ¡rom cserkÃ©sz vidÃ¡m pillanata a termÃ©szetben",
       "year": "2025",
-      "event": "Rover próba",
+      "event": "Rover prÃ³ba",
       "score": 82,
-      "reason": "Pontszám 82.",
+      "reason": "PontszÃ¡m 82.",
       "approved": true,
       "status": "approved"
     },
     {
       "id": "1KL5z5RtOzB5wv0859FA9ccSI2vmQq521",
-      "name": "Három cserkész mosolyog a természet közepén — az egység összetartozásának jelképe",
+      "name": "HÃ¡rom cserkÃ©sz mosolyog a termÃ©szet kÃ¶zepÃ©n â az egysÃ©g Ã¶sszetartozÃ¡sÃ¡nak jelkÃ©pe",
       "year": "2025",
-      "event": "Rover próba",
-      "activity": "csapatprogram, portrék",
+      "event": "Rover prÃ³ba",
+      "activity": "csapatprogram, portrÃ©k",
       "bucket": "csapatprogram",
       "score": 85,
       "phash": "8282f16044c48c9c",
-      "reason": "Pontszám 85. Tevékenység: csapatprogram, portrék.",
-      "status": "pending",
-      "approved": false
+      "reason": "PontszÃ¡m 85. TevÃ©kenysÃ©g: csapatprogram, portrÃ©k.",
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1f6mXuIzP0MvN2pQHMfW7jbfXZ0lbbY4r",
-      "name": "A cserkészek közösen dolgoznak egy kreatív feladaton, ahol minden csapattag aktívan részt vesz az alkotásban.",
+      "name": "A cserkÃ©szek kÃ¶zÃ¶sen dolgoznak egy kreatÃ­v feladaton, ahol minden csapattag aktÃ­van rÃ©szt vesz az alkotÃ¡sban.",
       "year": "2025",
-      "event": "Csapat karácsony",
-      "activity": "kézmű foglalkozás",
+      "event": "Csapat karÃ¡csony",
+      "activity": "kÃ©zmÅ± foglalkozÃ¡s",
       "bucket": "foglalkozas",
       "score": 85,
       "phash": "c1e103c692d37024",
-      "reason": "Pontszám 85. Tevékenység: kézmű foglalkozás.",
-      "status": "pending",
-      "approved": false
+      "reason": "PontszÃ¡m 85. TevÃ©kenysÃ©g: kÃ©zmÅ± foglalkozÃ¡s.",
+      "status": "approved",
+      "approved": true
     }
   ]
 }
