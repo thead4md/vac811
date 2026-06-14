@@ -51,7 +51,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { GoogleAuth } from 'google-auth-library';
-import { bucketActivity, diversePick } from './curate-lib.mjs';
+import sharp from 'sharp';
+import { bucketActivity, diversePick, mapPool, hamming, clusterByHash } from './curate-lib.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -97,6 +98,8 @@ const PREFLIGHT_MODEL = process.env.GALLERY_PREFLIGHT_MODEL ||
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || null;
 const PREFLIGHT_BUDGET = Number(process.env.GALLERY_PREFLIGHT_BUDGET || 200);
 const HAIKU_BUDGET = Number(process.env.GALLERY_HAIKU_BUDGET || 120);
+const CONCURRENCY = Number(process.env.GALLERY_CONCURRENCY || 6);
+const DEDUP_DISTANCE = Number(process.env.GALLERY_DEDUP_DISTANCE || 10);
 const MAX_RECURSION_DEPTH = 2; // year → event → (person)
 
 if (PREFLIGHT_MODEL && !OPENAI_API_KEY) {
@@ -180,6 +183,57 @@ async function driveList(parentId) {
 
 function cdnUrl(fileId, width = 512) {
   return `https://lh3.googleusercontent.com/d/${fileId}=w${width}`;
+}
+
+// 64-bit dHash (difference hash): resize to 9×8 grayscale, compare adjacent pixels.
+// Returns 16 hex chars or null on any error.
+async function computeDHash(fileId) {
+  try {
+    const res = await fetch(cdnUrl(fileId, 256));
+    if (!res.ok) return null;
+    const buf = Buffer.from(await res.arrayBuffer());
+    const { data } = await sharp(buf)
+      .resize(9, 8, { fit: 'fill' })
+      .grayscale()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    let bits = '';
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        bits += data[row * 9 + col] < data[row * 9 + col + 1] ? '1' : '0';
+      }
+    }
+    let hex = '';
+    for (let i = 0; i < 64; i += 4) {
+      hex += parseInt(bits.slice(i, i + 4), 2).toString(16);
+    }
+    return hex;
+  } catch {
+    return null;
+  }
+}
+
+// Separate fresh images into representatives (one per near-duplicate cluster) and
+// duplicates (already-kept or intra-event near-duplicates). `stateHashes` is the
+// { [id]: phash } map of already-kept photos from prior runs.
+function dedupImages(freshWithHashes, stateHashes, distance) {
+  const knownHashValues = Object.values(stateHashes);
+
+  const nearKept = new Set();
+  for (const img of freshWithHashes) {
+    if (!img.phash) continue;
+    if (knownHashValues.some((kh) => hamming(img.phash, kh) <= distance)) {
+      nearKept.add(img.id);
+    }
+  }
+
+  const candidates = freshWithHashes.filter((img) => !nearKept.has(img.id));
+  const clusters = clusterByHash(candidates, distance);
+  const representatives = clusters.map((c) => c[0]);
+  const intraDupeIds = new Set(clusters.flatMap((c) => c.slice(1).map((i) => i.id)));
+  const dupIds = new Set([...nearKept, ...intraDupeIds]);
+
+  return { representatives, dupIds };
 }
 
 // Returns true if the event name matches a primary keyword or the auto-detected primary.
@@ -306,33 +360,45 @@ function loadExisting() {
 // Persistent "seen" state: the authoritative set of Drive IDs the pipeline has
 // already decided about. Tolerates a missing/malformed file by resetting.
 function loadState() {
-  if (!existsSync(STATE_PATH)) return { seenIds: [], lastRun: null, runCount: 0 };
+  if (!existsSync(STATE_PATH)) return { seenIds: [], lastRun: null, runCount: 0, hashes: {} };
   try {
     const json = JSON.parse(readFileSync(STATE_PATH, 'utf-8'));
     return {
       seenIds: Array.isArray(json.seenIds) ? json.seenIds : [],
       lastRun: json.lastRun ?? null,
       runCount: Number(json.runCount) || 0,
+      hashes: (json.hashes && typeof json.hashes === 'object') ? json.hashes : {},
     };
   } catch {
-    return { seenIds: [], lastRun: null, runCount: 0 };
+    return { seenIds: [], lastRun: null, runCount: 0, hashes: {} };
   }
 }
 
-function saveState(seenSet, runCount) {
+function saveState(seenSet, runCount, hashes = {}) {
   const state = {
     seenIds: [...seenSet],
     lastRun: new Date().toISOString(),
     runCount,
+    hashes,
   };
   mkdirSync(dirname(STATE_PATH), { recursive: true });
   writeFileSync(STATE_PATH, JSON.stringify(state, null, 2) + '\n', 'utf-8');
 }
 
 function saveGallery(items) {
-  const sorted = [...items].sort((a, b) => {
+  const STATUS_ORDER = { approved: 0, pending: 1, rejected: 2 };
+  const normalized = items.map((item) => {
+    if (item.status == null) {
+      const s = item.approved ? 'approved' : 'pending';
+      return { ...item, status: s, approved: item.approved ?? false };
+    }
+    return { ...item, approved: item.status === 'approved' };
+  });
+  const sorted = [...normalized].sort((a, b) => {
     if (String(b.year) !== String(a.year)) return String(b.year).localeCompare(String(a.year));
-    if (!!b.approved !== !!a.approved) return (b.approved ? 1 : 0) - (a.approved ? 1 : 0);
+    const sa = STATUS_ORDER[a.status] ?? 1;
+    const sb = STATUS_ORDER[b.status] ?? 1;
+    if (sa !== sb) return sa - sb;
     return (b.score ?? 0) - (a.score ?? 0);
   });
   mkdirSync(dirname(GALLERY_PATH), { recursive: true });
@@ -382,8 +448,9 @@ async function main() {
   const state = loadState();
   const runCount = state.runCount + 1;
   const seen = new Set([...state.seenIds, ...knownIds]);
+  const stateHashes = { ...state.hashes };
   const initialSeenSize = seen.size;
-  console.log(`Resume state: ${state.seenIds.length} seen id(s) from ${state.runCount} prior run(s); budgets: preflight<=${PREFLIGHT_BUDGET}, haiku<=${HAIKU_BUDGET}`);
+  console.log(`Resume state: ${state.seenIds.length} seen id(s) from ${state.runCount} prior run(s); budgets: preflight<=${PREFLIGHT_BUDGET}, haiku<=${HAIKU_BUDGET}, concurrency=${CONCURRENCY}, dedup_distance=${DEDUP_DISTANCE}`);
 
   // Map year name → folder id
   const rootFolders = await driveList(FOLDER_ID);
@@ -452,51 +519,58 @@ async function main() {
       const cap = primary ? MAX_PRIMARY : MAX_MINOR;
       const threshold = primary ? SCORE_THRESHOLD : MINOR_THRESHOLD;
 
+      // ── Dedup step: compute hashes and drop near-duplicates ────────────
+      const withHashes = await mapPool(imgs, CONCURRENCY, async (img) => ({
+        ...img,
+        phash: await computeDHash(img.id),
+      }));
+
+      const { representatives, dupIds } = dedupImages(withHashes, stateHashes, DEDUP_DISTANCE);
+      dupIds.forEach((id) => seen.add(id));
+      if (dupIds.size > 0) {
+        console.log(`    Dedup: ${dupIds.size} duplicate(s) dropped → ${representatives.length} to score`);
+      }
+
+      // ── Concurrent scoring ──────────────────────────────────────────────
       let preflightSeen = 0;
       let preflightSkipped = 0;
-      const scored = [];
 
-      for (const img of imgs) {
-        // Pass 1: OpenAI vision pre-filter (opt-in)
+      const scoreResults = await mapPool(representatives, CONCURRENCY, async (img) => {
+        // Pass 1: OpenAI vision pre-filter (opt-in).
+        // Check-and-reserve is synchronous (before any await) so no race in single-threaded JS.
         if (PREFLIGHT_MODEL) {
           if (openaiCalls >= PREFLIGHT_BUDGET) {
             console.warn(`    [budget] preflight cap (${PREFLIGHT_BUDGET}) reached — stopping run, progress saved`);
             budgetHit = true;
-            break;
+            return null;
           }
+          openaiCalls++;
           preflightSeen++;
           totalPreflightSeen++;
-          openaiCalls++;
           const keep = await quickScoreImage(img.id);
           if (!keep) {
-            // SKIP is a terminal decision — mark seen so we never re-charge it.
-            // A KEEP is only a pass to the Haiku stage, so it is NOT marked here:
-            // if the Haiku budget cuts us off before scoring, the image must
-            // remain unseen and resume next run (re-preflight is cheap).
+            // SKIP is terminal — mark seen; a KEEP is not marked until Haiku consumes it.
             seen.add(img.id);
             preflightSkipped++;
             totalPreflightSkipped++;
-            continue;
+            return null;
           }
         }
 
-        // Pass 2: Claude Haiku full score
+        // Pass 2: Claude Haiku full score.
         if (claudeCalls >= HAIKU_BUDGET) {
           console.warn(`    [budget] haiku cap (${HAIKU_BUDGET}) reached — stopping run, progress saved`);
           budgetHit = true;
-          break;
+          return null;
         }
         claudeCalls++;
         try {
           const result = await scoreImage(img.id);
-          // A consumed Haiku call means this image is decided forever — even if
-          // it scores below threshold or is dropped by diversePick later, we
-          // never re-score it (cost-correct; keeps re-runs true no-ops).
+          // A consumed Haiku call is decided forever — even if below threshold.
           seen.add(img.id);
-          if (!result.suitableForPublicYouthSite) continue;
-          if (result.score < threshold) continue;
+          if (!result.suitableForPublicYouthSite || result.score < threshold) return null;
           const bucket = bucketActivity(result.activity);
-          scored.push({
+          return {
             id: img.id,
             name: result.caption,
             year,
@@ -504,16 +578,19 @@ async function main() {
             activity: result.activity,
             bucket,
             score: result.score,
+            phash: img.phash ?? undefined,
             reason: `Pontszám ${result.score}. Tevékenység: ${result.activity}.`,
+            status: 'pending',
             approved: false,
-          });
+          };
         } catch (err) {
-          // Mark seen anyway so a permanently-bad image can't retry-loop forever.
           seen.add(img.id);
           console.warn(`    Failed to score ${img.id}: ${err.message}`);
+          return null;
         }
-      }
+      });
 
+      const scored = scoreResults.filter(Boolean);
       scored.sort((a, b) => b.score - a.score);
       const top = diversePick(scored, cap);
 
@@ -523,6 +600,10 @@ async function main() {
       console.log(`    ${year}/${event} [${primary ? 'PRIMARY' : 'minor'}]${preflightSummary} → ${top.length} candidate(s) kept (cap=${cap}, threshold>=${threshold})`);
 
       if (top.length) {
+        // Record phash of each kept representative so future runs can dedup against it.
+        for (const item of top) {
+          if (item.phash) stateHashes[item.id] = item.phash;
+        }
         newCandidates.push(...top);
         liveGallery.push(...top);
         top.forEach((item) => knownIds.add(item.id));
@@ -531,7 +612,7 @@ async function main() {
       }
       // Persist seen-state after every event so a crash or budget abort never
       // loses progress (and never re-charges the images already processed).
-      saveState(seen, runCount);
+      saveState(seen, runCount, stateHashes);
 
       if (budgetHit) break; // stop scanning further events this year
     }
@@ -540,7 +621,7 @@ async function main() {
   }
 
   if (budgetHit) {
-    saveState(seen, runCount);
+    saveState(seen, runCount, stateHashes);
     logSummary();
     return; // partial run is success — exit 0 so the commit step persists progress
   }
@@ -557,7 +638,7 @@ async function main() {
 
   // Only rewrite state when something was actually processed — a true no-op
   // re-run (no fresh images) leaves the file untouched, so there is no git diff.
-  if (seen.size !== initialSeenSize) saveState(seen, runCount);
+  if (seen.size !== initialSeenSize) saveState(seen, runCount, stateHashes);
   console.log(`\nAdded ${newCandidates.length} new candidate(s); ${liveGallery.length} total in gallery.json`);
   logSummary();
 }
