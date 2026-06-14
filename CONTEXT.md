@@ -225,6 +225,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+6ba6187 fix: PAT login for kuracio + Node 24 in deploy workflow
+5d4097c chore: update CONTEXT.md [auto]
 fb719f4 fix: invisible login button + move /kuracio to /admin/kuracio
 d55caf0 chore: update CONTEXT.md [auto]
 9bf9420 fix: add sharp to package-lock.json so CI deploy succeeds
@@ -233,12 +235,10 @@ c1b5350 feat: pipeline dedup+concurrency, leader swipe app, Sveltia CMS (#27)
 69ec86d chore: update CONTEXT.md [auto]
 b63c4c3 Update Fotó “gallery”
 60d8943 chore: update CONTEXT.md [auto]
-64eb3f5 chore: update CONTEXT.md [auto]
-0721be5 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 13.3s. Stack: TypeScript / Node.js._
+_Generated in 17.0s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
