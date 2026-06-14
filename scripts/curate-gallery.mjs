@@ -558,7 +558,7 @@ async function main() {
         // Pass 1: OpenAI vision pre-filter (opt-in).
         // Check-and-reserve is synchronous (before any await) so no race in single-threaded JS.
         if (PREFLIGHT_MODEL) {
-          if (openaiCalls >= PREFLIGHT_BUDGET) {
+          if (!DRY_RUN && openaiCalls >= PREFLIGHT_BUDGET) {
             console.warn(`    [budget] preflight cap (${PREFLIGHT_BUDGET}) reached — stopping run, progress saved`);
             budgetHit = true;
             return null;
@@ -577,7 +577,7 @@ async function main() {
         }
 
         // Pass 2: Claude Haiku full score.
-        if (claudeCalls >= HAIKU_BUDGET) {
+        if (!DRY_RUN && claudeCalls >= HAIKU_BUDGET) {
           console.warn(`    [budget] haiku cap (${HAIKU_BUDGET}) reached — stopping run, progress saved`);
           budgetHit = true;
           return null;
