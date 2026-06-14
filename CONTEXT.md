@@ -193,6 +193,7 @@ _Module map available for Python projects only._
 | `ANTHROPIC_API_KEY` | `—` | source code |
 | `GALLERY_CONCURRENCY` | `—` | source code |
 | `GALLERY_DEDUP_DISTANCE` | `—` | source code |
+| `GALLERY_DRY_RUN` | `—` | source code |
 | `GALLERY_HAIKU_BUDGET` | `—` | source code |
 | `GALLERY_MAX_PER_EVENT` | `—` | source code |
 | `GALLERY_MAX_PRIMARY_EVENT` | `—` | source code |
@@ -225,6 +226,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+80c7501 feat: dry-run mode for gallery curation workflow
+ea0bc63 chore: update CONTEXT.md [auto]
 6ba6187 fix: PAT login for kuracio + Node 24 in deploy workflow
 5d4097c chore: update CONTEXT.md [auto]
 fb719f4 fix: invisible login button + move /kuracio to /admin/kuracio
@@ -233,12 +236,10 @@ d55caf0 chore: update CONTEXT.md [auto]
 28df919 chore: update CONTEXT.md [auto]
 c1b5350 feat: pipeline dedup+concurrency, leader swipe app, Sveltia CMS (#27)
 69ec86d chore: update CONTEXT.md [auto]
-b63c4c3 Update Fotó “gallery”
-60d8943 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 17.0s. Stack: TypeScript / Node.js._
+_Generated in 15.4s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
