@@ -218,6 +218,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+b63c4c3 Update Fotó “gallery”
+60d8943 chore: update CONTEXT.md [auto]
 64eb3f5 chore: update CONTEXT.md [auto]
 0721be5 chore: update CONTEXT.md [auto]
 f632fcf feat: make gallery curation pipeline resumable, idempotent, and spend-bounded (#26)
@@ -226,12 +228,10 @@ b9a67d2 chore: update CONTEXT.md [auto]
 ff20ee7 chore: update CONTEXT.md [auto]
 927da4e feat: show photo thumbnails in CMS gallery preview pane (#24)
 ff9c870 chore: update CONTEXT.md [auto]
-25f48ea refactor: replace brittle activityType enum with free-form label + code-side bucketing (#23)
-f98a3db chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 12.3s. Stack: TypeScript / Node.js._
+_Generated in 12.6s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
