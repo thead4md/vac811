@@ -82,7 +82,7 @@ function AppLayout() {
   );
 }
 
-// /kuracio rendered outside the AppLayout shell (no Navbar/Footer, full-screen)
+// /admin/kuracio rendered outside the AppLayout shell (no Navbar/Footer, full-screen)
 function CurateLayout() {
   return (
     <>
@@ -96,7 +96,8 @@ export default function App() {
   return (
     <BrowserRouter basename={basename}>
       <Routes>
-        <Route path="/kuracio" element={<CurateLayout />} />
+        <Route path="/admin/kuracio" element={<CurateLayout />} />
+        <Route path="/kuracio" element={<Navigate to="/admin/kuracio" replace />} />
         <Route path="/*" element={<AppLayout />} />
       </Routes>
     </BrowserRouter>

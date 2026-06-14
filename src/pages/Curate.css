@@ -75,7 +75,7 @@
 }
 
 .curate-btn--primary {
-  background: var(--color-accent);
+  background: var(--color-primary);
   color: #fff;
   border-color: transparent;
 }

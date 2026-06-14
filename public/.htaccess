@@ -3,6 +3,9 @@
   RewriteEngine On
   RewriteBase /beta/
 
+  # Curate app lives at admin/kuracio but is a React route, not a static file
+  RewriteRule ^admin/kuracio$ /beta/index.html [L]
+
   # Don't rewrite real files or directories (assets, content JSON, admin, images)
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
