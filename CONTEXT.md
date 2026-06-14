@@ -59,7 +59,7 @@ export default defineConfig([
 | Technology | Version / Detail |
 |------------|-----------------|
 | Language | TypeScript / Node.js |
-| Key dependencies | @anthropic-ai/sdk, @types/react-router-dom, google-auth-library, react, react-dom, react-router, react-router-dom, zod |
+| Key dependencies | @anthropic-ai/sdk, @types/react-router-dom, google-auth-library, react, react-dom, react-router, react-router-dom, sharp |
 | Infrastructure | GitHub Actions |
 <!-- AUTO:END:tech_stack -->
 
@@ -124,6 +124,9 @@ vac811/
 │   ├── hooks
 │   │   ├── useContent.ts
 │   │   └── useReveal.ts
+│   ├── lib
+│   │   ├── galleryRepo.ts
+│   │   └── githubAuth.ts
 │   ├── pages
 │   │   ├── About.css
 │   │   ├── About.tsx
@@ -131,6 +134,8 @@ vac811/
 │   │   ├── Camps.tsx
 │   │   ├── Contact.css
 │   │   ├── Contact.tsx
+│   │   ├── Curate.css
+│   │   ├── Curate.tsx
 │   │   ├── Gallery.css
 │   │   ├── Gallery.tsx
 │   │   ├── History.css
@@ -186,6 +191,8 @@ _Module map available for Python projects only._
 | Variable | Default | Source |
 |----------|---------|--------|
 | `ANTHROPIC_API_KEY` | `—` | source code |
+| `GALLERY_CONCURRENCY` | `—` | source code |
+| `GALLERY_DEDUP_DISTANCE` | `—` | source code |
 | `GALLERY_HAIKU_BUDGET` | `—` | source code |
 | `GALLERY_MAX_PER_EVENT` | `—` | source code |
 | `GALLERY_MAX_PRIMARY_EVENT` | `—` | source code |
@@ -218,6 +225,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+c1b5350 feat: pipeline dedup+concurrency, leader swipe app, Sveltia CMS (#27)
+69ec86d chore: update CONTEXT.md [auto]
 b63c4c3 Update Fotó “gallery”
 60d8943 chore: update CONTEXT.md [auto]
 64eb3f5 chore: update CONTEXT.md [auto]
@@ -226,12 +235,10 @@ f632fcf feat: make gallery curation pipeline resumable, idempotent, and spend-bo
 b9a67d2 chore: update CONTEXT.md [auto]
 6273df1 fix: rebase before push in curate-gallery workflow (#25)
 ff20ee7 chore: update CONTEXT.md [auto]
-927da4e feat: show photo thumbnails in CMS gallery preview pane (#24)
-ff9c870 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 12.6s. Stack: TypeScript / Node.js._
+_Generated in 15.5s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
