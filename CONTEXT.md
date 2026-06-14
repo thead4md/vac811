@@ -226,6 +226,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+425f5d9 fix: skip budget checks in dry-run mode
+9f142dc chore: update CONTEXT.md [auto]
 80c7501 feat: dry-run mode for gallery curation workflow
 ea0bc63 chore: update CONTEXT.md [auto]
 6ba6187 fix: PAT login for kuracio + Node 24 in deploy workflow
@@ -234,12 +236,10 @@ fb719f4 fix: invisible login button + move /kuracio to /admin/kuracio
 d55caf0 chore: update CONTEXT.md [auto]
 9bf9420 fix: add sharp to package-lock.json so CI deploy succeeds
 28df919 chore: update CONTEXT.md [auto]
-c1b5350 feat: pipeline dedup+concurrency, leader swipe app, Sveltia CMS (#27)
-69ec86d chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 15.4s. Stack: TypeScript / Node.js._
+_Generated in 16.6s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
