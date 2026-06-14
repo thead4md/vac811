@@ -2,6 +2,57 @@
 // Kept separate from curate-gallery.mjs (which has top-level env guards and
 // runs main() on import) so they can be unit-tested in isolation.
 
+// Run fn over items with at most concurrency tasks in flight.
+// JS is single-threaded so qi++ is safe without a mutex.
+export async function mapPool(items, concurrency, fn) {
+  const results = new Array(items.length);
+  const indices = items.map((_, i) => i);
+  let qi = 0;
+  async function worker() {
+    while (qi < indices.length) {
+      const i = indices[qi++];
+      results[i] = await fn(items[i], i);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, worker));
+  return results;
+}
+
+// Count differing bits between two hex dHash strings.
+export function hamming(a, b) {
+  let dist = 0;
+  const len = Math.min(a.length, b.length);
+  for (let i = 0; i < len; i++) {
+    let xor = parseInt(a[i], 16) ^ parseInt(b[i], 16);
+    while (xor) { dist += xor & 1; xor >>>= 1; }
+  }
+  return dist;
+}
+
+// Greedy clustering: group items whose phash fields are within `distance` bits.
+// Items without a phash field are each placed in their own singleton cluster.
+// Returns array of clusters (each cluster is a non-empty array of items).
+export function clusterByHash(items, distance = 10) {
+  const assigned = new Set();
+  const clusters = [];
+  for (const item of items) {
+    if (assigned.has(item.id)) continue;
+    const cluster = [item];
+    assigned.add(item.id);
+    if (item.phash) {
+      for (const other of items) {
+        if (assigned.has(other.id) || !other.phash) continue;
+        if (hamming(item.phash, other.phash) <= distance) {
+          cluster.push(other);
+          assigned.add(other.id);
+        }
+      }
+    }
+    clusters.push(cluster);
+  }
+  return clusters;
+}
+
 // Canonical activity buckets used only for diversity selection. Each bucket has
 // a set of substring cues; a free-form activity label is matched against them
 // after diacritic-stripping. Order matters: more-specific cues first, since

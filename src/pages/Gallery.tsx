@@ -3,15 +3,19 @@ import { useContent } from '../hooks/useContent';
 import InstagramWall from '../components/InstagramWall';
 import './Gallery.css';
 
-interface GalleryItem {
+export interface GalleryItem {
   id: string;
   name: string;
   year: string;
+  event?: string;
+  score?: number;
+  phash?: string;
+  status?: 'pending' | 'approved' | 'rejected';
   approved?: boolean;
 }
 
-function driveImgUrl(fileId: string) {
-  return `https://lh3.googleusercontent.com/d/${fileId}`;
+function driveImgUrl(fileId: string, width: number) {
+  return `https://lh3.googleusercontent.com/d/${fileId}=w${width}`;
 }
 
 export default function Gallery() {
@@ -21,7 +25,12 @@ export default function Gallery() {
   // Only approved photos are shown publicly; AI candidates stay hidden until
   // an editor approves them in Decap CMS.
   const approvedItems = useMemo(
-    () => (items ? items.filter((i) => i.approved) : []),
+    () =>
+      items
+        ? items.filter(
+            (i) => i.status === 'approved' || (i.status == null && i.approved),
+          )
+        : [],
     [items],
   );
 
@@ -115,7 +124,9 @@ export default function Gallery() {
                   aria-label={item.name}
                 >
                   <img
-                    src={driveImgUrl(item.id)}
+                    src={driveImgUrl(item.id, 800)}
+                    srcSet={`${driveImgUrl(item.id, 400)} 400w, ${driveImgUrl(item.id, 800)} 800w, ${driveImgUrl(item.id, 1200)} 1200w`}
+                    sizes="(max-width: 600px) 400px, (max-width: 1200px) 800px, 1200px"
                     alt={item.name}
                     loading="lazy"
                     decoding="async"

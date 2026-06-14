@@ -15,6 +15,7 @@ import Join from './pages/Join';
 import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
 import Scouting from './pages/Scouting';
+import Curate from './pages/Curate';
 
 // Derive router basename from Vite base ('/' in dev, '/beta/' in prod build).
 const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -81,10 +82,23 @@ function AppLayout() {
   );
 }
 
+// /kuracio rendered outside the AppLayout shell (no Navbar/Footer, full-screen)
+function CurateLayout() {
+  return (
+    <>
+      <meta name="robots" content="noindex" />
+      <Curate />
+    </>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter basename={basename}>
-      <AppLayout />
+      <Routes>
+        <Route path="/kuracio" element={<CurateLayout />} />
+        <Route path="/*" element={<AppLayout />} />
+      </Routes>
     </BrowserRouter>
   );
 }
