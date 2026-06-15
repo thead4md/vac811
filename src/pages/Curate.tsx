@@ -224,6 +224,12 @@ export default function Curate() {
       const onMessage = (e: MessageEvent) => {
         if (e.origin !== AUTH_ORIGIN) return;
         if (typeof e.data !== 'string') return;
+        // Handshake: popup sends "authorizing:github" first; we must echo it back
+        // before it will release the token.
+        if (e.data === 'authorizing:github') {
+          (e.source as Window)?.postMessage('authorizing:github', AUTH_ORIGIN);
+          return;
+        }
         const PREFIX_OK = 'authorization:github:success:';
         const PREFIX_ERR = 'authorization:github:error:';
         if (e.data.startsWith(PREFIX_OK)) {
@@ -234,7 +240,7 @@ export default function Curate() {
           cleanup();
         } else if (e.data.startsWith(PREFIX_ERR)) {
           try {
-            const { message: msg } = JSON.parse(e.data.slice(PREFIX_ERR.length)) as { message: string };
+            const { error: msg } = JSON.parse(e.data.slice(PREFIX_ERR.length)) as { error: string };
             onError(msg || 'Hitelesítési hiba');
           } catch { onError('Hitelesítési hiba'); }
           cleanup();
