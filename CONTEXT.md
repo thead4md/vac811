@@ -228,6 +228,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+253fca0 fix(kuracio): implement OAuth postMessage handshake (#43)
+320d074 chore: update CONTEXT.md [auto]
 e3f5ced fix(kuracio): correct OAuth site_id to vac811.hu/beta (#42)
 7bd40f9 chore: update CONTEXT.md [auto]
 307b835 chore: update CONTEXT.md [auto]
@@ -236,12 +238,10 @@ e3f5ced fix(kuracio): correct OAuth site_id to vac811.hu/beta (#42)
 57ae653 fix: align React/router deps, fix Sveltia script tag, add kuracio↔admin nav (#41)
 289cc5b chore: update CONTEXT.md [auto]
 1050936 fix(curate-gallery): silence duplicate budget-cap log spam (#40)
-bc10a21 chore: curate gallery candidates from Google Drive
-6f799d1 chore: curate gallery candidates from Google Drive
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 12.2s. Stack: TypeScript / Node.js._
+_Generated in 14.9s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
