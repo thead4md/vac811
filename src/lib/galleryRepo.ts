@@ -5,7 +5,7 @@ const FILE = 'public/content/gallery.json';
 const API = 'https://api.github.com';
 
 export interface Decision {
-  status: 'approved' | 'rejected';
+  status: 'approved' | 'rejected' | 'pending';
   caption: string;
 }
 
@@ -59,13 +59,17 @@ export async function commitDecisions(
   );
 
   const approvedCount = [...decisions.values()].filter((d) => d.status === 'approved').length;
-  const rejectedCount = decisions.size - approvedCount;
+  const rejectedCount = [...decisions.values()].filter((d) => d.status === 'rejected').length;
+  const revertedCount = [...decisions.values()].filter((d) => d.status === 'pending').length;
+
+  const messageParts = [`${approvedCount} jóváhagyva`, `${rejectedCount} elutasítva`];
+  if (revertedCount > 0) messageParts.push(`${revertedCount} visszavonva`);
 
   const res = await fetch(`${API}/repos/${REPO}/contents/${FILE}`, {
     method: 'PUT',
     headers: { ...authHeaders(token), 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      message: `kuracio: ${approvedCount} jóváhagyva, ${rejectedCount} elutasítva`,
+      message: `kuracio: ${messageParts.join(', ')}`,
       content: b64,
       sha,
     }),
