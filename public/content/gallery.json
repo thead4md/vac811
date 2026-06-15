@@ -1,16 +1,6 @@
 {
   "gallery": [
     {
-      "id": "144gaYnh-EZv3i6ZgK23odsaAuiC_Qevr",
-      "name": "Három cserkész vidám pillanata a természetben",
-      "year": "2025",
-      "event": "Rover próba",
-      "score": 82,
-      "reason": "Pontszám 82.",
-      "approved": true,
-      "status": "approved"
-    },
-    {
       "id": "1KL5z5RtOzB5wv0859FA9ccSI2vmQq521",
       "name": "Három cserkész mosolyog a természet közepén – az egység összetartozásának jelképe",
       "year": "2025",
@@ -35,6 +25,81 @@
       "reason": "Pontszám 85. Tevékenység: kézmű foglalkozás.",
       "status": "approved",
       "approved": true
+    },
+    {
+      "id": "144gaYnh-EZv3i6ZgK23odsaAuiC_Qevr",
+      "name": "Három cserkész vidám pillanata a természetben",
+      "year": "2025",
+      "event": "Rover próba",
+      "score": 82,
+      "reason": "Pontszám 82.",
+      "approved": true,
+      "status": "approved"
+    },
+    {
+      "id": "1wpzrTaAdRY4FQrlK2MlG9yA68X-YI2Dh",
+      "name": "Vidám cserkészlány a tábor közösségi idejében",
+      "year": "2025",
+      "event": "KCS tanyázás",
+      "activity": "táborprogram",
+      "bucket": "tabor",
+      "score": 85,
+      "phash": "743632f263cecc0e",
+      "reason": "Pontszám 85. Tevékenység: táborprogram.",
+      "status": "pending",
+      "approved": false
+    },
+    {
+      "id": "12_mtRdHQXWjpuof3GwhJYacq0PBuDGpD",
+      "name": "A csapat összegyűlt az épület előtt egy közös program előtt — kíváncsian, energikusan indulnak az élményre.",
+      "year": "2025",
+      "event": "KCS tanyázás",
+      "activity": "csapatprogram, gyűlés",
+      "bucket": "csapatprogram",
+      "score": 85,
+      "phash": "bc7c7c5c5b1b1317",
+      "reason": "Pontszám 85. Tevékenység: csapatprogram, gyűlés.",
+      "status": "pending",
+      "approved": false
+    },
+    {
+      "id": "1ZZo8ZU_0xappKIK6EYdh63o6mKKlqV0i",
+      "name": "Túra közben: a csapatkészenlét és a kaland láncszemei",
+      "year": "2025",
+      "event": "KCS tanyázás",
+      "activity": "túra, csapatprogram",
+      "bucket": "tura",
+      "score": 85,
+      "phash": "cbc5f161c3d49498",
+      "reason": "Pontszám 85. Tevékenység: túra, csapatprogram.",
+      "status": "pending",
+      "approved": false
+    },
+    {
+      "id": "1E9dYaRBP0w3-TisvR0BGPkJXxe2j9EbM",
+      "name": "A csapat a pályán: pihenőszünet a nap közepén, közösségi összetartozás a zöld füvön",
+      "year": "2025",
+      "event": "KCS tanyázás",
+      "activity": "csapatprogram, szabadtéri foglalkozás",
+      "bucket": "foglalkozas",
+      "score": 75,
+      "phash": "48580c0e6a386145",
+      "reason": "Pontszám 75. Tevékenység: csapatprogram, szabadtéri foglalkozás.",
+      "status": "pending",
+      "approved": false
+    },
+    {
+      "id": "1pwrJlQSZHFHgz5FnBiDvunJVhamxz67H",
+      "name": "A csapat kikapcsolódik a pályán: természetes, vidám pillanat a cserkészek között egy szép nyári napon",
+      "year": "2025",
+      "event": "KCS tanyázás",
+      "activity": "szabadtéri pihenő",
+      "bucket": "szabadteri",
+      "score": 75,
+      "phash": "316526258ad46451",
+      "reason": "Pontszám 75. Tevékenység: szabadtéri pihenő.",
+      "status": "pending",
+      "approved": false
     }
   ]
 }
