@@ -212,7 +212,7 @@ export default function Curate() {
   // ── OAuth login helpers ─────────────────────────────────────────────────
   const startOAuthLogin = useCallback(
     (onSuccess: (tok: string) => void, onError: (msg: string) => void) => {
-      const url = `${AUTH_BASE}/auth?provider=github&scope=repo&site_id=vac811.hu`;
+      const url = `${AUTH_BASE}/auth?provider=github&scope=repo&site_id=vac811.hu%2Fbeta`;
       const popup = window.open(url, 'github-oauth', 'width=600,height=720,left=200,top=80');
       let resolved = false;
 
