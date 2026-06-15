@@ -228,6 +228,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+3ba4b14 kuracio: 1 jóváhagyva, 9 elutasítva
+9fceb2b chore: update CONTEXT.md [auto]
 57ae653 fix: align React/router deps, fix Sveltia script tag, add kuracio↔admin nav (#41)
 289cc5b chore: update CONTEXT.md [auto]
 1050936 fix(curate-gallery): silence duplicate budget-cap log spam (#40)
@@ -236,12 +238,10 @@ bc10a21 chore: curate gallery candidates from Google Drive
 db53f47 chore: update CONTEXT.md [auto]
 b4c7c0e feat: OAuth login for /admin/kuracio + fix gallery mojibake + pin actions (#38)
 193dc2a chore: update CONTEXT.md [auto]
-f5d2fc5 Merge pull request #37 from thead4md/dependabot/npm_and_yarn/multi-b0dfc253ff
-918c66a chore(deps): bump react and @types/react
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 13.6s. Stack: TypeScript / Node.js._
+_Generated in 17.2s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
