@@ -228,6 +228,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+1c04f3f chore(deps-dev): bump typescript-eslint from 8.59.0 to 8.61.0 (#31)
+f2ff06d chore: update CONTEXT.md [auto]
 bac6348 chore: add Dependabot config
 1ceadbb chore: add Dependabot config
 a032bd6 chore: update CONTEXT.md [auto]
@@ -236,12 +238,10 @@ d1b30aa kuracio: 2 jóváhagyva, 0 elutasítva
 afe275a chore: update CONTEXT.md [auto]
 425f5d9 fix: skip budget checks in dry-run mode
 9f142dc chore: update CONTEXT.md [auto]
-80c7501 feat: dry-run mode for gallery curation workflow
-ea0bc63 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 15.4s. Stack: TypeScript / Node.js._
+_Generated in 16.4s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
