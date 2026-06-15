@@ -228,6 +228,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+e3f5ced fix(kuracio): correct OAuth site_id to vac811.hu/beta (#42)
+7bd40f9 chore: update CONTEXT.md [auto]
 307b835 chore: update CONTEXT.md [auto]
 3ba4b14 kuracio: 1 jóváhagyva, 9 elutasítva
 9fceb2b chore: update CONTEXT.md [auto]
@@ -236,12 +238,10 @@ _No open TODOs found._
 1050936 fix(curate-gallery): silence duplicate budget-cap log spam (#40)
 bc10a21 chore: curate gallery candidates from Google Drive
 6f799d1 chore: curate gallery candidates from Google Drive
-db53f47 chore: update CONTEXT.md [auto]
-b4c7c0e feat: OAuth login for /admin/kuracio + fix gallery mojibake + pin actions (#38)
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 11.6s. Stack: TypeScript / Node.js._
+_Generated in 12.2s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
