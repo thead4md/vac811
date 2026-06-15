@@ -87,6 +87,21 @@ function CurateLayout() {
   return (
     <>
       <meta name="robots" content="noindex" />
+      <a
+        href="/beta/admin/"
+        style={{
+          position: 'fixed',
+          top: 8,
+          left: 12,
+          zIndex: 9999,
+          fontSize: 13,
+          color: 'var(--color-text-muted, #888)',
+          textDecoration: 'none',
+          fontFamily: 'system-ui, sans-serif',
+        }}
+      >
+        ← Admin panel
+      </a>
       <Curate />
     </>
   );
