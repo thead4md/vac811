@@ -2,37 +2,37 @@
   "gallery": [
     {
       "id": "144gaYnh-EZv3i6ZgK23odsaAuiC_Qevr",
-      "name": "HÃ¡rom cserkÃ©sz vidÃ¡m pillanata a termÃ©szetben",
+      "name": "Három cserkész vidám pillanata a természetben",
       "year": "2025",
-      "event": "Rover prÃ³ba",
+      "event": "Rover próba",
       "score": 82,
-      "reason": "PontszÃ¡m 82.",
+      "reason": "Pontszám 82.",
       "approved": true,
       "status": "approved"
     },
     {
       "id": "1KL5z5RtOzB5wv0859FA9ccSI2vmQq521",
-      "name": "HÃ¡rom cserkÃ©sz mosolyog a termÃ©szet kÃ¶zepÃ©n â az egysÃ©g Ã¶sszetartozÃ¡sÃ¡nak jelkÃ©pe",
+      "name": "Három cserkész mosolyog a természet közepén – az egység összetartozásának jelképe",
       "year": "2025",
-      "event": "Rover prÃ³ba",
-      "activity": "csapatprogram, portrÃ©k",
+      "event": "Rover próba",
+      "activity": "csapatprogram, portrék",
       "bucket": "csapatprogram",
       "score": 85,
       "phash": "8282f16044c48c9c",
-      "reason": "PontszÃ¡m 85. TevÃ©kenysÃ©g: csapatprogram, portrÃ©k.",
+      "reason": "Pontszám 85. Tevékenység: csapatprogram, portrék.",
       "status": "approved",
       "approved": true
     },
     {
       "id": "1f6mXuIzP0MvN2pQHMfW7jbfXZ0lbbY4r",
-      "name": "A cserkÃ©szek kÃ¶zÃ¶sen dolgoznak egy kreatÃ­v feladaton, ahol minden csapattag aktÃ­van rÃ©szt vesz az alkotÃ¡sban.",
+      "name": "A cserkészek közösen dolgoznak egy kreatív feladaton, ahol minden csapattag aktívan részt vesz az alkotásban.",
       "year": "2025",
-      "event": "Csapat karÃ¡csony",
-      "activity": "kÃ©zmÅ± foglalkozÃ¡s",
+      "event": "Csapat karácsony",
+      "activity": "kézmű foglalkozás",
       "bucket": "foglalkozas",
       "score": 85,
       "phash": "c1e103c692d37024",
-      "reason": "PontszÃ¡m 85. TevÃ©kenysÃ©g: kÃ©zmÅ± foglalkozÃ¡s.",
+      "reason": "Pontszám 85. Tevékenység: kézmű foglalkozás.",
       "status": "approved",
       "approved": true
     }

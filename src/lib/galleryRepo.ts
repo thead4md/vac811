@@ -27,7 +27,12 @@ export async function fetchGallery(token: string): Promise<GalleryFile> {
   });
   if (!res.ok) throw new Error(`GitHub ${res.status}`);
   const data = await res.json() as { sha: string; content: string };
-  const content = JSON.parse(atob(data.content.replace(/\n/g, ''))) as { gallery: GalleryItem[] };
+  // GitHub returns base64 of the raw UTF-8 file bytes. atob() gives a byte
+  // string (each char = one byte); TextDecoder converts those bytes to a real
+  // JS string so multi-byte Hungarian characters aren't split into mojibake.
+  const raw = atob(data.content.replace(/\n/g, ''));
+  const bytes = Uint8Array.from(raw, (c) => c.charCodeAt(0));
+  const content = JSON.parse(new TextDecoder('utf-8').decode(bytes)) as { gallery: GalleryItem[] };
   return { sha: data.sha, items: content.gallery };
 }
 
