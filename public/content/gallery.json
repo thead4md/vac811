@@ -46,7 +46,7 @@
       "score": 85,
       "phash": "743632f263cecc0e",
       "reason": "Pontszám 85. Tevékenység: táborprogram.",
-      "status": "pending",
+      "status": "rejected",
       "approved": false
     },
     {
@@ -59,7 +59,7 @@
       "score": 85,
       "phash": "bc7c7c5c5b1b1317",
       "reason": "Pontszám 85. Tevékenység: csapatprogram, gyűlés.",
-      "status": "pending",
+      "status": "rejected",
       "approved": false
     },
     {
@@ -72,7 +72,7 @@
       "score": 85,
       "phash": "cbc5f161c3d49498",
       "reason": "Pontszám 85. Tevékenység: túra, csapatprogram.",
-      "status": "pending",
+      "status": "rejected",
       "approved": false
     },
     {
@@ -85,7 +85,7 @@
       "score": 75,
       "phash": "48580c0e6a386145",
       "reason": "Pontszám 75. Tevékenység: csapatprogram, szabadtéri foglalkozás.",
-      "status": "pending",
+      "status": "rejected",
       "approved": false
     },
     {
@@ -98,7 +98,7 @@
       "score": 75,
       "phash": "316526258ad46451",
       "reason": "Pontszám 75. Tevékenység: szabadtéri pihenő.",
-      "status": "pending",
+      "status": "rejected",
       "approved": false
     },
     {
@@ -111,7 +111,7 @@
       "score": 75,
       "phash": "dcc2d8c64959e0d8",
       "reason": "Pontszám 75. Tevékenység: csapatprogram, játék.",
-      "status": "pending",
+      "status": "rejected",
       "approved": false
     },
     {
@@ -124,7 +124,7 @@
       "score": 75,
       "phash": "656464787a366ef8",
       "reason": "Pontszám 75. Tevékenység: tábor, csapatjáték.",
-      "status": "pending",
+      "status": "rejected",
       "approved": false
     },
     {
@@ -137,7 +137,7 @@
       "score": 75,
       "phash": "01e02229393dfdc6",
       "reason": "Pontszám 75. Tevékenység: csapatprogram.",
-      "status": "pending",
+      "status": "rejected",
       "approved": false
     },
     {
@@ -150,7 +150,7 @@
       "score": 75,
       "phash": "eb1c98ecc6c9c999",
       "reason": "Pontszám 75. Tevékenység: természet, pihenő.",
-      "status": "pending",
+      "status": "rejected",
       "approved": false
     },
     {
@@ -163,8 +163,8 @@
       "score": 65,
       "phash": "323232a66054dceb",
       "reason": "Pontszám 65. Tevékenység: piknik, szabadtéri étkezés.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     }
   ]
 }
