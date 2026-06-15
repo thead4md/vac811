@@ -118,28 +118,10 @@ collections:
                   - Felnőtt / Senior
 
   # ─── GALLERY ────────────────────────────────────────────────────────────────
-  - name: gallery
-    label: Galéria
-    label_singular: Fotó
-    description: "Az MI által javasolt fotók jóváhagyása. Pipáld be a 'Jóváhagyva' mezőt, hogy a fotó megjelenjen az oldalon."
-    files:
-      - name: gallery
-        label: Galéria fotók
-        file: public/content/gallery.json
-        fields:
-          - label: Fotók
-            name: gallery
-            widget: list
-            label_singular: Fotó
-            summary: "{{fields.year}} – {{fields.event}} – {{fields.name}} ({{fields.score}})"
-            fields:
-              - { label: Drive fájl ID, name: id, widget: string, hint: "A Google Drive fájl azonosítója (ne módosítsd)." }
-              - { label: Képaláírás, name: name, widget: string, hint: "Az oldalon megjelenő szöveg – szabadon szerkeszthető." }
-              - { label: Év, name: year, widget: string }
-              - { label: Esemény, name: event, widget: string, required: false }
-              - { label: MI pontszám, name: score, widget: number, value_type: int, required: false, hint: "Az MI minőségi pontszáma (csak tájékoztató)." }
-              - { label: MI indoklás, name: reason, widget: string, required: false, hint: "Miért választotta az MI ezt a képet." }
-              - { label: Jóváhagyva, name: approved, widget: boolean, default: false, hint: "Bejelölve → megjelenik a galériában." }
+  # Photo curation moved to the dedicated /kuracio swipe app (image-first
+  # approve/reject). It writes public/content/gallery.json through the same
+  # GitHub backend, so this collection was intentionally removed to avoid two
+  # competing editors for the same file.
 
   # ─── SETTINGS ───────────────────────────────────────────────────────────────
   - name: settings

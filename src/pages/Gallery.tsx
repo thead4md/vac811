@@ -1,17 +1,21 @@
 import { useMemo, useState } from 'react';
 import { useContent } from '../hooks/useContent';
 import InstagramWall from '../components/InstagramWall';
+import { driveImgUrl, driveSrcSet } from '../lib/drive';
 import './Gallery.css';
 
 interface GalleryItem {
   id: string;
   name: string;
   year: string;
+  status?: 'pending' | 'approved' | 'rejected';
   approved?: boolean;
 }
 
-function driveImgUrl(fileId: string) {
-  return `https://lh3.googleusercontent.com/d/${fileId}`;
+// An item is public when its status is 'approved' — falling back to the legacy
+// boolean flag for entries written before the status field existed.
+function isApproved(i: GalleryItem): boolean {
+  return i.status === 'approved' || (i.status == null && !!i.approved);
 }
 
 export default function Gallery() {
@@ -21,7 +25,7 @@ export default function Gallery() {
   // Only approved photos are shown publicly; AI candidates stay hidden until
   // an editor approves them in Decap CMS.
   const approvedItems = useMemo(
-    () => (items ? items.filter((i) => i.approved) : []),
+    () => (items ? items.filter(isApproved) : []),
     [items],
   );
 
@@ -115,7 +119,9 @@ export default function Gallery() {
                   aria-label={item.name}
                 >
                   <img
-                    src={driveImgUrl(item.id)}
+                    src={driveImgUrl(item.id, 800)}
+                    srcSet={driveSrcSet(item.id, [400, 800, 1200])}
+                    sizes="(max-width: 640px) 50vw, 25vw"
                     alt={item.name}
                     loading="lazy"
                     decoding="async"

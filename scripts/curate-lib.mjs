@@ -35,6 +35,91 @@ export function bucketActivity(activity) {
   return norm.split(/\s+/)[0] || 'egyeb';
 }
 
+// Run `fn` over `items` with at most `concurrency` calls in flight, preserving
+// input order in the results array. A worker pulls the next index off a shared
+// cursor as soon as it frees up, so slow items never stall the others. `fn`
+// receives (item, index). Rejections propagate (the returned promise rejects).
+export async function mapPool(items, concurrency, fn) {
+  const results = new Array(items.length);
+  const width = Math.max(1, Math.min(concurrency | 0 || 1, items.length || 1));
+  let cursor = 0;
+  async function worker() {
+    while (cursor < items.length) {
+      const i = cursor++;
+      results[i] = await fn(items[i], i);
+    }
+  }
+  await Promise.all(Array.from({ length: width }, worker));
+  return results;
+}
+
+// Hamming distance between two equal-length hex strings (e.g. 16-hex-char
+// 64-bit dHashes). Counts differing bits. Returns Infinity if either is missing
+// or lengths differ, so a malformed/absent hash never falsely matches.
+export function hamming(a, b) {
+  if (!a || !b || a.length !== b.length) return Infinity;
+  let dist = 0;
+  for (let i = 0; i < a.length; i++) {
+    let x = parseInt(a[i], 16) ^ parseInt(b[i], 16); // diff bits in this nibble
+    while (x) { dist += x & 1; x >>= 1; }
+  }
+  return dist;
+}
+
+// Greedy near-duplicate clustering. `items` each carry a `.phash` hex string.
+// Walks items in order; each item joins the first existing cluster whose
+// representative (cluster[0]) is within `distance` bits, otherwise starts a new
+// cluster. Items missing a hash always get their own cluster (never merged).
+// Returns an array of clusters (arrays of items); cluster[0] is the
+// representative. Order-stable: pass best-first to keep the best as rep.
+export function clusterByHash(items, distance) {
+  const clusters = [];
+  for (const item of items) {
+    let placed = false;
+    if (item && item.phash) {
+      for (const cluster of clusters) {
+        if (hamming(cluster[0].phash, item.phash) <= distance) {
+          cluster.push(item);
+          placed = true;
+          break;
+        }
+      }
+    }
+    if (!placed) clusters.push([item]);
+  }
+  return clusters;
+}
+
+// Compute a 64-bit difference hash (dHash) for raw image bytes, returned as a
+// 16-char hex string. Resizes to 9×8 grayscale and sets one bit per row-adjacent
+// pixel comparison (left brighter than right). Requires a `sharp` instance
+// passed in (kept out of this pure module's imports so tests don't load native
+// code). Returns null on any decode failure — callers treat that as "no hash".
+export async function dHash(sharp, buffer) {
+  try {
+    const { data } = await sharp(buffer)
+      .greyscale()
+      .resize(9, 8, { fit: 'fill' })
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    let bits = '';
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const left = data[row * 9 + col];
+        const right = data[row * 9 + col + 1];
+        bits += left > right ? '1' : '0';
+      }
+    }
+    let hex = '';
+    for (let i = 0; i < 64; i += 4) {
+      hex += parseInt(bits.slice(i, i + 4), 2).toString(16);
+    }
+    return hex;
+  } catch {
+    return null;
+  }
+}
+
 // Pick up to `cap` items while spreading across activity buckets. Assumes
 // `scored` is already sorted best-first; within each bucket that order is kept.
 // Round-robin in full passes: take one from each non-empty bucket per pass, so

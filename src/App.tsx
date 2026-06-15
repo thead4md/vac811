@@ -11,6 +11,7 @@ import Rajok from './pages/Rajok';
 import Camps from './pages/Camps';
 import Naptar from './pages/Naptar';
 import Gallery from './pages/Gallery';
+import Curate from './pages/Curate';
 import Join from './pages/Join';
 import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
@@ -38,6 +39,7 @@ const pageTitles: Record<string, string> = {
   '/taborok': 'Táborok – 811. Cserkészcsapat',
   '/naptar': 'Naptár – 811. Cserkészcsapat',
   '/galeria': 'Galéria – 811. Cserkészcsapat',
+  '/kuracio': 'Fotó kuráció – 811. Cserkészcsapat',
   '/csatlakozas': 'Csatlakozz! – 811. Cserkészcsapat',
   '/kapcsolat': 'Kapcsolat – 811. Cserkészcsapat',
 };
@@ -70,6 +72,8 @@ function AppLayout() {
           {/* Faithful slug kept; the beta's /hirek redirects here */}
           <Route path="/hirek" element={<Navigate to="/naptar" replace />} />
           <Route path="/galeria" element={<Gallery />} />
+          {/* Leader-only photo curation tool (noindex, not in the navbar) */}
+          <Route path="/kuracio" element={<Curate />} />
           <Route path="/csatlakozas" element={<Join />} />
           <Route path="/kapcsolat" element={<Contact />} />
           <Route path="/cserkeszet" element={<Scouting />} />
