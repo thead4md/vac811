@@ -228,6 +228,9 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+f5d2fc5 Merge pull request #37 from thead4md/dependabot/npm_and_yarn/multi-b0dfc253ff
+918c66a chore(deps): bump react and @types/react
+b4a0cec chore: update CONTEXT.md [auto]
 0d9925c Merge pull request #29 from thead4md/dependabot/npm_and_yarn/sharp-0.35.1
 f903c61 Merge pull request #32 from thead4md/dependabot/npm_and_yarn/eslint-10.5.0
 cbd8f4f Merge pull request #33 from thead4md/dependabot/npm_and_yarn/eslint-plugin-react-refresh-0.5.3
@@ -235,13 +238,10 @@ cbd8f4f Merge pull request #33 from thead4md/dependabot/npm_and_yarn/eslint-plug
 efdfb84 chore(deps-dev): bump eslint from 9.39.4 to 10.5.0
 5704e38 chore(deps): bump sharp from 0.34.5 to 0.35.1
 2c81c20 chore: update CONTEXT.md [auto]
-82ce63a chore(deps): bump react-router from 7.16.0 to 7.17.0 (#35)
-8b3e9d8 chore(deps-dev): bump @eslint/js from 9.39.4 to 10.0.1
-cfaefd7 chore(deps-dev): bump vite from 8.0.9 to 8.0.16 (#34)
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 14.3s. Stack: TypeScript / Node.js._
+_Generated in 14.1s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
