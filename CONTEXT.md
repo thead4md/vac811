@@ -228,20 +228,20 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+0d9925c Merge pull request #29 from thead4md/dependabot/npm_and_yarn/sharp-0.35.1
+f903c61 Merge pull request #32 from thead4md/dependabot/npm_and_yarn/eslint-10.5.0
+cbd8f4f Merge pull request #33 from thead4md/dependabot/npm_and_yarn/eslint-plugin-react-refresh-0.5.3
+436a79a Merge pull request #36 from thead4md/dependabot/npm_and_yarn/eslint/js-10.0.1
+efdfb84 chore(deps-dev): bump eslint from 9.39.4 to 10.5.0
+5704e38 chore(deps): bump sharp from 0.34.5 to 0.35.1
+2c81c20 chore: update CONTEXT.md [auto]
 82ce63a chore(deps): bump react-router from 7.16.0 to 7.17.0 (#35)
+8b3e9d8 chore(deps-dev): bump @eslint/js from 9.39.4 to 10.0.1
 cfaefd7 chore(deps-dev): bump vite from 8.0.9 to 8.0.16 (#34)
-32f8c74 chore(deps-dev): bump globals from 17.5.0 to 17.6.0 (#28)
-2e18654 chore: update CONTEXT.md [auto]
-1c04f3f chore(deps-dev): bump typescript-eslint from 8.59.0 to 8.61.0 (#31)
-f2ff06d chore: update CONTEXT.md [auto]
-bac6348 chore: add Dependabot config
-1ceadbb chore: add Dependabot config
-a032bd6 chore: update CONTEXT.md [auto]
-d1b30aa kuracio: 2 jóváhagyva, 0 elutasítva
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 15.2s. Stack: TypeScript / Node.js._
+_Generated in 14.3s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
