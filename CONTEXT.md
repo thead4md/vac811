@@ -228,6 +228,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+224d650 fix(instagram): wire up Behold.so embed with real feed ID (#45)
+f2a64fd chore: update CONTEXT.md [auto]
 9b29c86 feat(kuracio): replace swipe UI with three-tab grid CMS (#44)
 f98a248 chore: update CONTEXT.md [auto]
 253fca0 fix(kuracio): implement OAuth postMessage handshake (#43)
@@ -236,12 +238,10 @@ e3f5ced fix(kuracio): correct OAuth site_id to vac811.hu/beta (#42)
 7bd40f9 chore: update CONTEXT.md [auto]
 307b835 chore: update CONTEXT.md [auto]
 3ba4b14 kuracio: 1 jóváhagyva, 9 elutasítva
-9fceb2b chore: update CONTEXT.md [auto]
-57ae653 fix: align React/router deps, fix Sveltia script tag, add kuracio↔admin nav (#41)
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 14.4s. Stack: TypeScript / Node.js._
+_Generated in 14.1s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
