@@ -5,8 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
     <title>Admin – 811. Szent József Cserkészcsapat</title>
+    <style>
+      #kuracio-bar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        z-index: 9999;
+        padding: 6px 14px;
+        background: #1a1a2e;
+        border-bottom-left-radius: 8px;
+        font-family: system-ui, sans-serif;
+        font-size: 13px;
+      }
+      #kuracio-bar a {
+        color: #e8c97a;
+        text-decoration: none;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+      #kuracio-bar a:hover { text-decoration: underline; }
+    </style>
   </head>
   <body>
-    <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js" type="module"></script>
+    <div id="kuracio-bar">
+      <a href="/beta/admin/kuracio">📷 Fotókuráció →</a>
+    </div>
+    <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
   </body>
 </html>
