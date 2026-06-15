@@ -100,6 +100,71 @@
       "reason": "Pontszám 75. Tevékenység: szabadtéri pihenő.",
       "status": "pending",
       "approved": false
+    },
+    {
+      "id": "17oYRW0_kIr72k-zx1fUAgzi8758KhgSo",
+      "name": "A csapat szabadban, játékos megfigyelési vagy csapatjátékra készülve — vidám, könnyed pillanat a természetben.",
+      "year": "2025",
+      "event": "KCS tanyázás",
+      "activity": "csapatprogram, játék",
+      "bucket": "foglalkozas",
+      "score": 75,
+      "phash": "dcc2d8c64959e0d8",
+      "reason": "Pontszám 75. Tevékenység: csapatprogram, játék.",
+      "status": "pending",
+      "approved": false
+    },
+    {
+      "id": "1kCMGCVaLZZrdMcO26CIGtTiOwsJpXd7a",
+      "name": "Cserkészek nyári táborban játsznak és sportolnak a zöld füves területen",
+      "year": "2025",
+      "event": "KCS tanyázás",
+      "activity": "tábor, csapatjáték",
+      "bucket": "tabor",
+      "score": 75,
+      "phash": "656464787a366ef8",
+      "reason": "Pontszám 75. Tevékenység: tábor, csapatjáték.",
+      "status": "pending",
+      "approved": false
+    },
+    {
+      "id": "17XfE0suQkVPcMfZRwxu8j_KiO-50_rOe",
+      "name": "Cserkészek egy szabadtéri foglalkozáson vesznek részt, játékos mozgásfeladatok közben tanulnak és szórakoznak együtt.",
+      "year": "2025",
+      "event": "KCS tanyázás",
+      "activity": "csapatprogram",
+      "bucket": "csapatprogram",
+      "score": 75,
+      "phash": "01e02229393dfdc6",
+      "reason": "Pontszám 75. Tevékenység: csapatprogram.",
+      "status": "pending",
+      "approved": false
+    },
+    {
+      "id": "1shJQ_KYqujY-vlP6LMzbnW028O3yoPhK",
+      "name": "Vidám pillanat a cserkészlegelésen – természetben, szabadban, mosolyogva",
+      "year": "2025",
+      "event": "KCS tanyázás",
+      "activity": "természet, pihenő",
+      "bucket": "termeszet",
+      "score": 75,
+      "phash": "eb1c98ecc6c9c999",
+      "reason": "Pontszám 75. Tevékenység: természet, pihenő.",
+      "status": "pending",
+      "approved": false
+    },
+    {
+      "id": "1ID5Mrfe0hMbwHwvP6Qtcw6WyHVe_7Gun",
+      "name": "Cserkészek piknikeznek a pályán: közös ebéd és pihenés a természet közepette",
+      "year": "2025",
+      "event": "KCS tanyázás",
+      "activity": "piknik, szabadtéri étkezés",
+      "bucket": "piknik,",
+      "score": 65,
+      "phash": "323232a66054dceb",
+      "reason": "Pontszám 65. Tevékenység: piknik, szabadtéri étkezés.",
+      "status": "pending",
+      "approved": false
     }
   ]
 }
