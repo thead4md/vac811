@@ -555,11 +555,13 @@ async function main() {
       let preflightSkipped = 0;
 
       const scoreResults = await mapPool(representatives, CONCURRENCY, async (img) => {
+        if (budgetHit) return null; // short-circuit — budget already hit by a sibling call
+
         // Pass 1: OpenAI vision pre-filter (opt-in).
         // Check-and-reserve is synchronous (before any await) so no race in single-threaded JS.
         if (PREFLIGHT_MODEL) {
           if (!DRY_RUN && openaiCalls >= PREFLIGHT_BUDGET) {
-            console.warn(`    [budget] preflight cap (${PREFLIGHT_BUDGET}) reached — stopping run, progress saved`);
+            if (!budgetHit) console.warn(`    [budget] preflight cap (${PREFLIGHT_BUDGET}) reached — stopping run, progress saved`);
             budgetHit = true;
             return null;
           }
@@ -578,7 +580,7 @@ async function main() {
 
         // Pass 2: Claude Haiku full score.
         if (!DRY_RUN && claudeCalls >= HAIKU_BUDGET) {
-          console.warn(`    [budget] haiku cap (${HAIKU_BUDGET}) reached — stopping run, progress saved`);
+          if (!budgetHit) console.warn(`    [budget] haiku cap (${HAIKU_BUDGET}) reached — stopping run, progress saved`);
           budgetHit = true;
           return null;
         }
