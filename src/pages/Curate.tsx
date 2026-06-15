@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { getToken, login, logout } from '../lib/githubAuth';
 import { fetchGallery, commitDecisions, cdnUrl } from '../lib/galleryRepo';
 import type { GalleryItem } from './Gallery';
@@ -28,6 +28,7 @@ export default function Curate() {
   const [activeTab, setActiveTab] = useState<'pending' | 'published' | 'rejected'>('pending');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const captionEscaped = useRef(false);
 
   // ── Load gallery after login ──────────────────────────────────────────────
   useEffect(() => {
@@ -426,7 +427,8 @@ export default function Curate() {
                       value={draftCaption}
                       onChange={(e) => setDraftCaption(e.target.value)}
                       onBlur={() => {
-                        commitCaption(item.id, draftCaption);
+                        if (!captionEscaped.current) commitCaption(item.id, draftCaption);
+                        captionEscaped.current = false;
                         setEditingId(null);
                       }}
                       onKeyDown={(e) => {
@@ -435,7 +437,10 @@ export default function Curate() {
                           commitCaption(item.id, draftCaption);
                           setEditingId(null);
                         }
-                        if (e.key === 'Escape') setEditingId(null);
+                        if (e.key === 'Escape') {
+                          captionEscaped.current = true;
+                          setEditingId(null);
+                        }
                       }}
                       rows={2}
                     />
