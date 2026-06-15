@@ -228,6 +228,7 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+307b835 chore: update CONTEXT.md [auto]
 3ba4b14 kuracio: 1 jóváhagyva, 9 elutasítva
 9fceb2b chore: update CONTEXT.md [auto]
 57ae653 fix: align React/router deps, fix Sveltia script tag, add kuracio↔admin nav (#41)
@@ -237,11 +238,10 @@ bc10a21 chore: curate gallery candidates from Google Drive
 6f799d1 chore: curate gallery candidates from Google Drive
 db53f47 chore: update CONTEXT.md [auto]
 b4c7c0e feat: OAuth login for /admin/kuracio + fix gallery mojibake + pin actions (#38)
-193dc2a chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 17.2s. Stack: TypeScript / Node.js._
+_Generated in 11.6s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
