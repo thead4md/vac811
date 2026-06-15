@@ -228,6 +228,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+b4c7c0e feat: OAuth login for /admin/kuracio + fix gallery mojibake + pin actions (#38)
+193dc2a chore: update CONTEXT.md [auto]
 f5d2fc5 Merge pull request #37 from thead4md/dependabot/npm_and_yarn/multi-b0dfc253ff
 918c66a chore(deps): bump react and @types/react
 b4a0cec chore: update CONTEXT.md [auto]
@@ -236,12 +238,10 @@ f903c61 Merge pull request #32 from thead4md/dependabot/npm_and_yarn/eslint-10.5
 cbd8f4f Merge pull request #33 from thead4md/dependabot/npm_and_yarn/eslint-plugin-react-refresh-0.5.3
 436a79a Merge pull request #36 from thead4md/dependabot/npm_and_yarn/eslint/js-10.0.1
 efdfb84 chore(deps-dev): bump eslint from 9.39.4 to 10.5.0
-5704e38 chore(deps): bump sharp from 0.34.5 to 0.35.1
-2c81c20 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 14.1s. Stack: TypeScript / Node.js._
+_Generated in 10.4s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
