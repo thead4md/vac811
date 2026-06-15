@@ -16,7 +16,7 @@
 //   GALLERY_SCORE_THRESHOLD    – minimum score for primary events (default 70)
 //   GALLERY_MINOR_THRESHOLD    – minimum score for minor events (default 80)
 //   GALLERY_PRIMARY_KEYWORDS   – comma-separated Hungarian keywords to force-classify
-//                                an event as primary (default "tábor,táborozás,nyári")
+//                                an event as primary (default "tábor,táborozás,nyári,tanyázás")
 //   GALLERY_MODEL              – Claude model id (default claude-haiku-4-5)
 //   GALLERY_PREFLIGHT_MODEL    – OpenAI model for binary pre-filter; omit to skip
 //                                (default "gpt-4o-mini" when OPENAI_API_KEY is set)
@@ -94,7 +94,7 @@ const MAX_PRIMARY = Number(process.env.GALLERY_MAX_PRIMARY_EVENT || 12);
 const MAX_MINOR = Number(process.env.GALLERY_MAX_PER_EVENT || 1); // was global cap (default 4) — now minor-only
 const SCORE_THRESHOLD = Number(process.env.GALLERY_SCORE_THRESHOLD || 50);
 const MINOR_THRESHOLD = Number(process.env.GALLERY_MINOR_THRESHOLD || 80);
-const PRIMARY_KEYWORDS = (process.env.GALLERY_PRIMARY_KEYWORDS || 'tábor,táborozás,nyári')
+const PRIMARY_KEYWORDS = (process.env.GALLERY_PRIMARY_KEYWORDS || 'tábor,táborozás,nyári,tanyázás')
   .split(',')
   .map((s) => s.trim().toLowerCase())
   .filter(Boolean);

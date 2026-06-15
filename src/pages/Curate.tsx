@@ -7,6 +7,9 @@ import './Curate.css';
 
 const AUTO_FLUSH_AT = 10;
 
+const AUTH_BASE = 'https://sveltia-cms-auth.dudas-adam99.workers.dev';
+const AUTH_ORIGIN = AUTH_BASE;
+
 interface CardState {
   offset: number;
   dragging: boolean;
@@ -206,45 +209,106 @@ export default function Curate() {
     });
   };
 
+  // ── OAuth login helpers ─────────────────────────────────────────────────
+  const startOAuthLogin = useCallback(
+    (onSuccess: (tok: string) => void, onError: (msg: string) => void) => {
+      const url = `${AUTH_BASE}/auth?provider=github&scope=repo&site_id=vac811.hu`;
+      const popup = window.open(url, 'github-oauth', 'width=600,height=720,left=200,top=80');
+      let resolved = false;
+
+      const cleanup = () => {
+        window.removeEventListener('message', onMessage);
+        clearInterval(poll);
+      };
+
+      const onMessage = (e: MessageEvent) => {
+        if (e.origin !== AUTH_ORIGIN) return;
+        if (typeof e.data !== 'string') return;
+        const PREFIX_OK = 'authorization:github:success:';
+        const PREFIX_ERR = 'authorization:github:error:';
+        if (e.data.startsWith(PREFIX_OK)) {
+          try {
+            const { token: tok } = JSON.parse(e.data.slice(PREFIX_OK.length)) as { token: string };
+            if (tok) { resolved = true; login(tok); onSuccess(tok); popup?.close(); }
+          } catch { /* ignore */ }
+          cleanup();
+        } else if (e.data.startsWith(PREFIX_ERR)) {
+          try {
+            const { message: msg } = JSON.parse(e.data.slice(PREFIX_ERR.length)) as { message: string };
+            onError(msg || 'Hitelesítési hiba');
+          } catch { onError('Hitelesítési hiba'); }
+          cleanup();
+        }
+      };
+
+      window.addEventListener('message', onMessage);
+      const poll = setInterval(() => {
+        if (popup?.closed && !resolved) { cleanup(); onError('A belépési ablak be lett zárva.'); }
+      }, 1000);
+    },
+    [],
+  );
+
   // ── Render helpers ──────────────────────────────────────────────────────
   const [pat, setPat] = useState('');
+  const [showPat, setShowPat] = useState(false);
+  const [oauthError, setOauthError] = useState<string | null>(null);
 
   if (!token) {
     return (
       <main className="curate-shell curate-shell--center">
-        <form
-          className="curate-login"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!pat.trim()) return;
-            login(pat);
-            setToken(pat.trim());
-          }}
-        >
+        <div className="curate-login">
           <h1 className="curate-login__title">Fotókuráció</h1>
           <p className="curate-login__sub">
-            GitHub Personal Access Token szükséges (<code>repo</code> scope).{' '}
-            <a
-              href="https://github.com/settings/tokens/new?scopes=repo&description=vac811+kuracio"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Token létrehozása
-            </a>
+            GitHub-fiókkal jelentkezz be a fotók jóváhagyásához.
           </p>
-          <input
-            className="curate-pat-input"
-            type="password"
-            placeholder="ghp_..."
-            value={pat}
-            onChange={(e) => setPat(e.target.value)}
-            autoComplete="off"
-            spellCheck={false}
-          />
-          <button className="curate-btn curate-btn--primary" type="submit" disabled={!pat.trim()}>
-            Bejelentkezés
+          <button
+            className="curate-btn curate-btn--primary curate-btn--oauth"
+            onClick={() => {
+              setOauthError(null);
+              startOAuthLogin(
+                (tok) => setToken(tok),
+                (msg) => setOauthError(msg),
+              );
+            }}
+          >
+            Belépés GitHub-fiókkal
           </button>
-        </form>
+          {oauthError && (
+            <p className="curate-status curate-status--error">{oauthError}</p>
+          )}
+          {showPat ? (
+            <form
+              className="curate-login__pat"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!pat.trim()) return;
+                login(pat.trim());
+                setToken(pat.trim());
+              }}
+            >
+              <input
+                className="curate-pat-input"
+                type="password"
+                placeholder="ghp_..."
+                value={pat}
+                onChange={(e) => setPat(e.target.value)}
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <button className="curate-btn curate-btn--ghost" type="submit" disabled={!pat.trim()}>
+                Belépés tokennel
+              </button>
+            </form>
+          ) : (
+            <button
+              className="curate-btn curate-btn--ghost curate-login__pat-toggle"
+              onClick={() => setShowPat(true)}
+            >
+              Fejlesztői belépés (PAT token)
+            </button>
+          )}
+        </div>
       </main>
     );
   }

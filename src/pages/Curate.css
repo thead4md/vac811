@@ -51,6 +51,26 @@
   border-color: var(--color-primary);
 }
 
+.curate-btn--oauth {
+  font-size: 1rem;
+  padding: 0.65rem 1.5rem;
+  min-width: 240px;
+}
+
+.curate-login__pat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.curate-login__pat-toggle {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  margin-top: var(--space-2);
+}
+
 /* ── Header ────────────────────────────────────────────────────────────── */
 .curate-header {
   display: flex;
