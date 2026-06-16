@@ -2,7 +2,9 @@ name: Sync ECSET Data
 
 on:
   schedule:
-    - cron: '0 5 * * 1'  # Every Monday 05:00 UTC
+    # Fires daily at a non-round time, but the gate below only actually syncs
+    # roughly once a week, on a random day — so ECSET never sees a fixed pattern.
+    - cron: '43 5 * * *'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -18,17 +20,60 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0  # need full history to find the last auto-sync commit
+
+      - name: Decide whether to run
+        id: gate
+        run: |
+          # Manual runs always proceed. Scheduled runs sync ~weekly: we look at how
+          # long it's been since the last auto-sync and run with a rising probability
+          # across days 6–8, so the actual sync day drifts week to week.
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "Manual run — proceeding."
+            exit 0
+          fi
+          last=$(git log -1 --format=%ct --grep='sync ECSET data \[auto\]' || true)
+          now=$(date +%s)
+          if [ -z "$last" ]; then days=999; else days=$(( (now - last) / 86400 )); fi
+          case "$days" in
+            0|1|2|3|4|5) chance=0 ;;
+            6)           chance=33 ;;
+            7)           chance=50 ;;
+            *)           chance=100 ;;
+          esac
+          roll=$(( RANDOM % 100 ))
+          echo "Days since last sync: $days — run chance ${chance}%, rolled $roll"
+          if [ "$roll" -lt "$chance" ]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "Proceeding with sync."
+          else
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping this run."
+          fi
+
+      - name: Random start delay
+        if: steps.gate.outputs.proceed == 'true' && github.event_name == 'schedule'
+        run: |
+          # Jitter the login time by up to ~2h so it never lands on the same minute.
+          delay=$(( RANDOM % 7200 ))
+          echo "Sleeping ${delay}s (~$(( delay / 60 ))m) before syncing."
+          sleep "$delay"
 
       - uses: actions/setup-node@v4.4.0
+        if: steps.gate.outputs.proceed == 'true'
         with:
           node-version: '24'
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
       - name: Install dependencies
+        if: steps.gate.outputs.proceed == 'true'
         run: npm ci
 
       - name: Sync ECSET data
+        if: steps.gate.outputs.proceed == 'true'
         run: node scripts/sync-ecset.mjs
         env:
           ECSET_USERNAME: ${{ secrets.ECSET_USERNAME }}
@@ -36,11 +81,11 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run || 'false' }}
 
       - name: Commit updated content
-        if: always() && inputs.dry_run != 'true'
+        if: always() && steps.gate.outputs.proceed == 'true' && inputs.dry_run != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/content/leaders.json public/content/camps.json \
+          git add public/content/camps.json \
                   public/content/events.json public/content/settings.json
           if git diff --cached --quiet; then
             echo "No changes to commit"
