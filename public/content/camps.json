@@ -1,11 +1,19 @@
 {
   "camps": [
     {
+      "year": 2026,
+      "location": "Komló, 144/ I,J,H erdőtag",
+      "commander": "Sinka Dóra",
+      "theme": "",
+      "participants": 150,
+      "notes": ""
+    },
+    {
       "year": 2025,
       "location": "Süttő, Pap-rét",
       "commander": "Sinka Dóra",
       "theme": "Kalózos kalandok",
-      "participants": 135,
+      "participants": 190,
       "notes": "Altáborparancsnok: Lázi Adél, Mészáros Béla"
     },
     {
@@ -18,10 +26,10 @@
     },
     {
       "year": 2023,
-      "location": "Makkoshotyka",
+      "location": "Makkoshotyka, 017 hrsz.",
       "commander": "Kende Zoltán",
       "theme": "Egyiptomi kalandok",
-      "participants": 0,
+      "participants": 150,
       "notes": ""
     },
     {
@@ -50,7 +58,7 @@
     },
     {
       "year": 2019,
-      "location": "Nagyoroszi, Irtásbükki-rét",
+      "location": "Nagyoroszi, Irtásbükki-rét (Nagy) - Deszkáspuszta",
       "commander": "Szigeti Bence",
       "theme": "Harry Potter varázslatos világa",
       "participants": 98,
@@ -82,10 +90,10 @@
     },
     {
       "year": 2015,
-      "location": "Nagyoroszi, Irtásbükki-rét",
+      "location": "Nagyoroszi, Irtásbükki-rét (Nagy) - Deszkáspuszta",
       "commander": "Paulik Áron",
       "theme": "Keresztes lovagok kora",
-      "participants": 0,
+      "participants": 100,
       "notes": ""
     },
     {
@@ -98,7 +106,7 @@
     },
     {
       "year": 2013,
-      "location": "Bernecebaráti, Bábaasszony rétje",
+      "location": "Bernecebaráti, Nagy-völgy, Bábaasszony-rétje",
       "commander": "Csáki Viktor",
       "theme": "Hollywoodi kalandok",
       "participants": 80,

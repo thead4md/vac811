@@ -1,28 +1,12 @@
 {
   "events": [
     {
-      "id": "csapatmise-apr-2026",
-      "title": "Csapatmise",
-      "date": "2026-04-05",
-      "dateDisplay": "2026. április 5.",
-      "description": "Csapatmise a székesegyházban, 4 fős baldachin közreműködéssel.",
-      "category": "mise"
-    },
-    {
-      "id": "portya-apr-2026",
-      "title": "Csapatportya",
-      "date": "2026-04-17",
-      "dateDisplay": "2026. április 17–19.",
-      "description": "Háromnapos csapatportya, melyen minden raj részt vesz.",
-      "category": "portya"
-    },
-    {
-      "id": "metabajnoksag-2026",
-      "title": "I–X. korosztályos métabajnokság",
-      "date": "2026-04-25",
-      "dateDisplay": "2026. április 25.",
-      "description": "Az 1–10. korosztályok métabajnoksága. Gyere és szurkold a csapatod!",
-      "category": "verseny"
+      "id": "elotabor-2026-06",
+      "title": "Előtábor",
+      "date": "2026-06-30",
+      "dateDisplay": "2026. június 30..",
+      "description": "",
+      "category": "tábor"
     },
     {
       "id": "nyari-tabor-2026",
@@ -31,6 +15,54 @@
       "dateDisplay": "2026. július (dátum hamarosan)",
       "description": "Az idei nyári tábor részletei hamarosan elérhetők. Kövesd oldalunkat!",
       "category": "tábor"
+    },
+    {
+      "id": "csapattabor-2026-07",
+      "title": "Csapattábor",
+      "date": "2026-07-03",
+      "dateDisplay": "2026. július 3..",
+      "description": "",
+      "category": "tábor"
+    },
+    {
+      "id": "kcs-tanyazas-2026-08",
+      "title": "KCS tanyázás",
+      "date": "2026-08-14",
+      "dateDisplay": "2026. augusztus 14..",
+      "description": "",
+      "category": "egyéb"
+    },
+    {
+      "id": "hetkapolna-bucsu-5-6-fo-segitseg-az-aldoztatasban-2026-09",
+      "title": "Hétkápolna búcsú - 5-6 fő segítség az áldoztatásban",
+      "date": "2026-09-12",
+      "dateDisplay": "2026. szeptember 12..",
+      "description": "",
+      "category": "mise"
+    },
+    {
+      "id": "hetkapolna-bucsu-12-fo-segitseg-tablakat-tartani-2026-09",
+      "title": "Hétkápolna búcsú - 12 fő segítség táblákat tartani",
+      "date": "2026-09-13",
+      "dateDisplay": "2026. szeptember 13..",
+      "description": "",
+      "category": "mise"
+    },
+    {
+      "id": "x-keruleti-futoverseny-2026-09",
+      "title": "X. Kerületi futóverseny",
+      "date": "2026-09-26",
+      "dateDisplay": "2026. szeptember 26..",
+      "description": "",
+      "category": "verseny"
+    },
+    {
+      "id": "orszagos-cserkesznap-2026-10",
+      "title": "Országos cserkésznap",
+      "date": "2026-10-10",
+      "dateDisplay": "2026. október 10..",
+      "description": "",
+      "category": "egyéb"
     }
   ]
 }
