@@ -88,3 +88,66 @@ export async function commitDecisions(
 export function cdnUrl(fileId: string, width = 800): string {
   return `https://lh3.googleusercontent.com/d/${fileId}=w${width}`;
 }
+
+// ── Proxy variants (Google ID token → Cloudflare Worker → GitHub) ────────────
+
+function proxyHeaders(idToken: string) {
+  return { Authorization: `Bearer ${idToken}`, 'Content-Type': 'application/json' };
+}
+
+export async function fetchGalleryViaProxy(
+  proxyUrl: string,
+  idToken: string,
+): Promise<GalleryFile> {
+  const res = await fetch(proxyUrl, { headers: proxyHeaders(idToken) });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ error: res.statusText })) as { error?: string };
+    throw new Error(body.error ?? `Proxy ${res.status}`);
+  }
+  const data = await res.json() as { sha: string; content: string };
+  const raw = atob(data.content.replace(/\n/g, ''));
+  const bytes = Uint8Array.from(raw, (c) => c.charCodeAt(0));
+  const content = JSON.parse(new TextDecoder('utf-8').decode(bytes)) as { gallery: GalleryItem[] };
+  return { sha: data.sha, items: content.gallery };
+}
+
+export async function commitDecisionsViaProxy(
+  proxyUrl: string,
+  idToken: string,
+  decisions: Map<string, Decision>,
+  retryCount = 0,
+): Promise<void> {
+  const { sha, items } = await fetchGalleryViaProxy(proxyUrl, idToken);
+
+  const updated = items.map((item) => {
+    const d = decisions.get(item.id);
+    if (!d) return item;
+    return { ...item, status: d.status, approved: d.status === 'approved', name: d.caption };
+  });
+
+  const json = JSON.stringify({ gallery: updated }, null, 2) + '\n';
+  const b64 = btoa(
+    Array.from(new TextEncoder().encode(json))
+      .map((b) => String.fromCharCode(b))
+      .join(''),
+  );
+
+  const approvedCount = [...decisions.values()].filter((d) => d.status === 'approved').length;
+  const rejectedCount = [...decisions.values()].filter((d) => d.status === 'rejected').length;
+  const revertedCount = [...decisions.values()].filter((d) => d.status === 'pending').length;
+
+  const res = await fetch(proxyUrl, {
+    method: 'PUT',
+    headers: proxyHeaders(idToken),
+    body: JSON.stringify({ sha, content: b64, approved: approvedCount, rejected: rejectedCount, reverted: revertedCount }),
+  });
+
+  if (res.status === 409 && retryCount < 3) {
+    return commitDecisionsViaProxy(proxyUrl, idToken, decisions, retryCount + 1);
+  }
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ error: res.statusText })) as { error?: string };
+    throw new Error(body.error ?? `Proxy ${res.status}`);
+  }
+}

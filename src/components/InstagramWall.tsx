@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import './InstagramWall.css';
 
-const FEED_ID = 'RTiQ4suSjFTFM0QVI8lv';
+// Feed id comes from VITE_BEHOLD_FEED_ID (see .env.production); the literal is a
+// dev/test fallback so the wall still renders when the env var is absent.
+const FEED_ID = import.meta.env.VITE_BEHOLD_FEED_ID || 'RTiQ4suSjFTFM0QVI8lv';
 const BEHOLD_SCRIPT = 'https://w.behold.so/widget.js';
 
 export default function InstagramWall() {

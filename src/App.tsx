@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import BackgroundField from './components/BackgroundField';
+import ScrollProgress from './components/ScrollProgress';
 import Home from './pages/Home';
 import About from './pages/About';
 import History from './pages/History';
@@ -29,24 +30,47 @@ function ScrollReset() {
   return null;
 }
 
-// Page title updater
-const pageTitles: Record<string, string> = {
-  '/': '811. Szent József Cserkészcsapat – Vác',
-  '/rolunk': 'Rólunk – 811. Cserkészcsapat',
-  '/tortenet': 'Történet – 811. Cserkészcsapat',
-  '/vezetok': 'Vezetők – 811. Cserkészcsapat',
-  '/rajok': 'Rajok – 811. Cserkészcsapat',
-  '/taborok': 'Táborok – 811. Cserkészcsapat',
-  '/naptar': 'Naptár – 811. Cserkészcsapat',
-  '/galeria': 'Galéria – 811. Cserkészcsapat',
-  '/csatlakozas': 'Csatlakozz! – 811. Cserkészcsapat',
-  '/kapcsolat': 'Kapcsolat – 811. Cserkészcsapat',
+// Per-route SEO: title + meta description. Descriptions are unique per page so
+// search engines don't see duplicate snippets across the site.
+const DEFAULT_TITLE = '811. Szent József Cserkészcsapat – Vác';
+const DEFAULT_DESC =
+  'A 811. Szent József Cserkészcsapat Vác egyik legnagyobb ifjúsági szervezete. Cserkészet, táborok, közösség 1929 óta.';
+
+interface RouteSeo { title: string; description: string }
+const pageSeo: Record<string, RouteSeo> = {
+  '/': { title: DEFAULT_TITLE, description: DEFAULT_DESC },
+  '/rolunk': { title: 'Rólunk – 811. Cserkészcsapat', description: 'Ismerd meg a 811. Szent József Cserkészcsapatot: keresztény értékrend, közösség és kaland Vácon, 1929 óta.' },
+  '/tortenet': { title: 'Történet – 811. Cserkészcsapat', description: 'A váci 811. cserkészcsapat története 1929-től napjainkig: alapítás, betiltás, újjáalakulás.' },
+  '/cserkeszet': { title: 'A cserkészetről – 811. Cserkészcsapat', description: 'Mi a cserkészet? Korosztályok, fogadalom, cserkésztörvény és a cserkészélet a 811. csapatnál.' },
+  '/vezetok': { title: 'Vezetők – 811. Cserkészcsapat', description: 'A 811. cserkészcsapat csapatvezető törzse, rajparancsnokai és rajvezetői.' },
+  '/rajok': { title: 'Rajok – 811. Cserkészcsapat', description: 'A 811. cserkészcsapat rajai korosztályonként – a fiatalabbaktól a felnőtt cserkészekig.' },
+  '/taborok': { title: 'Táborok – 811. Cserkészcsapat', description: 'A 811. cserkészcsapat nyári táborainak évkönyve: helyszínek, keretmesék és emlékek.' },
+  '/naptar': { title: 'Naptár – 811. Cserkészcsapat', description: 'Közelgő csapatmisék, portyák, versenyek és táborok a 811. cserkészcsapat programnaptárában.' },
+  '/galeria': { title: 'Galéria – 811. Cserkészcsapat', description: 'Fotók táborainkról, portyáinkról és közösségi életünkről a 811. cserkészcsapatnál.' },
+  '/csatlakozas': { title: 'Csatlakozz! – 811. Cserkészcsapat', description: 'Csatlakozz a váci 811. cserkészcsapathoz! Korosztályok, a csatlakozás lépései és gyakori kérdések.' },
+  '/kapcsolat': { title: 'Kapcsolat – 811. Cserkészcsapat', description: 'Lépj kapcsolatba a 811. Szent József Cserkészcsapattal Vácon – cím, e-mail és közösségi média.' },
 };
 
-function TitleSetter() {
+function setMeta(selector: string, attr: 'content' | 'href', value: string) {
+  const el = document.head.querySelector<HTMLElement>(selector);
+  if (el) el.setAttribute(attr, value);
+}
+
+function SeoManager() {
   const { pathname } = useLocation();
   useEffect(() => {
-    document.title = pageTitles[pathname] ?? '811. Szent József Cserkészcsapat – Vác';
+    const seo = pageSeo[pathname] ?? { title: DEFAULT_TITLE, description: DEFAULT_DESC };
+    const url = `${window.location.origin}${import.meta.env.BASE_URL.replace(/\/$/, '')}${pathname}`;
+
+    document.title = seo.title;
+    setMeta('meta[name="description"]', 'content', seo.description);
+    setMeta('meta[property="og:title"]', 'content', seo.title);
+    setMeta('meta[property="og:description"]', 'content', seo.description);
+    setMeta('meta[property="og:url"]', 'content', url);
+    setMeta('meta[name="twitter:title"]', 'content', seo.title);
+    setMeta('meta[name="twitter:description"]', 'content', seo.description);
+    // Self-referential canonical for the actual deployment URL.
+    setMeta('link[rel="canonical"]', 'href', url);
   }, [pathname]);
   return null;
 }
@@ -55,11 +79,12 @@ function AppLayout() {
   return (
     <>
       <BackgroundField />
+      <ScrollProgress />
       <a href="#main-content" className="skip-link">Ugrás a tartalomra</a>
       <Navbar />
       <div id="main-content">
         <ScrollReset />
-        <TitleSetter />
+        <SeoManager />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/rolunk" element={<About />} />

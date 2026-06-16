@@ -1,8 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { leaders } from '../data/leaders';
-import { events } from '../data/events';
+import { useContent } from '../hooks/useContent';
+import { type Leader, leadersStatic, leaderPhotoSrc, initials } from '../data/leaders';
+import { type Event, eventsStatic } from '../data/events';
+import { type Camp, campsStatic } from '../data/camps';
+import { type Settings, settingsStatic } from '../data/settings';
 import { korosztalyokSummary as ageGroups } from '../data/korosztalyok';
+import CountUp from '../components/CountUp';
 import './Home.css';
 
 const highlights = [
@@ -38,28 +42,73 @@ const highlights = [
   },
 ];
 
+// Observes every `.reveal` descendant and reveals it on scroll. Reduced-motion
+// users (and environments without IntersectionObserver) get everything revealed
+// immediately. A short timeout fallback guards against any element that never
+// fires an intersection (e.g. already in view on load).
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const reveals = el.querySelectorAll('.reveal');
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced || typeof IntersectionObserver === 'undefined') {
+      reveals.forEach((r) => r.classList.add('visible'));
+      return;
+    }
+
     const obs = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visible'); } }),
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } }),
       { threshold: 0.05, rootMargin: '0px 0px -20px 0px' }
     );
-    const reveals = el.querySelectorAll('.reveal');
     reveals.forEach((r) => obs.observe(r));
-    // Fallback: mark all visible after 200ms (handles SSR/hydration)
+    // Safety fallback: ensure nothing stays hidden if an observe never fires.
     const t = setTimeout(() => {
-      reveals.forEach(r => r.classList.add('visible'));
+      reveals.forEach((r) => r.classList.add('visible'));
     }, 800);
     return () => { obs.disconnect(); clearTimeout(t); };
   }, []);
   return ref;
 }
 
+// Subtle hero parallax: drift the repeating dot-grid as you scroll. Because the
+// pattern repeats, shifting its background-position never reveals gaps. rAF-
+// throttled and disabled for reduced-motion.
+function useHeroParallax() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      el.style.backgroundPositionY = `${window.scrollY * 0.25}px`;
+    };
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return ref;
+}
+
 export default function Home() {
   const pageRef = useReveal();
+  const heroPatternRef = useHeroParallax();
+
+  // Content is CMS-managed (public/content/*.json); static imports are fallbacks.
+  const { data: settingsData } = useContent<Settings>('settings.json', 'settings');
+  const { data: eventsData } = useContent<Event[]>('events.json', 'events');
+  const { data: leadersData } = useContent<Leader[]>('leaders.json', 'leaders');
+  const { data: campsData } = useContent<Camp[]>('camps.json', 'camps');
+
+  const settings = settingsData ?? settingsStatic;
+  const events = eventsData ?? eventsStatic;
+  const leaders = leadersData ?? leadersStatic;
+  const campCount = (campsData ?? campsStatic).length;
+
   const upcomingEvents = events.slice(0, 3);
   const staffLeaders = leaders.filter((l) => l.isStaff).slice(0, 4);
 
@@ -68,7 +117,7 @@ export default function Home() {
       {/* ── HERO ── */}
       <section className="hero" aria-labelledby="hero-heading">
         <div className="hero__bg" aria-hidden="true">
-          <div className="hero__pattern"/>
+          <div className="hero__pattern" ref={heroPatternRef}/>
         </div>
         <div className="container hero__content">
           <div className="hero__badge animate-fade-in">
@@ -82,8 +131,8 @@ export default function Home() {
             <span className="hero__title-accent">Cserkészcsapat</span>
           </h1>
           <p className="hero__subtitle animate-fade-in animate-delay-2">
-            „Emberebb embert és magyarabb magyart nevelni" — ez a cserkészet célja 1929 óta.
-            232 aktív cserkész, 11 raj, 26 őrs. Jelszavunk: Légy résen!
+            „Emberebb embert és magyarabb magyart nevelni" — ez a cserkészet célja {settings.foundedYear} óta.
+            {' '}{settings.activeMemberCount} aktív cserkész, {settings.rajCount} raj, {settings.activeOrsCount} őrs. Jelszavunk: Légy résen!
           </p>
           <div className="hero__ctas animate-fade-in animate-delay-3">
             <Link to="/csatlakozas" className="btn btn--primary btn--lg">
@@ -103,22 +152,22 @@ export default function Home() {
           </div>
           <div className="hero__stats animate-fade-in animate-delay-4">
             <div className="hero__stat">
-              <strong>232</strong>
+              <strong><CountUp value={settings.activeMemberCount} /></strong>
               <span>aktív cserkész</span>
             </div>
             <div className="hero__stat-divider" aria-hidden="true"/>
             <div className="hero__stat">
-              <strong>11</strong>
+              <strong><CountUp value={settings.rajCount} /></strong>
               <span>raj</span>
             </div>
             <div className="hero__stat-divider" aria-hidden="true"/>
             <div className="hero__stat">
-              <strong>1929</strong>
+              <strong>{settings.foundedYear}</strong>
               <span>alapítva</span>
             </div>
             <div className="hero__stat-divider" aria-hidden="true"/>
             <div className="hero__stat">
-              <strong>13+</strong>
+              <strong><CountUp value={campCount} suffix="+" /></strong>
               <span>tábor</span>
             </div>
           </div>
@@ -143,7 +192,7 @@ export default function Home() {
             </p>
             <p className="intro__body">
               Sík Sándor szavai vezérelnek minket: <em>„emberebb emberré és magyarabb magyarrá"</em> nevelni
-              minden cserkészt – legyen az 7 éves kiscserkész, vagy 17 éves öregcserkész.
+              minden cserkészt – legyen az 6 éves kiscserkész, vagy 17 éves öregcserkész.
             </p>
             <div className="intro__links">
               <Link to="/tortenet" className="btn btn--outline">Ismerd meg a történetünket</Link>
@@ -178,7 +227,7 @@ export default function Home() {
             <span className="section-label">Kiknek szól?</span>
             <h2 id="age-heading" className="section-title">Mindenkinek van helye</h2>
             <p className="section-subtitle" style={{ margin: '0 auto' }}>
-              7 évestől felnőttkorig – a cserkészet minden életszakaszban ad értéket és közösséget.
+              6 évestől felnőttkorig – a cserkészet minden életszakaszban ad értéket és közösséget.
             </p>
           </div>
           <div className="grid-4 age-grid">
@@ -304,7 +353,9 @@ export default function Home() {
             {staffLeaders.map((leader) => (
               <article key={leader.name} className="leader-card reveal">
                 <div className="leader-card__avatar" aria-hidden="true">
-                  <span>{leader.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</span>
+                  {leader.photo
+                    ? <img className="leader-avatar-img" src={leaderPhotoSrc(leader.photo)} alt="" loading="lazy" />
+                    : <span>{initials(leader.name)}</span>}
                 </div>
                 <h3 className="leader-card__name">{leader.name}</h3>
                 <p className="leader-card__role">{leader.role}</p>
@@ -344,10 +395,10 @@ export default function Home() {
           </div>
           <div className="history-teaser__timeline">
             {[
-              { year: '1929', label: 'Alapítás' },
+              { year: String(settings.foundedYear), label: 'Alapítás' },
               { year: '1948', label: 'Betiltás' },
               { year: '1988', label: 'Újjáalakulás' },
-              { year: 'Ma', label: '232 cserkész' },
+              { year: 'Ma', label: `${settings.activeMemberCount} cserkész` },
             ].map((item, i, arr) => (
               <div key={item.year} className="history-item">
                 <div className="history-item__year">{item.year}</div>

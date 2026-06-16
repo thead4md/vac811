@@ -1,0 +1,14 @@
+/* Top scroll-progress bar. scaleX is driven from JS (0 → 1). */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 1000; /* above the navbar */
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-gold));
+  will-change: transform;
+  pointer-events: none;
+}
