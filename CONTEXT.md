@@ -241,6 +241,9 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+3b17349 fix(ecset-sync): drop leader sync; expand settings to ors/raj counts + contact info (#50)
+3b772f1 chore: sync ECSET data [auto]
+1eeca8a chore: update CONTEXT.md [auto]
 b5e3f16 fix: expand Cspk. helyettes abbreviation to full Csapatparancsnok-helyettes
 2692984 chore: update CONTEXT.md [auto]
 5f81158 ci: add workflow_dispatch trigger to deploy workflow
@@ -248,13 +251,10 @@ b5e3f16 fix: expand Cspk. helyettes abbreviation to full Csapatparancsnok-helyet
 95505a3 chore: update CONTEXT.md [auto]
 516123b feat(ecset-sync): weekly auto-sync of leaders, camps, events, settings from ECSET (#49)
 fa357ab chore: update CONTEXT.md [auto]
-4d45b6e fix: scout terminology, hero badge icon, flag scroll indicator (#48)
-5956e22 chore: update CONTEXT.md [auto]
-a3d2d14 feat: site-wide improvements — SEO, scroll animations, Google SSO, CMS & content fixes (#47)
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 14.7s. Stack: TypeScript / Node.js._
+_Generated in 14.4s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
