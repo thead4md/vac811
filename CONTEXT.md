@@ -240,6 +240,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+4d45b6e fix: scout terminology, hero badge icon, flag scroll indicator (#48)
+5956e22 chore: update CONTEXT.md [auto]
 a3d2d14 feat: site-wide improvements — SEO, scroll animations, Google SSO, CMS & content fixes (#47)
 ce690aa chore: curate gallery candidates from Google Drive
 ffd8a7d chore: update CONTEXT.md [auto]
@@ -248,12 +250,10 @@ f2a64fd chore: update CONTEXT.md [auto]
 9b29c86 feat(kuracio): replace swipe UI with three-tab grid CMS (#44)
 f98a248 chore: update CONTEXT.md [auto]
 253fca0 fix(kuracio): implement OAuth postMessage handshake (#43)
-320d074 chore: update CONTEXT.md [auto]
-e3f5ced fix(kuracio): correct OAuth site_id to vac811.hu/beta (#42)
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 12.1s. Stack: TypeScript / Node.js._
+_Generated in 15.8s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
