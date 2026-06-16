@@ -1,0 +1,6 @@
+# Only honoured when served from the domain root. See docs/seo-plan.md.
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+Sitemap: https://vac811.hu/sitemap.xml

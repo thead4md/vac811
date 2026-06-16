@@ -8,6 +8,21 @@ export interface Leader {
   email?: string;
   raj?: string;
   isStaff?: boolean;
+  /** Optional portrait path managed by the CMS (e.g. /images/uploads/...). */
+  photo?: string;
+}
+
+/** Build a usable <img src> from a CMS-stored media path, accounting for the
+ *  site's base path (/beta/ in production). Returns '' for empty input. */
+export function leaderPhotoSrc(photo?: string): string {
+  if (!photo) return '';
+  if (/^https?:\/\//.test(photo)) return photo;
+  return `${import.meta.env.BASE_URL}${photo.replace(/^\/+/, '')}`;
+}
+
+/** Two-letter monogram fallback when no portrait is set. */
+export function initials(name: string): string {
+  return name.split(' ').map((n) => n[0]).join('').slice(0, 2);
 }
 
 export const leadersStatic: Leader[] = [

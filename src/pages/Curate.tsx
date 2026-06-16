@@ -1,12 +1,36 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { getToken, login, logout } from '../lib/githubAuth';
-import { fetchGallery, commitDecisions, cdnUrl } from '../lib/galleryRepo';
+import { getToken, login as ghLogin, logout as ghLogout } from '../lib/githubAuth';
+import {
+  getCredential,
+  clearCredential,
+  signInWithGoogle,
+  renderGoogleButton,
+} from '../lib/googleAuth';
+import {
+  fetchGallery,
+  commitDecisions,
+  fetchGalleryViaProxy,
+  commitDecisionsViaProxy,
+  cdnUrl,
+} from '../lib/galleryRepo';
 import type { GalleryItem } from './Gallery';
 import type { Decision } from '../lib/galleryRepo';
 import './Curate.css';
 
-const AUTH_BASE = 'https://sveltia-cms-auth.dudas-adam99.workers.dev';
-const AUTH_ORIGIN = AUTH_BASE;
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '';
+const PROXY_URL = import.meta.env.VITE_PROXY_URL ?? '';
+
+// Auth mode: 'google' when proxy is configured, 'github' as dev fallback.
+type AuthMode = 'google' | 'github';
+function detectMode(): AuthMode {
+  return GOOGLE_CLIENT_ID && PROXY_URL ? 'google' : 'github';
+}
+
+// Unified "token" type passed down to fetch/commit helpers.
+interface Auth {
+  mode: AuthMode;
+  value: string; // Google ID token OR GitHub PAT
+}
 
 function effectiveStatus(item: GalleryItem, decisions: Map<string, Decision>): string {
   const d = decisions.get(item.id);
@@ -15,8 +39,18 @@ function effectiveStatus(item: GalleryItem, decisions: Map<string, Decision>): s
   return item.approved ? 'approved' : 'pending';
 }
 
+function initialAuth(): Auth | null {
+  const mode = detectMode();
+  if (mode === 'google') {
+    const cred = getCredential();
+    return cred ? { mode: 'google', value: cred } : null;
+  }
+  const tok = getToken();
+  return tok ? { mode: 'github', value: tok } : null;
+}
+
 export default function Curate() {
-  const [token, setToken] = useState<string | null>(getToken);
+  const [auth, setAuth] = useState<Auth | null>(initialAuth);
   const [allItems, setAllItems] = useState<GalleryItem[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -32,14 +66,23 @@ export default function Curate() {
 
   // ── Load gallery after login ──────────────────────────────────────────────
   useEffect(() => {
-    if (!token) return;
-    setLoading(true);
-    setLoadError(null);
-    fetchGallery(token)
-      .then(({ items }) => setAllItems(items))
-      .catch((err: Error) => setLoadError(err.message))
-      .finally(() => setLoading(false));
-  }, [token]);
+    if (!auth) return;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setLoading(true);
+      setLoadError(null);
+    });
+    const load =
+      auth.mode === 'google'
+        ? fetchGalleryViaProxy(PROXY_URL, auth.value)
+        : fetchGallery(auth.value);
+    load
+      .then(({ items }) => { if (!cancelled) setAllItems(items); })
+      .catch((err: Error) => { if (!cancelled) setLoadError(err.message); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [auth]);
 
   // ── Derived lists ─────────────────────────────────────────────────────────
   const pendingItems = useMemo(
@@ -143,13 +186,19 @@ export default function Curate() {
 
   // ── Commit ────────────────────────────────────────────────────────────────
   const handleSave = useCallback(async () => {
-    if (!token || decisions.size === 0) return;
+    if (!auth || decisions.size === 0) return;
     setSaving(true);
     setSaveError(null);
     try {
-      await commitDecisions(token, decisions);
-      const { items } = await fetchGallery(token);
-      setAllItems(items);
+      if (auth.mode === 'google') {
+        await commitDecisionsViaProxy(PROXY_URL, auth.value, decisions);
+        const { items } = await fetchGalleryViaProxy(PROXY_URL, auth.value);
+        setAllItems(items);
+      } else {
+        await commitDecisions(auth.value, decisions);
+        const { items } = await fetchGallery(auth.value);
+        setAllItems(items);
+      }
       setDecisions(new Map());
       setSelectedIds(new Set());
       setEditingId(null);
@@ -158,88 +207,81 @@ export default function Curate() {
     } finally {
       setSaving(false);
     }
-  }, [token, decisions]);
+  }, [auth, decisions]);
 
-  // ── OAuth login helpers ───────────────────────────────────────────────────
-  const startOAuthLogin = useCallback(
-    (onSuccess: (tok: string) => void, onError: (msg: string) => void) => {
-      const url = `${AUTH_BASE}/auth?provider=github&scope=repo&site_id=vac811.hu%2Fbeta`;
-      const popup = window.open(url, 'github-oauth', 'width=600,height=720,left=200,top=80');
-      let resolved = false;
-
-      const cleanup = () => {
-        window.removeEventListener('message', onMessage);
-        clearInterval(poll);
-      };
-
-      const onMessage = (e: MessageEvent) => {
-        if (e.origin !== AUTH_ORIGIN) return;
-        if (typeof e.data !== 'string') return;
-        if (e.data === 'authorizing:github') {
-          (e.source as Window)?.postMessage('authorizing:github', AUTH_ORIGIN);
-          return;
-        }
-        const PREFIX_OK = 'authorization:github:success:';
-        const PREFIX_ERR = 'authorization:github:error:';
-        if (e.data.startsWith(PREFIX_OK)) {
-          try {
-            const { token: tok } = JSON.parse(e.data.slice(PREFIX_OK.length)) as { token: string };
-            if (tok) { resolved = true; login(tok); onSuccess(tok); popup?.close(); }
-          } catch { /* ignore */ }
-          cleanup();
-        } else if (e.data.startsWith(PREFIX_ERR)) {
-          try {
-            const { error: msg } = JSON.parse(e.data.slice(PREFIX_ERR.length)) as { error: string };
-            onError(msg || 'Hitelesítési hiba');
-          } catch { onError('Hitelesítési hiba'); }
-          cleanup();
-        }
-      };
-
-      window.addEventListener('message', onMessage);
-      const poll = setInterval(() => {
-        if (popup?.closed && !resolved) { cleanup(); onError('A belépési ablak be lett zárva.'); }
-      }, 1000);
-    },
-    [],
-  );
-
-  // ── Render helpers ────────────────────────────────────────────────────────
+  // ── Login screen ─────────────────────────────────────────────────────────
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [signingIn, setSigningIn] = useState(false);
   const [pat, setPat] = useState('');
   const [showPat, setShowPat] = useState(false);
-  const [oauthError, setOauthError] = useState<string | null>(null);
+  const googleBtnRef = useRef<HTMLDivElement>(null);
+  const mode = detectMode();
 
-  if (!token) {
+  // Render the Google Sign-In button into its container once the login screen mounts.
+  useEffect(() => {
+    if (auth || mode !== 'google' || !googleBtnRef.current) return;
+    const container = googleBtnRef.current;
+    renderGoogleButton(GOOGLE_CLIENT_ID, container)
+      .then((cred) => setAuth({ mode: 'google', value: cred }))
+      .catch((err: Error) => setLoginError(err.message));
+  }, [auth, mode]);
+
+  const handleGoogleOneTap = useCallback(async () => {
+    setSigningIn(true);
+    setLoginError(null);
+    try {
+      const cred = await signInWithGoogle(GOOGLE_CLIENT_ID);
+      setAuth({ mode: 'google', value: cred });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Hitelesítési hiba';
+      // ONE_TAP_SUPPRESSED is not a real error — the button handles sign-in instead.
+      if (msg !== 'ONE_TAP_SUPPRESSED') setLoginError(msg);
+    } finally {
+      setSigningIn(false);
+    }
+  }, []);
+
+  if (!auth) {
     return (
       <main className="curate-shell curate-shell--center">
         <div className="curate-login">
           <h1 className="curate-login__title">Fotókuráció</h1>
-          <p className="curate-login__sub">
-            GitHub-fiókkal jelentkezz be a fotók jóváhagyásához.
-          </p>
-          <button
-            className="curate-btn curate-btn--primary curate-btn--oauth"
-            onClick={() => {
-              setOauthError(null);
-              startOAuthLogin(
-                (tok) => setToken(tok),
-                (msg) => setOauthError(msg),
-              );
-            }}
-          >
-            Belépés GitHub-fiókkal
-          </button>
-          {oauthError && (
-            <p className="curate-status curate-status--error">{oauthError}</p>
+
+          {mode === 'google' ? (
+            <>
+              <p className="curate-login__sub">
+                Jelentkezz be @vac811.hu Google-fiókoddal.
+              </p>
+              {/* One-tap trigger button */}
+              <button
+                className="curate-btn curate-btn--primary curate-btn--oauth"
+                onClick={() => void handleGoogleOneTap()}
+                disabled={signingIn}
+              >
+                {signingIn ? 'Belépés…' : 'Belépés Google-fiókkal'}
+              </button>
+              {/* Rendered by GSI SDK as fallback */}
+              <div ref={googleBtnRef} className="curate-login__gsi-btn" />
+            </>
+          ) : (
+            <p className="curate-login__sub">
+              Fejlesztői mód — GitHub Personal Access Tokennel.
+            </p>
           )}
-          {showPat ? (
+
+          {loginError && (
+            <p className="curate-status curate-status--error">{loginError}</p>
+          )}
+
+          {/* PAT fallback — always shown in github mode, hidden behind toggle in google mode */}
+          {(mode === 'github' || showPat) ? (
             <form
               className="curate-login__pat"
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!pat.trim()) return;
-                login(pat.trim());
-                setToken(pat.trim());
+                ghLogin(pat.trim());
+                setAuth({ mode: 'github', value: pat.trim() });
               }}
             >
               <input
@@ -256,12 +298,14 @@ export default function Curate() {
               </button>
             </form>
           ) : (
-            <button
-              className="curate-btn curate-btn--ghost curate-login__pat-toggle"
-              onClick={() => setShowPat(true)}
-            >
-              Fejlesztői belépés (PAT token)
-            </button>
+            mode === 'google' && (
+              <button
+                className="curate-btn curate-btn--ghost curate-login__pat-toggle"
+                onClick={() => setShowPat(true)}
+              >
+                Fejlesztői belépés (PAT token)
+              </button>
+            )
           )}
         </div>
       </main>
@@ -280,7 +324,7 @@ export default function Curate() {
     return (
       <main className="curate-shell curate-shell--center">
         <p className="curate-status curate-status--error">Hiba: {loadError}</p>
-        <button className="curate-btn" onClick={() => { setLoadError(null); setToken(null); logout(); }}>
+        <button className="curate-btn" onClick={() => { setLoadError(null); setAuth(null); clearCredential(); ghLogout(); }}>
           Kijelentkezés
         </button>
       </main>
@@ -292,7 +336,7 @@ export default function Curate() {
       <header className="curate-header">
         <h1 className="curate-header__title">Fotókuráció</h1>
         <div className="curate-header__actions">
-          {decisions.size > 0 && (
+          {auth && decisions.size > 0 && (
             <button
               className="curate-btn curate-btn--save"
               onClick={() => void handleSave()}
@@ -301,7 +345,7 @@ export default function Curate() {
               {saving ? 'Mentés…' : `Mentés (${decisions.size})`}
             </button>
           )}
-          <button className="curate-btn curate-btn--ghost" onClick={() => { logout(); setToken(null); }}>
+          <button className="curate-btn curate-btn--ghost" onClick={() => { clearCredential(); ghLogout(); setAuth(null); }}>
             Kijelentkezés
           </button>
         </div>

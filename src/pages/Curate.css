@@ -71,6 +71,14 @@
   margin-top: var(--space-2);
 }
 
+.curate-login__gsi-btn {
+  /* The GSI SDK injects an iframe button here. Center it and give it breathing room. */
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ── Header ────────────────────────────────────────────────────────────── */
 .curate-header {
   display: flex;

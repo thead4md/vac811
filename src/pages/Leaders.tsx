@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useContent } from '../hooks/useContent';
-import { type Leader, leadersStatic } from '../data/leaders';
+import { type Leader, leadersStatic, leaderPhotoSrc, initials } from '../data/leaders';
 import './Leaders.css';
 
 export default function Leaders() {
@@ -40,7 +40,9 @@ export default function Leaders() {
               {staffLeaders.map(leader => (
                 <article key={leader.name} className="leader-profile">
                   <div className="leader-profile__avatar" aria-hidden="true">
-                    <span>{leader.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</span>
+                    {leader.photo
+                      ? <img className="leader-avatar-img" src={leaderPhotoSrc(leader.photo)} alt="" loading="lazy" />
+                      : <span>{initials(leader.name)}</span>}
                   </div>
                   <div className="leader-profile__info">
                     <h3 className="leader-profile__name">{leader.name}</h3>
@@ -85,7 +87,9 @@ export default function Leaders() {
               {rajLeaders.map(leader => (
                 <article key={leader.name} className="leader-card">
                   <div className="leader-card__avatar" aria-hidden="true">
-                    <span>{leader.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</span>
+                    {leader.photo
+                      ? <img className="leader-avatar-img" src={leaderPhotoSrc(leader.photo)} alt="" loading="lazy" />
+                      : <span>{initials(leader.name)}</span>}
                   </div>
                   <h3 className="leader-card__name">{leader.name}</h3>
                   <p className="leader-card__role">{leader.role}</p>

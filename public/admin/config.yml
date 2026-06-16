@@ -32,6 +32,7 @@ collections:
             fields:
               - { label: Teljes név, name: name, widget: string }
               - { label: Beosztás, name: role, widget: string }
+              - { label: Fénykép, name: photo, widget: image, required: false, hint: "Portré (négyzetes kép a legjobb). Üresen hagyva a monogram jelenik meg." }
               - { label: E-mail, name: email, widget: string, required: false }
               - { label: Raj, name: raj, widget: string, required: false, hint: "Pl. Göncöl raj (hagyd üresen ha nem rajvezető)" }
               - { label: Törzstag?, name: isStaff, widget: boolean, default: false, hint: "Bejelölve → csapatvezető törzs tagja" }
@@ -77,8 +78,8 @@ collections:
             fields:
               - { label: Azonosító (ID), name: id, widget: string, hint: "Egyedi, kötőjeles azonosító, pl. tabor-2026" }
               - { label: Cím, name: title, widget: string }
-              - { label: Dátum (gépi), name: date, widget: string, hint: "ÉÉÉÉ-HH-NN formátumban, pl. 2026-07-15" }
-              - { label: Dátum (megjelenített), name: dateDisplay, widget: string, hint: "Pl. 2026. július 15–20." }
+              - { label: Dátum, name: date, widget: datetime, date_format: "YYYY-MM-DD", time_format: false, picker_utc: false, hint: "Válaszd ki a naptárból. Több napos programnál a kezdő nap." }
+              - { label: Dátum (megjelenített), name: dateDisplay, widget: string, hint: "Ahogy a látogató látja, pl. 2026. július 15–20." }
               - { label: Leírás, name: description, widget: text }
               - label: Kategória
                 name: category

@@ -1,0 +1,13 @@
+name = "vac811-google-git-proxy"
+main = "index.js"
+compatibility_date = "2024-11-01"
+
+[vars]
+ALLOWED_DOMAIN = "vac811.hu"
+ALLOWED_ORIGIN = "https://vac811.hu"
+REPO = "thead4md/vac811"
+GALLERY_PATH = "public/content/gallery.json"
+
+# Secrets (do NOT put in this file — set with `wrangler secret put`):
+#   GOOGLE_CLIENT_ID
+#   GITHUB_TOKEN
