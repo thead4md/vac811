@@ -1,15 +1,17 @@
 import { useEffect, useRef } from 'react';
 import './ScrollProgress.css';
 
-// A thin gradient bar pinned to the very top that fills as you scroll the page —
-// a lightweight "how far through the page am I" indicator. Driven by a single
-// rAF-throttled scroll listener and a CSS transform (no layout thrash).
+// A flag-on-a-pole fixed to the right side of the viewport.
+// The flag rises from the bottom of the pole to the top as the page is scrolled.
+// Driven by the same rAF-throttled listener as the previous horizontal bar.
 export default function ScrollProgress() {
-  const ref = useRef<HTMLDivElement>(null);
+  const shaftRef = useRef<HTMLDivElement>(null);
+  const flagRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const bar = ref.current;
-    if (!bar) return;
+    const shaft = shaftRef.current;
+    const flag = flagRef.current;
+    if (!shaft || !flag) return;
     let ticking = false;
 
     const update = () => {
@@ -17,7 +19,9 @@ export default function ScrollProgress() {
       const doc = document.documentElement;
       const max = doc.scrollHeight - doc.clientHeight;
       const progress = max > 0 ? Math.min(window.scrollY / max, 1) : 0;
-      bar.style.transform = `scaleX(${progress})`;
+      // progress=0 → flag at bottom; progress=1 → flag at top.
+      const shaftH = shaft.clientHeight;
+      flag.style.transform = `translateY(${(1 - progress) * shaftH}px)`;
     };
 
     const onScroll = () => {
@@ -36,5 +40,12 @@ export default function ScrollProgress() {
     };
   }, []);
 
-  return <div className="scroll-progress" role="presentation" aria-hidden="true" ref={ref} />;
+  return (
+    <div className="scroll-pole" role="presentation" aria-hidden="true">
+      <div className="scroll-pole__finial" />
+      <div className="scroll-pole__shaft" ref={shaftRef}>
+        <div className="scroll-pole__flag" ref={flagRef} />
+      </div>
+    </div>
+  );
 }

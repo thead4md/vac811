@@ -1,14 +1,53 @@
-/* Top scroll-progress bar. scaleX is driven from JS (0 → 1). */
-.scroll-progress {
+/* Flag-on-a-pole scroll indicator, fixed to the right side of the viewport.
+   Hidden on narrow screens where it would overlap content. */
+
+.scroll-pole {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  z-index: 1000; /* above the navbar */
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  background: linear-gradient(90deg, var(--color-primary), var(--color-gold));
-  will-change: transform;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
   pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Small gold ball at the top of the pole */
+.scroll-pole__finial {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-gold);
+  flex-shrink: 0;
+}
+
+/* The vertical shaft */
+.scroll-pole__shaft {
+  width: 2px;
+  height: 56vh;
+  background: var(--color-primary);
+  opacity: 0.4;
+  position: relative;
+  overflow: visible;
+}
+
+/* The flag — positioned relative to the shaft, starts translated to the bottom,
+   moves up as translateY decreases toward 0 (driven from JS). */
+.scroll-pole__flag {
+  position: absolute;
+  top: 0;
+  left: 2px;           /* flush against the right side of the shaft */
+  width: 20px;
+  height: 13px;
+  background: var(--color-primary);
+  border: 1.5px solid var(--color-gold);
+  border-radius: 0 2px 2px 0;
+  will-change: transform;
+}
+
+@media (max-width: 639px) {
+  .scroll-pole {
+    display: none;
+  }
 }
