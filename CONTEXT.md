@@ -241,6 +241,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+5f81158 ci: add workflow_dispatch trigger to deploy workflow
+04d4c68 chore: update CONTEXT.md [auto]
 95505a3 chore: update CONTEXT.md [auto]
 516123b feat(ecset-sync): weekly auto-sync of leaders, camps, events, settings from ECSET (#49)
 fa357ab chore: update CONTEXT.md [auto]
@@ -249,12 +251,10 @@ fa357ab chore: update CONTEXT.md [auto]
 a3d2d14 feat: site-wide improvements — SEO, scroll animations, Google SSO, CMS & content fixes (#47)
 ce690aa chore: curate gallery candidates from Google Drive
 ffd8a7d chore: update CONTEXT.md [auto]
-224d650 fix(instagram): wire up Behold.so embed with real feed ID (#45)
-f2a64fd chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 11.3s. Stack: TypeScript / Node.js._
+_Generated in 21.3s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
