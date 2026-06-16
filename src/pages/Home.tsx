@@ -121,9 +121,6 @@ export default function Home() {
         </div>
         <div className="container hero__content">
           <div className="hero__badge animate-fade-in">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M12 2c0 0-2 2.5-2 5 0 1.1.4 2.1 1 2.8C9.4 10.6 8 12.2 8 14c0 1.5.8 2.8 2 3.5V20H9v2h6v-2h-1v-2.5c1.2-.7 2-2 2-3.5 0-1.8-1.4-3.4-3-4.2.6-.7 1-1.7 1-2.8 0-2.5-2-5-2-5z"/>
-            </svg>
             Vác · Magyar Cserkészszövetség
           </div>
           <h1 id="hero-heading" className="hero__title animate-fade-in animate-delay-1">
