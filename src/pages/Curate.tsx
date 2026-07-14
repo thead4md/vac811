@@ -20,10 +20,16 @@ import './Curate.css';
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '';
 const PROXY_URL = import.meta.env.VITE_PROXY_URL ?? '';
 
-// Auth mode: 'google' when proxy is configured, 'github' as dev fallback.
-type AuthMode = 'google' | 'github';
+// Auth mode: 'google' when the proxy is configured; 'github' PAT is a
+// dev-only fallback (import.meta.env.DEV) for local development without a
+// Google OAuth client/worker set up. A production build with the proxy env
+// missing is a deploy misconfiguration, not a valid PAT-login state — surface
+// it loudly instead of silently falling back to a token paste form.
+type AuthMode = 'google' | 'github' | 'misconfigured';
 function detectMode(): AuthMode {
-  return GOOGLE_CLIENT_ID && PROXY_URL ? 'google' : 'github';
+  if (GOOGLE_CLIENT_ID && PROXY_URL) return 'google';
+  if (import.meta.env.DEV) return 'github';
+  return 'misconfigured';
 }
 
 // Unified "token" type passed down to fetch/commit helpers.
@@ -45,8 +51,11 @@ function initialAuth(): Auth | null {
     const cred = getCredential();
     return cred ? { mode: 'google', value: cred } : null;
   }
-  const tok = getToken();
-  return tok ? { mode: 'github', value: tok } : null;
+  if (mode === 'github' && import.meta.env.DEV) {
+    const tok = getToken();
+    return tok ? { mode: 'github', value: tok } : null;
+  }
+  return null;
 }
 
 export default function Curate() {
@@ -241,6 +250,22 @@ export default function Curate() {
     }
   }, []);
 
+  if (!auth && mode === 'misconfigured') {
+    return (
+      <main className="curate-shell curate-shell--center">
+        <div className="curate-login">
+          <h1 className="curate-login__title">Fotókuráció</h1>
+          <p className="curate-status curate-status--error">
+            Hiányzó konfiguráció: a Google bejelentkezéshez szükséges
+            <code> VITE_GOOGLE_CLIENT_ID</code> és/vagy <code>VITE_PROXY_URL</code> nincs
+            beállítva ebben a buildben. Éles környezetben nincs alternatív belépési mód —
+            állítsd be ezeket a build környezeti változóit.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
   if (!auth) {
     return (
       <main className="curate-shell curate-shell--center">
@@ -273,8 +298,9 @@ export default function Curate() {
             <p className="curate-status curate-status--error">{loginError}</p>
           )}
 
-          {/* PAT fallback — always shown in github mode, hidden behind toggle in google mode */}
-          {(mode === 'github' || showPat) ? (
+          {/* Dev-only PAT fallback — never rendered in a production build, regardless
+              of `mode`, so a prod deploy can never expose a token-paste form. */}
+          {import.meta.env.DEV && (mode === 'github' || showPat) ? (
             <form
               className="curate-login__pat"
               onSubmit={(e) => {
@@ -298,7 +324,7 @@ export default function Curate() {
               </button>
             </form>
           ) : (
-            mode === 'google' && (
+            import.meta.env.DEV && mode === 'google' && (
               <button
                 className="curate-btn curate-btn--ghost curate-login__pat-toggle"
                 onClick={() => setShowPat(true)}

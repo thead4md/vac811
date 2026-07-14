@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import type { ZodType } from 'zod';
 
 // Tiny in-memory cache so shared collections (settings, leaders, …) aren't
 // refetched on every page that consumes them.
@@ -11,7 +12,10 @@ interface State<T> {
 }
 
 // Generic hook to fetch JSON content files managed by Decap CMS.
-export function useContent<T>(file: string, key: string): State<T> {
+// An optional zod schema validates the parsed content; on mismatch the fetch
+// is treated as failed (data stays null) so callers fall back to static data
+// instead of rendering a malformed shape.
+export function useContent<T>(file: string, key: string, schema?: ZodType<T>): State<T> {
   const cacheKey = `${file}#${key}`;
   const [state, setState] = useState<State<T>>(() =>
     cache.has(cacheKey)
@@ -31,6 +35,10 @@ export function useContent<T>(file: string, key: string): State<T> {
           })
           .then((json) => {
             const value = (json[key] ?? json) as T;
+            if (schema) {
+              const result = schema.safeParse(value);
+              if (!result.success) throw new Error(`Invalid ${file}: ${result.error.message}`);
+            }
             cache.set(cacheKey, value);
             return value;
           });
@@ -48,7 +56,7 @@ export function useContent<T>(file: string, key: string): State<T> {
     return () => {
       cancelled = true;
     };
-  }, [file, key, cacheKey]);
+  }, [file, key, cacheKey, schema]);
 
   return state;
 }

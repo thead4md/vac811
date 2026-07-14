@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useContent } from '../hooks/useContent';
 import InstagramWall from '../components/InstagramWall';
+import { gallerySchema } from '../schemas/content';
 import './Gallery.css';
 
 export interface GalleryItem {
@@ -8,8 +9,11 @@ export interface GalleryItem {
   name: string;
   year: string;
   event?: string;
+  activity?: string;
+  bucket?: string;
   score?: number;
   phash?: string;
+  reason?: string;
   status?: 'pending' | 'approved' | 'rejected';
   approved?: boolean;
 }
@@ -19,7 +23,7 @@ function driveImgUrl(fileId: string, width: number) {
 }
 
 export default function Gallery() {
-  const { data: items, loading, error } = useContent<GalleryItem[]>('gallery.json', 'gallery');
+  const { data: items, loading, error } = useContent<GalleryItem[]>('gallery.json', 'gallery', gallerySchema);
   const [activeYear, setActiveYear] = useState('all');
 
   // Only approved photos are shown publicly; AI candidates stay hidden until

@@ -12,6 +12,10 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  group: content-write
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -92,8 +96,15 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "chore: sync ECSET data [auto]"
-            git pull --rebase origin main
-            git push
+            for i in 1 2 3 4 5; do
+              git pull --rebase origin main && git push && break
+              echo "Push attempt $i failed (concurrent write?), retrying..."
+              sleep $((i * 5))
+              if [ "$i" = 5 ]; then
+                echo "::error::Failed to push after 5 attempts — content-write concurrency not resolved"
+                exit 1
+              fi
+            done
           fi
 
       - name: Alert on failure

@@ -63,7 +63,20 @@ async function login() {
   if (location.includes('2fa')) throw new Error('2FA required — use an account with 2FA disabled');
   if (!sessionId) throw new Error(`Login failed (HTTP ${postRes.status}, redirect: ${location})`);
 
-  return `csrftoken=${csrfCookie}; sessionid=${sessionId}`;
+  const cookie = `csrftoken=${csrfCookie}; sessionid=${sessionId}`;
+
+  // A sessionid cookie alone doesn't guarantee an authenticated session — verify
+  // by inspecting an authenticated page, not just the cookie's presence.
+  const checkRes = await fetch(`${BASE}/mcssz/811/`, { headers: { ...BROWSER_HEADERS, Cookie: cookie }, redirect: 'manual' });
+  if (checkRes.status >= 300 && checkRes.status < 400) {
+    throw new Error(`Login verification failed: /mcssz/811/ redirected (HTTP ${checkRes.status}) — session not authenticated`);
+  }
+  const checkHtml = await checkRes.text();
+  if (/name="login"/.test(checkHtml) || /accounts\/login/.test(checkHtml)) {
+    throw new Error('Login verification failed: authenticated page still shows a login form');
+  }
+
+  return cookie;
 }
 
 async function get(cookie, path) {
@@ -261,6 +274,27 @@ function transformSettings({ memberCount, orsCount, address, emailMain, facebook
   return s;
 }
 
+// A maintenance page, error page, or table-format drift tends to produce data
+// that "parses" but is empty or wildly different from last time. Refuse to
+// write in that case rather than silently corrupting the content files.
+function assertSanity({ homepage, camps, events }, existingSettings) {
+  const prevMembers = existingSettings.activeMemberCount;
+  if (homepage.memberCount !== null && prevMembers) {
+    const delta = Math.abs(homepage.memberCount - prevMembers) / prevMembers;
+    if (delta > 0.3) {
+      throw new Error(
+        `Sanity check failed: scraped member count ${homepage.memberCount} deviates >30% from previous ${prevMembers} (possible maintenance/error page)`
+      );
+    }
+  }
+  if (camps.length < 1) {
+    throw new Error('Sanity check failed: 0 camps scraped (possible maintenance/error page or table format change)');
+  }
+  if (events.length === 0) {
+    throw new Error('Sanity check failed: 0 events scraped from the ICS feed (possible maintenance/error page or format change)');
+  }
+}
+
 // ── I/O ───────────────────────────────────────────────────────────────────────
 
 function read(name) { return JSON.parse(readFileSync(resolve(CONTENT, name), 'utf8')); }
@@ -302,6 +336,8 @@ async function main() {
   // since ECSET has no structured raj count endpoint.
   const existingSettings = read('settings.json');
   const rajCount = read('rajok.json').rajok?.length ?? null;
+
+  assertSanity(out, existingSettings);
 
   const camps    = transformCamps(out.camps, read('camps.json'));
   const events   = transformEvents(out.events, read('events.json'));

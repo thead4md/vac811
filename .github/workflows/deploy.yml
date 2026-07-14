@@ -7,7 +7,34 @@ on:
   workflow_dispatch:
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4.4.0
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Validate content JSON
+        run: npm run validate:content
+
+      - name: Test
+        run: npm test
+
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -30,6 +57,17 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Rackhost FTP has no server-side rename/rollback support (see docs/audit-and-upgrade-plan-2026-07.md
+      # §Open questions), so a "previous good build" is kept here instead: if a deploy's smoke check
+      # fails, download the last successful run's artifact and re-run the FTP-Deploy-Action step
+      # manually (or via workflow_dispatch against that commit) to roll back.
+      - name: Archive build for rollback
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          retention-days: 30
+
       - name: Deploy to Rackhost via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -46,6 +84,31 @@ jobs:
             **/node_modules/**
             **/.DS_Store
             **/._*
+
+      - name: Smoke-check the deployed build
+        run: |
+          set -e
+          for i in 1 2 3 4 5; do
+            status=$(curl -s -o /tmp/beta_index.html -w '%{http_code}' https://vac811.hu/beta/)
+            if [ "$status" = "200" ]; then break; fi
+            echo "Attempt $i: got HTTP $status, retrying in 10s..."
+            sleep 10
+          done
+          if [ "$status" != "200" ]; then
+            echo "::error::https://vac811.hu/beta/ returned HTTP $status after deploy"
+            exit 1
+          fi
+          main_js=$(grep -oE '/beta/assets/index-[^"]+\.js' /tmp/beta_index.html | head -1)
+          if [ -z "$main_js" ]; then
+            echo "::error::Could not find the main JS bundle reference in the deployed index.html"
+            exit 1
+          fi
+          js_status=$(curl -s -o /dev/null -w '%{http_code}' "https://vac811.hu${main_js}")
+          if [ "$js_status" != "200" ]; then
+            echo "::error::Main JS bundle ${main_js} returned HTTP $js_status"
+            exit 1
+          fi
+          echo "Smoke check passed: / and ${main_js} both return 200."
 
       - name: Alert on failure
         if: failure()

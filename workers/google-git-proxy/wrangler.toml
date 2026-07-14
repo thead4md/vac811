@@ -7,6 +7,10 @@ ALLOWED_DOMAIN = "vac811.hu"
 ALLOWED_ORIGIN = "https://vac811.hu"
 REPO = "thead4md/vac811"
 GALLERY_PATH = "public/content/gallery.json"
+# Recommended: restrict commits to specific editor accounts rather than the
+# whole @vac811.hu domain. Comma-separated, e.g. "a@vac811.hu,b@vac811.hu".
+# ALLOWED_EMAILS = ""
+# MAX_CONTENT_BYTES = "2000000"
 
 # Secrets (do NOT put in this file — set with `wrangler secret put`):
 #   GOOGLE_CLIENT_ID

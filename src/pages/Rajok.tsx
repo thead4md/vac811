@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useContent } from '../hooks/useContent';
 import { type Raj, rajokStatic } from '../data/rajok';
+import { rajokSchema } from '../schemas/content';
 import './Rajok.css';
 
 export default function Rajok() {
-  const { data, loading } = useContent<Raj[]>('rajok.json', 'rajok');
+  const { data, loading } = useContent<Raj[]>('rajok.json', 'rajok', rajokSchema);
   const rajok = data ?? rajokStatic;
 
   return (
