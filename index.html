@@ -61,13 +61,17 @@
     }
     </script>
 
+    <!-- Preload settings.json: Home's hero stats (member/raj/ors counts) read
+         from it via useContent, and without this they visibly pop in after
+         the JS bundle parses and only then kicks off the fetch (finding P8). -->
+    <link rel="preload" href="%BASE_URL%content/settings.json" as="fetch" crossorigin />
+
     <!-- Gallery images: img.vac811.hu (image-cdn Worker) once deployed, else Drive directly -->
     <link rel="preconnect" href="https://img.vac811.hu" crossorigin />
     <link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin />
 
-    <!-- Fonts: Sora (display) + General Sans (body) via Fontshare -->
-    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
-    <link href="https://api.fontshare.com/v2/css?f[]=sora@600,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet" />
+    <!-- Fonts: Sora (display) + General Sans (body), self-hosted (src/styles/fonts.css) —
+         previously a render-blocking third-party Fontshare stylesheet (audit finding P6). -->
 
     <!-- Favicon inline SVG -->
     <link rel="icon" type="image/svg+xml" href="./logo.svg" />

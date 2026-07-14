@@ -1,22 +1,26 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import BackgroundField from './components/BackgroundField';
 import ScrollProgress from './components/ScrollProgress';
+// Home is the most-visited landing page — keep it in the main chunk so first
+// paint isn't gated on a second chunk fetch. Every other route (including the
+// admin-only Curate tool, which pulls in auth libs no visitor else needs) is
+// lazy-loaded so its code doesn't ship to someone just viewing Home.
 import Home from './pages/Home';
-import About from './pages/About';
-import History from './pages/History';
-import Leaders from './pages/Leaders';
-import Rajok from './pages/Rajok';
-import Camps from './pages/Camps';
-import Naptar from './pages/Naptar';
-import Gallery from './pages/Gallery';
-import Join from './pages/Join';
-import Contact from './pages/Contact';
-import NotFound from './pages/NotFound';
-import Scouting from './pages/Scouting';
-import Curate from './pages/Curate';
+const About = lazy(() => import('./pages/About'));
+const History = lazy(() => import('./pages/History'));
+const Leaders = lazy(() => import('./pages/Leaders'));
+const Rajok = lazy(() => import('./pages/Rajok'));
+const Camps = lazy(() => import('./pages/Camps'));
+const Naptar = lazy(() => import('./pages/Naptar'));
+const Gallery = lazy(() => import('./pages/Gallery'));
+const Join = lazy(() => import('./pages/Join'));
+const Contact = lazy(() => import('./pages/Contact'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const Scouting = lazy(() => import('./pages/Scouting'));
+const Curate = lazy(() => import('./pages/Curate'));
 
 // Derive router basename from Vite base ('/' in dev, '/beta/' in prod build).
 const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -85,22 +89,24 @@ function AppLayout() {
       <div id="main-content">
         <ScrollReset />
         <SeoManager />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/rolunk" element={<About />} />
-          <Route path="/tortenet" element={<History />} />
-          <Route path="/vezetok" element={<Leaders />} />
-          <Route path="/rajok" element={<Rajok />} />
-          <Route path="/taborok" element={<Camps />} />
-          <Route path="/naptar" element={<Naptar />} />
-          {/* Faithful slug kept; the beta's /hirek redirects here */}
-          <Route path="/hirek" element={<Navigate to="/naptar" replace />} />
-          <Route path="/galeria" element={<Gallery />} />
-          <Route path="/csatlakozas" element={<Join />} />
-          <Route path="/kapcsolat" element={<Contact />} />
-          <Route path="/cserkeszet" element={<Scouting />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Suspense fallback={null}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/rolunk" element={<About />} />
+            <Route path="/tortenet" element={<History />} />
+            <Route path="/vezetok" element={<Leaders />} />
+            <Route path="/rajok" element={<Rajok />} />
+            <Route path="/taborok" element={<Camps />} />
+            <Route path="/naptar" element={<Naptar />} />
+            {/* Faithful slug kept; the beta's /hirek redirects here */}
+            <Route path="/hirek" element={<Navigate to="/naptar" replace />} />
+            <Route path="/galeria" element={<Gallery />} />
+            <Route path="/csatlakozas" element={<Join />} />
+            <Route path="/kapcsolat" element={<Contact />} />
+            <Route path="/cserkeszet" element={<Scouting />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </div>
       <Footer />
     </>
@@ -127,7 +133,9 @@ function CurateLayout() {
       >
         ← Admin panel
       </a>
-      <Curate />
+      <Suspense fallback={null}>
+        <Curate />
+      </Suspense>
     </>
   );
 }
