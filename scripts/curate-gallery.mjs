@@ -44,7 +44,7 @@
 //   - reason:   one-line justification (CMS hint)
 //   - approved: false until a human approves it in Decap CMS
 
-import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'fs';
+import { writeFileSync, readFileSync, mkdirSync, existsSync, renameSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import Anthropic from '@anthropic-ai/sdk';
@@ -383,6 +383,15 @@ function loadState() {
   }
 }
 
+// Write via a temp file + rename so a crash mid-write (or a run cancelled by
+// the concurrency guard in curate-gallery.yml) can never leave a truncated or
+// half-written JSON file on disk — the rename is atomic on the same filesystem.
+function writeFileAtomic(path, contents) {
+  const tmpPath = `${path}.tmp-${process.pid}`;
+  writeFileSync(tmpPath, contents, 'utf-8');
+  renameSync(tmpPath, path);
+}
+
 function saveState(seenSet, runCount, hashes = {}) {
   if (DRY_RUN) { console.log('[DRY RUN] Would write gallery-pipeline-state.json'); return; }
   const state = {
@@ -392,7 +401,7 @@ function saveState(seenSet, runCount, hashes = {}) {
     hashes,
   };
   mkdirSync(dirname(STATE_PATH), { recursive: true });
-  writeFileSync(STATE_PATH, JSON.stringify(state, null, 2) + '\n', 'utf-8');
+  writeFileAtomic(STATE_PATH, JSON.stringify(state, null, 2) + '\n');
 }
 
 function saveGallery(items) {
@@ -413,7 +422,7 @@ function saveGallery(items) {
     return (b.score ?? 0) - (a.score ?? 0);
   });
   mkdirSync(dirname(GALLERY_PATH), { recursive: true });
-  writeFileSync(GALLERY_PATH, JSON.stringify({ gallery: sorted }, null, 2) + '\n', 'utf-8');
+  writeFileAtomic(GALLERY_PATH, JSON.stringify({ gallery: sorted }, null, 2) + '\n');
 }
 
 async function main() {

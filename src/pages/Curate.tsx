@@ -200,12 +200,10 @@ export default function Curate() {
     setSaveError(null);
     try {
       if (auth.mode === 'google') {
-        await commitDecisionsViaProxy(PROXY_URL, auth.value, decisions);
-        const { items } = await fetchGalleryViaProxy(PROXY_URL, auth.value);
+        const { items } = await commitDecisionsViaProxy(PROXY_URL, auth.value, decisions);
         setAllItems(items);
       } else {
-        await commitDecisions(auth.value, decisions);
-        const { items } = await fetchGallery(auth.value);
+        const { items } = await commitDecisions(auth.value, decisions);
         setAllItems(items);
       }
       setDecisions(new Map());

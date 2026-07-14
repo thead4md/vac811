@@ -3,7 +3,7 @@
 // Usage: node scripts/sync-ecset.mjs [--dry-run]
 // Env:   ECSET_USERNAME, ECSET_PASSWORD, DRY_RUN=true
 import { load } from 'cheerio';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -298,7 +298,12 @@ function assertSanity({ homepage, camps, events }, existingSettings) {
 // ── I/O ───────────────────────────────────────────────────────────────────────
 
 function read(name) { return JSON.parse(readFileSync(resolve(CONTENT, name), 'utf8')); }
-function write(name, data) { writeFileSync(resolve(CONTENT, name), JSON.stringify(data, null, 2) + '\n'); }
+function write(name, data) {
+  const path = resolve(CONTENT, name);
+  const tmpPath = `${path}.tmp-${process.pid}`;
+  writeFileSync(tmpPath, JSON.stringify(data, null, 2) + '\n');
+  renameSync(tmpPath, path);
+}
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
