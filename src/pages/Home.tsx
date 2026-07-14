@@ -106,7 +106,7 @@ export default function Home() {
 
   const settings = settingsData ?? settingsStatic;
   const events = eventsData ?? eventsStatic;
-  const leaders = leadersData ?? leadersStatic;
+  const leaders = leadersData && leadersData.length ? leadersData : leadersStatic;
   const campCount = (campsData ?? campsStatic).length;
 
   const upcomingEvents = events.slice(0, 3);

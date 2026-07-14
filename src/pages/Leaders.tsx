@@ -5,7 +5,7 @@ import './Leaders.css';
 
 export default function Leaders() {
   const { data, loading } = useContent<Leader[]>('leaders.json', 'leaders');
-  const allLeaders = data ?? leadersStatic;
+  const allLeaders = data && data.length ? data : leadersStatic;
   const staffLeaders = allLeaders.filter(l => l.isStaff);
   const rajLeaders = allLeaders.filter(l => !l.isStaff);
 

@@ -15,6 +15,19 @@
   RewriteRule . /beta/index.html [L]
 </IfModule>
 
+# Baseline security headers
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https://api.fontshare.com; img-src 'self' data: https://lh3.googleusercontent.com; font-src 'self' https://api.fontshare.com; connect-src 'self' https://accounts.google.com https://api.github.com https://*.workers.dev; frame-src https://accounts.google.com; frame-ancestors 'self'"
+
+  <FilesMatch "^(index\.html)$">
+    Header always set X-Frame-Options "SAMEORIGIN"
+  </FilesMatch>
+</IfModule>
+
 # Long-cache hashed assets
 <IfModule mod_expires.c>
   ExpiresActive On
