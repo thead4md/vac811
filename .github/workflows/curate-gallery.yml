@@ -32,8 +32,9 @@ on:
         required: false
         default: 'false'
   schedule:
-    # Every Monday at 06:00 UTC
-    - cron: '0 6 * * 1'
+    # Daily at 06:00 UTC — was weekly; a big camp folder no longer takes
+    # months to drain through the per-run budget cap (see GALLERY_*_BUDGET).
+    - cron: '0 6 * * *'
 
 concurrency:
   group: content-write
@@ -68,8 +69,8 @@ jobs:
           GALLERY_PREFLIGHT_MODEL: ${{ github.event.inputs.preflight == 'false' && '' || 'gpt-4o-mini' }}
           GALLERY_SCORE_THRESHOLD: ${{ github.event.inputs.score_threshold || '50' }}
           GALLERY_MINOR_THRESHOLD: ${{ github.event.inputs.minor_threshold || '80' }}
-          GALLERY_PREFLIGHT_BUDGET: ${{ vars.GALLERY_PREFLIGHT_BUDGET || '200' }}
-          GALLERY_HAIKU_BUDGET: ${{ vars.GALLERY_HAIKU_BUDGET || '120' }}
+          GALLERY_PREFLIGHT_BUDGET: ${{ vars.GALLERY_PREFLIGHT_BUDGET || '600' }}
+          GALLERY_HAIKU_BUDGET: ${{ vars.GALLERY_HAIKU_BUDGET || '600' }}
           GALLERY_DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
         run: node scripts/curate-gallery.mjs
 

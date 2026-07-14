@@ -21,8 +21,10 @@
 //   GALLERY_PREFLIGHT_MODEL    – OpenAI model for binary pre-filter; omit to skip
 //                                (default "gpt-4o-mini" when OPENAI_API_KEY is set)
 //   OPENAI_API_KEY             – OpenAI API key (required for pre-filter)
-//   GALLERY_PREFLIGHT_BUDGET   – hard cap on OpenAI preflight calls per run (default 200)
-//   GALLERY_HAIKU_BUDGET       – hard cap on Claude Haiku scoring calls per run (default 120)
+//   GALLERY_PREFLIGHT_BUDGET   – hard cap on OpenAI preflight calls per run (default 600)
+//   GALLERY_HAIKU_BUDGET       – hard cap on Claude Haiku scoring calls per run (default 600,
+//                                same as preflight so a KEEP is never charged for a run that
+//                                can't afford to Haiku-score it anyway)
 //
 // Resumability:
 //   Every Drive image the pipeline finishes deciding about (kept, skipped,
@@ -101,8 +103,8 @@ const PRIMARY_KEYWORDS = (process.env.GALLERY_PRIMARY_KEYWORDS || 'tábor,tábor
 const PREFLIGHT_MODEL = process.env.GALLERY_PREFLIGHT_MODEL ||
   (process.env.OPENAI_API_KEY ? 'gpt-4o-mini' : null);
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || null;
-const PREFLIGHT_BUDGET = Number(process.env.GALLERY_PREFLIGHT_BUDGET || 200);
-const HAIKU_BUDGET = Number(process.env.GALLERY_HAIKU_BUDGET || 120);
+const PREFLIGHT_BUDGET = Number(process.env.GALLERY_PREFLIGHT_BUDGET || 600);
+const HAIKU_BUDGET = Number(process.env.GALLERY_HAIKU_BUDGET || 600);
 const CONCURRENCY = Number(process.env.GALLERY_CONCURRENCY || 6);
 const DEDUP_DISTANCE = Number(process.env.GALLERY_DEDUP_DISTANCE || 10);
 const MAX_RECURSION_DEPTH = 2; // year → event → (person)
@@ -335,13 +337,10 @@ async function scoreImage(fileId) {
   const response = await anthropic.messages.parse({
     model: MODEL,
     max_tokens: 1024,
-    system: [
-      {
-        type: 'text',
-        text: SCORE_PROMPT,
-        cache_control: { type: 'ephemeral' },
-      },
-    ],
+    // No cache_control marker here: SCORE_PROMPT is well under the 4096-token
+    // minimum for Anthropic prompt caching, so a cache-control marker would be
+    // a no-op, not a cost saving (audit finding PL6).
+    system: SCORE_PROMPT,
     messages: [
       {
         role: 'user',
@@ -442,23 +441,29 @@ async function main() {
   console.log(`Caps: primary=${MAX_PRIMARY}, minor=${MAX_MINOR} | Thresholds: primary>=${SCORE_THRESHOLD}, minor>=${MINOR_THRESHOLD}`);
   console.log(`Primary keywords: ${PRIMARY_KEYWORDS.join(', ')}`);
   if (PREFLIGHT_MODEL && !DRY_RUN) {
+    // Best-effort: a probe failure (rate limit, transient outage) shouldn't
+    // abort the whole run — quickScoreImage already treats real preflight
+    // failures as KEEP-and-continue, so just warn here (audit finding PL8).
     console.log(`Preflight enabled: ${PREFLIGHT_MODEL} — probing API…`);
-    const probeRes = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${OPENAI_API_KEY}` },
-      body: JSON.stringify({
-        model: PREFLIGHT_MODEL,
-        messages: [{ role: 'user', content: 'Reply with OK.' }],
-        max_tokens: 5,
-      }),
-    });
-    if (!probeRes.ok) {
-      const body = await probeRes.text();
-      console.error(`Preflight probe failed (${probeRes.status}): ${body.slice(0, 200)}`);
-      console.error('Fix OPENAI_API_KEY or re-run with preflight=false');
-      process.exit(1);
+    try {
+      const probeRes = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${OPENAI_API_KEY}` },
+        body: JSON.stringify({
+          model: PREFLIGHT_MODEL,
+          messages: [{ role: 'user', content: 'Reply with OK.' }],
+          max_tokens: 5,
+        }),
+      });
+      if (!probeRes.ok) {
+        const body = await probeRes.text();
+        console.warn(`Preflight probe failed (${probeRes.status}): ${body.slice(0, 200)} — continuing anyway`);
+      } else {
+        console.log('Preflight probe OK.');
+      }
+    } catch (err) {
+      console.warn(`Preflight probe errored: ${err.message} — continuing anyway`);
     }
-    console.log('Preflight probe OK.');
   } else if (DRY_RUN) {
     console.log('Preflight skipped (dry-run mode)');
   } else {
@@ -477,7 +482,6 @@ async function main() {
   const runCount = state.runCount + 1;
   const seen = new Set([...state.seenIds, ...knownIds]);
   const stateHashes = { ...state.hashes };
-  const initialSeenSize = seen.size;
   console.log(`Resume state: ${state.seenIds.length} seen id(s) from ${state.runCount} prior run(s); budgets: preflight<=${PREFLIGHT_BUDGET}, haiku<=${HAIKU_BUDGET}, concurrency=${CONCURRENCY}, dedup_distance=${DEDUP_DISTANCE}`);
 
   // Map year name → folder id
@@ -510,7 +514,14 @@ async function main() {
     }));
   };
 
-  yearLoop:
+  // ── Phase 1: collect + dedup every year/event up front ──────────────────
+  // Representatives from every event across every year are gathered into one
+  // flat list (each tagged with its own event/cap/threshold) so Phase 2 below
+  // can run ONE concurrency-CONCURRENCY pool across all of them, instead of
+  // processing events strictly sequentially with concurrency only within one
+  // event at a time (audit finding PL3).
+  const allReps = [];
+
   for (const year of years) {
     const yearFolderId = yearFolderByName.get(year);
     if (!yearFolderId) {
@@ -548,10 +559,16 @@ async function main() {
       const threshold = primary ? SCORE_THRESHOLD : MINOR_THRESHOLD;
 
       // ── Dedup step: compute hashes and drop near-duplicates ────────────
-      const withHashes = await mapPool(imgs, CONCURRENCY, async (img) => ({
-        ...img,
-        phash: await computeDHash(img.id),
-      }));
+      // Every phash computed here (not just kept representatives') is cached
+      // in stateHashes by id, so a later run never re-fetches/re-hashes an
+      // already-hashed image (audit finding PL2/PL4) — even one that never
+      // gets Haiku-scored because of a budget cap.
+      const withHashes = await mapPool(imgs, CONCURRENCY, async (img) => {
+        if (stateHashes[img.id]) return { ...img, phash: stateHashes[img.id] };
+        const phash = await computeDHash(img.id);
+        if (phash) stateHashes[img.id] = phash;
+        return { ...img, phash };
+      });
 
       const { representatives, dupIds } = dedupImages(withHashes, stateHashes, DEDUP_DISTANCE);
       dupIds.forEach((id) => seen.add(id));
@@ -559,99 +576,118 @@ async function main() {
         console.log(`    Dedup: ${dupIds.size} duplicate(s) dropped → ${representatives.length} to score`);
       }
 
-      // ── Concurrent scoring ──────────────────────────────────────────────
-      let preflightSeen = 0;
-      let preflightSkipped = 0;
-
-      const scoreResults = await mapPool(representatives, CONCURRENCY, async (img) => {
-        if (budgetHit) return null; // short-circuit — budget already hit by a sibling call
-
-        // Pass 1: OpenAI vision pre-filter (opt-in).
-        // Check-and-reserve is synchronous (before any await) so no race in single-threaded JS.
-        if (PREFLIGHT_MODEL) {
-          if (!DRY_RUN && openaiCalls >= PREFLIGHT_BUDGET) {
-            if (!budgetHit) console.warn(`    [budget] preflight cap (${PREFLIGHT_BUDGET}) reached — stopping run, progress saved`);
-            budgetHit = true;
-            return null;
-          }
-          openaiCalls++;
-          preflightSeen++;
-          totalPreflightSeen++;
-          const keep = await quickScoreImage(img.id);
-          if (!keep) {
-            // SKIP is terminal — mark seen; a KEEP is not marked until Haiku consumes it.
-            seen.add(img.id);
-            preflightSkipped++;
-            totalPreflightSkipped++;
-            return null;
-          }
-        }
-
-        // Pass 2: Claude Haiku full score.
-        if (!DRY_RUN && claudeCalls >= HAIKU_BUDGET) {
-          if (!budgetHit) console.warn(`    [budget] haiku cap (${HAIKU_BUDGET}) reached — stopping run, progress saved`);
-          budgetHit = true;
-          return null;
-        }
-        claudeCalls++;
-        try {
-          const result = await scoreImage(img.id);
-          // A consumed Haiku call is decided forever — even if below threshold.
-          seen.add(img.id);
-          if (!result.suitableForPublicYouthSite || result.score < threshold) return null;
-          const bucket = bucketActivity(result.activity);
-          return {
-            id: img.id,
-            name: result.caption,
-            year,
-            event,
-            activity: result.activity,
-            bucket,
-            score: result.score,
-            phash: img.phash ?? undefined,
-            reason: `Pontszám ${result.score}. Tevékenység: ${result.activity}.`,
-            status: 'pending',
-            approved: false,
-          };
-        } catch (err) {
-          seen.add(img.id);
-          console.warn(`    Failed to score ${img.id}: ${err.message}`);
-          return null;
-        }
-      });
-
-      const scored = scoreResults.filter(Boolean);
-      scored.sort((a, b) => b.score - a.score);
-      const top = diversePick(scored, cap);
-
-      const preflightSummary = PREFLIGHT_MODEL
-        ? ` | preflight: ${preflightSeen - preflightSkipped}/${preflightSeen} passed`
-        : '';
-      console.log(`    ${year}/${event} [${primary ? 'PRIMARY' : 'minor'}]${preflightSummary} → ${top.length} candidate(s) kept (cap=${cap}, threshold>=${threshold})`);
-
-      if (top.length) {
-        // Record phash of each kept representative so future runs can dedup against it.
-        for (const item of top) {
-          if (item.phash) stateHashes[item.id] = item.phash;
-        }
-        newCandidates.push(...top);
-        liveGallery.push(...top);
-        top.forEach((item) => knownIds.add(item.id));
-        saveGallery(liveGallery);
-        console.log(`    → saved to gallery.json (${liveGallery.length} total)`);
+      for (const img of representatives) {
+        allReps.push({ img, year, event, primary, cap, threshold });
       }
-      // Persist seen-state after every event so a crash or budget abort never
-      // loses progress (and never re-charges the images already processed).
-      saveState(seen, runCount, stateHashes);
-
-      if (budgetHit) break; // stop scanning further events this year
     }
 
-    if (budgetHit) break yearLoop; // stop scanning further years
+    // Persist once per year (not per event) — dHash caching/dedup state is
+    // cheap to lose but not free to recompute (audit finding PL7).
+    saveState(seen, runCount, stateHashes);
   }
 
+  console.log(`\n  ${allReps.length} representative(s) to score across all years/events (concurrency=${CONCURRENCY})`);
+
+  // ── Phase 2: score every representative in one flat concurrent pool ─────
+  let preflightSeen = 0;
+  let preflightSkipped = 0;
+
+  const scoreResults = await mapPool(allReps, CONCURRENCY, async ({ img, year, event, primary, cap, threshold }) => {
+    if (budgetHit) return null; // short-circuit — budget already hit by a sibling call
+
+    // Pass 1: OpenAI vision pre-filter (opt-in).
+    // Check-and-reserve is synchronous (before any await) so no race in single-threaded JS.
+    if (PREFLIGHT_MODEL) {
+      if (!DRY_RUN && openaiCalls >= PREFLIGHT_BUDGET) {
+        if (!budgetHit) console.warn(`    [budget] preflight cap (${PREFLIGHT_BUDGET}) reached — stopping run, progress saved`);
+        budgetHit = true;
+        saveState(seen, runCount, stateHashes);
+        return null;
+      }
+      openaiCalls++;
+      preflightSeen++;
+      totalPreflightSeen++;
+      const keep = await quickScoreImage(img.id);
+      if (!keep) {
+        // SKIP is terminal — mark seen; a KEEP is not marked until Haiku consumes it.
+        seen.add(img.id);
+        preflightSkipped++;
+        totalPreflightSkipped++;
+        return null;
+      }
+    }
+
+    // Pass 2: Claude Haiku full score.
+    if (!DRY_RUN && claudeCalls >= HAIKU_BUDGET) {
+      if (!budgetHit) console.warn(`    [budget] haiku cap (${HAIKU_BUDGET}) reached — stopping run, progress saved`);
+      budgetHit = true;
+      saveState(seen, runCount, stateHashes);
+      return null;
+    }
+    claudeCalls++;
+    try {
+      const result = await scoreImage(img.id);
+      // A consumed Haiku call is decided forever — even if below threshold.
+      seen.add(img.id);
+      if (!result.suitableForPublicYouthSite || result.score < threshold) return null;
+      const bucket = bucketActivity(result.activity);
+      return {
+        id: img.id,
+        name: result.caption,
+        year,
+        event,
+        primary,
+        cap,
+        activity: result.activity,
+        bucket,
+        score: result.score,
+        phash: img.phash ?? undefined,
+        reason: `Pontszám ${result.score}. Tevékenység: ${result.activity}.`,
+        status: 'pending',
+        approved: false,
+      };
+    } catch (err) {
+      // Only a terminal (unparseable) response marks the image seen forever.
+      // A transient failure (network error, rate limit, server error) leaves
+      // it unseen so a later run retries it instead of losing it for good
+      // (audit finding R3).
+      const status = err?.status;
+      const isUnparseable = err.message === 'Claude returned unparseable response';
+      const isTransient = !isUnparseable && (status === 429 || status >= 500 || status === undefined);
+      if (isTransient) {
+        console.warn(`    [transient] ${img.id} will be retried next run: ${err.message}`);
+      } else {
+        seen.add(img.id);
+        console.warn(`    Failed to score ${img.id}: ${err.message}`);
+      }
+      return null;
+    }
+  });
+
+  // ── Phase 3: group scored results back by event and diversity-pick ──────
+  const groups = new Map(); // "year|event" -> { primary, cap, items }
+  for (const item of scoreResults.filter(Boolean)) {
+    const key = `${item.year}|${item.event}`;
+    if (!groups.has(key)) groups.set(key, { primary: item.primary, cap: item.cap, items: [] });
+    groups.get(key).items.push(item);
+  }
+
+  for (const [key, { primary, cap, items }] of groups) {
+    const [year, event] = key.split('|');
+    items.sort((a, b) => b.score - a.score);
+    const top = diversePick(items, cap);
+    console.log(`    ${year}/${event} [${primary ? 'PRIMARY' : 'minor'}] → ${top.length} candidate(s) kept (cap=${cap})`);
+    if (top.length) {
+      newCandidates.push(...top);
+      liveGallery.push(...top);
+      top.forEach((item) => knownIds.add(item.id));
+    }
+  }
+
+  saveGallery(liveGallery);
+  saveState(seen, runCount, stateHashes);
+
   if (budgetHit) {
-    saveState(seen, runCount, stateHashes);
     logSummary();
     return; // partial run is success — exit 0 so the commit step persists progress
   }
@@ -666,9 +702,6 @@ async function main() {
     console.log(`Estimated savings: ~$${haikuSaved.toFixed(3)} Haiku saved − ~$${openaiCost.toFixed(4)} OpenAI cost = ~$${netSaving.toFixed(3)} net`);
   }
 
-  // Only rewrite state when something was actually processed — a true no-op
-  // re-run (no fresh images) leaves the file untouched, so there is no git diff.
-  if (seen.size !== initialSeenSize) saveState(seen, runCount, stateHashes);
   console.log(`\nAdded ${newCandidates.length} new candidate(s); ${liveGallery.length} total in gallery.json`);
   logSummary();
 }
