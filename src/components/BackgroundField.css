@@ -5,21 +5,21 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  background-image: var(--bg-field-image);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  background-attachment: fixed;
   opacity: 0.1; /* matches the WP site exactly */
 }
-/* The art is dark brown line work; on dark surfaces lift opacity and invert
-   it to a light tint so the motif stays visible without altering the shapes. */
+/* Runtime invert()/brightness() filters cause scroll jank on mobile — use a
+   pre-inverted asset instead so dark mode needs no per-frame filter work. */
 [data-theme='dark'] .bg-field {
+  background-image: var(--bg-field-image-dark);
   opacity: 0.16;
-  filter: invert(1) brightness(1.4);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) .bg-field {
+    background-image: var(--bg-field-image-dark);
     opacity: 0.16;
-    filter: invert(1) brightness(1.4);
   }
 }

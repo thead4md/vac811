@@ -4,12 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!-- Set the theme before first paint to avoid a light-mode flash for dark-mode users -->
+    <script>
+      (function () {
+        var stored = localStorage.getItem('theme');
+        var theme = stored === 'light' || stored === 'dark'
+          ? stored
+          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+
     <!-- Primary SEO -->
     <title>811. Szent József Cserkészcsapat – Vác</title>
     <meta name="description" content="A 811. Szent József Cserkészcsapat Vác egyik legnagyobb ifjúsági szervezete. 232 aktív cserkész, 11 raj, 1929 óta. Csatlakozz a közösséghez!" />
     <meta name="keywords" content="cserkész, vác, 811, szent józsef, cserkészcsapat, ifjúság, tábor, közösség" />
     <meta name="author" content="811. Szent József Cserkészcsapat" />
-    <link rel="canonical" href="https://vac811.hu/" />
+    <!-- /beta is staging behind the WordPress apex — keep it out of search results -->
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href="https://vac811.hu/beta/" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -48,9 +61,17 @@
     }
     </script>
 
-    <!-- Fonts: Sora (display) + General Sans (body) via Fontshare -->
-    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
-    <link href="https://api.fontshare.com/v2/css?f[]=sora@600,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet" />
+    <!-- Preload settings.json: Home's hero stats (member/raj/ors counts) read
+         from it via useContent, and without this they visibly pop in after
+         the JS bundle parses and only then kicks off the fetch (finding P8). -->
+    <link rel="preload" href="%BASE_URL%content/settings.json" as="fetch" crossorigin />
+
+    <!-- Gallery images: img.vac811.hu (image-cdn Worker) once deployed, else Drive directly -->
+    <link rel="preconnect" href="https://img.vac811.hu" crossorigin />
+    <link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin />
+
+    <!-- Fonts: Sora (display) + General Sans (body), self-hosted (src/styles/fonts.css) —
+         previously a render-blocking third-party Fontshare stylesheet (audit finding P6). -->
 
     <!-- Favicon inline SVG -->
     <link rel="icon" type="image/svg+xml" href="./logo.svg" />

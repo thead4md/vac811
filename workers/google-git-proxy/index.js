@@ -16,12 +16,16 @@
  *                      Contents: Read & Write on thead4md/vac811
  * Optional vars (wrangler.toml [vars]):
  *   ALLOWED_DOMAIN     default "vac811.hu"
+ *   ALLOWED_EMAILS     comma-separated editor email allowlist; if set, only these
+ *                      accounts may commit (recommended — domain-wide is broad)
  *   ALLOWED_ORIGIN     default "https://vac811.hu"
  *   REPO               default "thead4md/vac811"
  *   GALLERY_PATH       default "public/content/gallery.json"
+ *   MAX_CONTENT_BYTES  default 2_000_000 (2MB) — cap on the decoded gallery.json size
  */
 
 const GH_API = 'https://api.github.com';
+const DEFAULT_MAX_CONTENT_BYTES = 2_000_000;
 
 function cors(origin) {
   return {
@@ -46,7 +50,49 @@ async function verifyGoogle(idToken, env) {
   const email = String(info.email || '').toLowerCase();
   const domainOk = info.hd === allowedDomain || email.endsWith(`@${allowedDomain}`);
   if (!domainOk) return { ok: false, error: `Csak @${allowedDomain} fiókkal lehet belépni.` };
+
+  if (env.ALLOWED_EMAILS) {
+    const allowlist = env.ALLOWED_EMAILS.split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
+    if (!allowlist.includes(email)) {
+      return { ok: false, error: 'Ez a fiók nincs jóváhagyva a szerkesztéshez.' };
+    }
+  }
+
   return { ok: true, email };
+}
+
+// Decode + schema/size-validate a base64-encoded gallery.json body before it's
+// ever sent to GitHub. Rejects anything that isn't valid JSON, isn't shaped
+// like the gallery content the app expects, or is implausibly large.
+function validateGalleryContent(base64Content, maxBytes) {
+  let raw;
+  try {
+    raw = atob(String(base64Content || '').replace(/\n/g, ''));
+  } catch {
+    return { ok: false, error: 'A tartalom nem érvényes base64.' };
+  }
+  if (raw.length > maxBytes) {
+    return { ok: false, error: `A tartalom túl nagy (${raw.length} > ${maxBytes} bájt).` };
+  }
+  let parsed;
+  try {
+    const bytes = Uint8Array.from(raw, (c) => c.charCodeAt(0));
+    parsed = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+  } catch {
+    return { ok: false, error: 'A tartalom nem érvényes JSON.' };
+  }
+  if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.gallery)) {
+    return { ok: false, error: 'A tartalomból hiányzik a "gallery" tömb.' };
+  }
+  for (const item of parsed.gallery) {
+    if (
+      !item || typeof item !== 'object' ||
+      typeof item.id !== 'string' || typeof item.name !== 'string' || typeof item.year !== 'string'
+    ) {
+      return { ok: false, error: 'Érvénytelen galéria elem.' };
+    }
+  }
+  return { ok: true };
 }
 
 function ghHeaders(env) {
@@ -88,6 +134,13 @@ export default {
     // PUT → commit new gallery.json (body: { sha, content (base64), approved, rejected })
     if (request.method === 'PUT') {
       const body = await request.json();
+
+      const maxBytes = Number(env.MAX_CONTENT_BYTES) || DEFAULT_MAX_CONTENT_BYTES;
+      const validation = validateGalleryContent(body.content, maxBytes);
+      if (!validation.ok) {
+        return Response.json({ error: validation.error }, { status: 400, headers: cors(origin) });
+      }
+
       const message =
         `kuracio (${v.email}): ${body.approved ?? 0} jóváhagyva, ${body.rejected ?? 0} elutasítva`;
       const r = await fetch(`${GH_API}/repos/${repo}/contents/${path}`, {

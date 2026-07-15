@@ -3,7 +3,7 @@
 // Usage: node scripts/sync-ecset.mjs [--dry-run]
 // Env:   ECSET_USERNAME, ECSET_PASSWORD, DRY_RUN=true
 import { load } from 'cheerio';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -63,7 +63,20 @@ async function login() {
   if (location.includes('2fa')) throw new Error('2FA required — use an account with 2FA disabled');
   if (!sessionId) throw new Error(`Login failed (HTTP ${postRes.status}, redirect: ${location})`);
 
-  return `csrftoken=${csrfCookie}; sessionid=${sessionId}`;
+  const cookie = `csrftoken=${csrfCookie}; sessionid=${sessionId}`;
+
+  // A sessionid cookie alone doesn't guarantee an authenticated session — verify
+  // by inspecting an authenticated page, not just the cookie's presence.
+  const checkRes = await fetch(`${BASE}/mcssz/811/`, { headers: { ...BROWSER_HEADERS, Cookie: cookie }, redirect: 'manual' });
+  if (checkRes.status >= 300 && checkRes.status < 400) {
+    throw new Error(`Login verification failed: /mcssz/811/ redirected (HTTP ${checkRes.status}) — session not authenticated`);
+  }
+  const checkHtml = await checkRes.text();
+  if (/name="login"/.test(checkHtml) || /accounts\/login/.test(checkHtml)) {
+    throw new Error('Login verification failed: authenticated page still shows a login form');
+  }
+
+  return cookie;
 }
 
 async function get(cookie, path) {
@@ -232,11 +245,16 @@ function transformEvents(ecset, existing) {
     const id = `${slugify(e.summary)}-${e.date.slice(0, 7)}`;
     const prev = existing.events.find(x => x.id === id);
     const dateDisplay = huDate(e.date);
+    // dateDisplay is otherwise editor-owned once set (prev wins), but a stale
+    // double-period value is a known robot artifact from an old date-format
+    // bug, not something a human would type — repair it in place rather than
+    // preserving it forever (audit finding C8).
+    const isStaleBotArtifact = prev?.dateDisplay && /\.\.$/.test(prev.dateDisplay);
     return {
       id,
       title: prev?.title ?? e.summary,
       date: e.date,
-      dateDisplay: prev?.dateDisplay ?? dateDisplay,
+      dateDisplay: !isStaleBotArtifact && prev?.dateDisplay ? prev.dateDisplay : dateDisplay,
       description: prev?.description ?? e.description,
       category: prev?.category ?? eventCategory(e.summary),
     };
@@ -249,22 +267,55 @@ function transformEvents(ecset, existing) {
   return { events };
 }
 
+// Field ownership (audit finding C3): activeMemberCount/activeOrsCount/rajCount
+// are auto-computed stats ECSET/rajok.json always own, so the sync keeps them
+// current every run — CMS shows them as editable but a manual edit there is
+// expected to be overwritten (config.yml documents this with a hint).
+// address/emailMain/facebook/instagram are organizational identity details an
+// editor may reasonably correct in the CMS; once set, an editor's value wins
+// forever and ECSET only fills the field in while it's still empty.
 function transformSettings({ memberCount, orsCount, address, emailMain, facebook, instagram }, existing, rajCount) {
   const s = { ...existing };
   if (memberCount !== null) s.activeMemberCount = memberCount;
   if (orsCount    !== null) s.activeOrsCount    = orsCount;
   if (rajCount    !== null) s.rajCount          = rajCount;
-  if (address     !== null) s.address           = address;
-  if (emailMain   !== null) s.emailMain         = emailMain;
-  if (facebook    !== null) s.facebook          = facebook;
-  if (instagram   !== null) s.instagram         = instagram;
+  s.address   = existing.address   || address   || existing.address;
+  s.emailMain = existing.emailMain || emailMain || existing.emailMain;
+  s.facebook  = existing.facebook  || facebook  || existing.facebook;
+  s.instagram = existing.instagram || instagram || existing.instagram;
   return s;
+}
+
+// A maintenance page, error page, or table-format drift tends to produce data
+// that "parses" but is empty or wildly different from last time. Refuse to
+// write in that case rather than silently corrupting the content files.
+function assertSanity({ homepage, camps, events }, existingSettings) {
+  const prevMembers = existingSettings.activeMemberCount;
+  if (homepage.memberCount !== null && prevMembers) {
+    const delta = Math.abs(homepage.memberCount - prevMembers) / prevMembers;
+    if (delta > 0.3) {
+      throw new Error(
+        `Sanity check failed: scraped member count ${homepage.memberCount} deviates >30% from previous ${prevMembers} (possible maintenance/error page)`
+      );
+    }
+  }
+  if (camps.length < 1) {
+    throw new Error('Sanity check failed: 0 camps scraped (possible maintenance/error page or table format change)');
+  }
+  if (events.length === 0) {
+    throw new Error('Sanity check failed: 0 events scraped from the ICS feed (possible maintenance/error page or format change)');
+  }
 }
 
 // ── I/O ───────────────────────────────────────────────────────────────────────
 
 function read(name) { return JSON.parse(readFileSync(resolve(CONTENT, name), 'utf8')); }
-function write(name, data) { writeFileSync(resolve(CONTENT, name), JSON.stringify(data, null, 2) + '\n'); }
+function write(name, data) {
+  const path = resolve(CONTENT, name);
+  const tmpPath = `${path}.tmp-${process.pid}`;
+  writeFileSync(tmpPath, JSON.stringify(data, null, 2) + '\n');
+  renameSync(tmpPath, path);
+}
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
@@ -302,6 +353,8 @@ async function main() {
   // since ECSET has no structured raj count endpoint.
   const existingSettings = read('settings.json');
   const rajCount = read('rajok.json').rajok?.length ?? null;
+
+  assertSanity(out, existingSettings);
 
   const camps    = transformCamps(out.camps, read('camps.json'));
   const events   = transformEvents(out.events, read('events.json'));

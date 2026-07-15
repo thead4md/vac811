@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useContent } from '../hooks/useContent';
 import { type Leader, leadersStatic, leaderPhotoSrc, initials } from '../data/leaders';
+import { leadersSchema } from '../schemas/content';
 import './Leaders.css';
 
 export default function Leaders() {
-  const { data, loading } = useContent<Leader[]>('leaders.json', 'leaders');
-  const allLeaders = data ?? leadersStatic;
+  const { data, loading } = useContent<Leader[]>('leaders.json', 'leaders', leadersSchema);
+  const allLeaders = data && data.length ? data : leadersStatic;
   const staffLeaders = allLeaders.filter(l => l.isStaff);
   const rajLeaders = allLeaders.filter(l => !l.isStaff);
 

@@ -3,6 +3,12 @@
   RewriteEngine On
   RewriteBase /beta/
 
+  # Serve a precompressed .br sibling when the client supports brotli and the
+  # build emitted one (vite-plugin-compression — audit finding P9).
+  RewriteCond %{HTTP:Accept-Encoding} br
+  RewriteCond %{REQUEST_FILENAME}\.br -f
+  RewriteRule ^(.*)$ $1.br [L]
+
   # Curate app lives at admin/kuracio but is a React route, not a static file
   RewriteRule ^admin/kuracio$ /beta/index.html [L]
 
@@ -13,6 +19,40 @@
 
   # Everything else → index.html so deep links like /beta/naptar resolve
   RewriteRule . /beta/index.html [L]
+</IfModule>
+
+# Precompressed .br files need the right Content-Encoding + original
+# Content-Type (Apache would otherwise serve them as application/octet-stream).
+<IfModule mod_headers.c>
+  <FilesMatch "\.js\.br$">
+    Header set Content-Encoding br
+    Header set Content-Type "application/javascript"
+  </FilesMatch>
+  <FilesMatch "\.css\.br$">
+    Header set Content-Encoding br
+    Header set Content-Type "text/css"
+  </FilesMatch>
+  <FilesMatch "\.html\.br$">
+    Header set Content-Encoding br
+    Header set Content-Type "text/html"
+  </FilesMatch>
+  <FilesMatch "\.json\.br$">
+    Header set Content-Encoding br
+    Header set Content-Type "application/json"
+  </FilesMatch>
+</IfModule>
+
+# Baseline security headers
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://lh3.googleusercontent.com https://img.vac811.hu; font-src 'self'; connect-src 'self' https://accounts.google.com https://api.github.com https://*.workers.dev; frame-src https://accounts.google.com; frame-ancestors 'self'"
+
+  <FilesMatch "^(index\.html)$">
+    Header always set X-Frame-Options "SAMEORIGIN"
+  </FilesMatch>
 </IfModule>
 
 # Long-cache hashed assets

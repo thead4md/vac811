@@ -6,12 +6,15 @@ backend:
   site_domain: vac811.hu/beta
 
 
-# Where Decap CMS stores uploaded images
+# Where Sveltia CMS stores uploaded images
 media_folder: public/images/uploads
 public_folder: /images/uploads
 
-# Use local backend for dev: run `npx decap-server` then add ?backend=file-system to /admin URL
-# local_backend: true
+# Local dev: Sveltia CMS doesn't use decap-server/local_backend (removed —
+# unsupported and ignored). Run `npm run dev`, open /admin/index.html in
+# Chrome or Edge, and click "Work with Local Repository" to edit the working
+# tree directly via the File System Access API (Chromium-only).
+# https://sveltiacms.app/en/docs/workflows/local
 
 collections:
 
@@ -53,12 +56,12 @@ collections:
             label_singular: Tábor
             summary: "{{fields.year}} – {{fields.location}}"
             fields:
-              - { label: Év, name: year, widget: number, value_type: int }
-              - { label: Helyszín, name: location, widget: string }
-              - { label: Táborparancsnok, name: commander, widget: string }
-              - { label: Téma, name: theme, widget: string }
-              - { label: Résztvevők száma, name: participants, widget: number, value_type: int, required: false, hint: "0 = nem ismert" }
-              - { label: Megjegyzés, name: notes, widget: string, required: false }
+              - { label: Év, name: year, widget: number, value_type: int, hint: "Automatikusan frissül az ECSET szinkronból (heti/napi robot) — a kézi módosítás felülíródhat." }
+              - { label: Helyszín, name: location, widget: string, hint: "Automatikusan frissül az ECSET szinkronból — a kézi módosítás felülíródhat." }
+              - { label: Táborparancsnok, name: commander, widget: string, hint: "Automatikusan frissül az ECSET szinkronból — a kézi módosítás felülíródhat." }
+              - { label: Téma, name: theme, widget: string, hint: "Ezt a mezőt az ECSET nem ismeri — csak itt szerkeszthető, a szinkron nem írja felül." }
+              - { label: Résztvevők száma, name: participants, widget: number, value_type: int, required: false, hint: "0 = nem ismert. Automatikusan frissül az ECSET szinkronból." }
+              - { label: Megjegyzés, name: notes, widget: string, required: false, hint: "Ezt a mezőt az ECSET nem ismeri — csak itt szerkeszthető, a szinkron nem írja felül." }
 
   # ─── EVENTS ─────────────────────────────────────────────────────────────────
   - name: events
@@ -129,12 +132,12 @@ collections:
         fields:
           - { label: Csapat neve, name: siteName, widget: string }
           - { label: Szlogen, name: tagline, widget: string }
-          - { label: Cím, name: address, widget: string }
-          - { label: Általános e-mail, name: emailMain, widget: string }
+          - { label: Cím, name: address, widget: string, hint: "Kezdetben az ECSET-ből töltődik fel; miután itt beállítod, a szerkesztői érték az irányadó és a szinkron többé nem írja felül." }
+          - { label: Általános e-mail, name: emailMain, widget: string, hint: "Kezdetben az ECSET-ből töltődik fel; miután itt beállítod, a szerkesztői érték az irányadó és a szinkron többé nem írja felül." }
           - { label: Csapatparancsnok e-mail, name: emailCommander, widget: string }
-          - { label: Facebook URL, name: facebook, widget: string }
-          - { label: Instagram URL, name: instagram, widget: string }
-          - { label: Aktív cserkészek száma, name: activeMemberCount, widget: number, value_type: int }
-          - { label: Aktív őrsök száma, name: activeOrsCount, widget: number, value_type: int }
-          - { label: Rajok száma, name: rajCount, widget: number, value_type: int }
+          - { label: Facebook URL, name: facebook, widget: string, hint: "Kezdetben az ECSET-ből töltődik fel; miután itt beállítod, a szerkesztői érték az irányadó és a szinkron többé nem írja felül." }
+          - { label: Instagram URL, name: instagram, widget: string, hint: "Kezdetben az ECSET-ből töltődik fel; miután itt beállítod, a szerkesztői érték az irányadó és a szinkron többé nem írja felül." }
+          - { label: Aktív cserkészek száma, name: activeMemberCount, widget: number, value_type: int, hint: "Automatikusan frissül az ECSET szinkronból — a kézi módosítás felülíródhat." }
+          - { label: Aktív őrsök száma, name: activeOrsCount, widget: number, value_type: int, hint: "Automatikusan frissül az ECSET szinkronból — a kézi módosítás felülíródhat." }
+          - { label: Rajok száma, name: rajCount, widget: number, value_type: int, hint: "A rajok listája alapján automatikusan frissül — a kézi módosítás felülíródhat." }
           - { label: Alapítás éve, name: foundedYear, widget: number, value_type: int }

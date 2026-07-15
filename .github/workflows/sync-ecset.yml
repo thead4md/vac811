@@ -12,11 +12,16 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  group: content-write
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
 
     steps:
       - uses: actions/checkout@v4.2.2
@@ -91,6 +96,28 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "chore: sync ECSET data [auto]"
-            git pull --rebase origin main
-            git push
+            for i in 1 2 3 4 5; do
+              git pull --rebase origin main && git push && break
+              echo "Push attempt $i failed (concurrent write?), retrying..."
+              sleep $((i * 5))
+              if [ "$i" = 5 ]; then
+                echo "::error::Failed to push after 5 attempts — content-write concurrency not resolved"
+                exit 1
+              fi
+            done
           fi
+
+      - name: Alert on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Workflow failed: ${context.workflow}`;
+            const body = `The **${context.workflow}** workflow failed on run [${context.runId}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) (commit ${context.sha}).`;
+            const issues = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', labels: 'workflow-failure' });
+            const existing = issues.data.find((i) => i.title === title);
+            if (existing) {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number, body });
+            } else {
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['workflow-failure'] });
+            }

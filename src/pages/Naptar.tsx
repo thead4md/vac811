@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useContent } from '../hooks/useContent';
 import { useReveal } from '../hooks/useReveal';
 import { type Event, eventsStatic } from '../data/events';
+import { eventsSchema } from '../schemas/content';
 import EventCalendar from '../components/EventCalendar';
 import NeckerchiefDivider from '../components/NeckerchiefDivider';
 import './Naptar.css';
@@ -15,7 +16,7 @@ const categoryLabel: Record<string, string> = {
 };
 
 export default function Naptar() {
-  const { data, loading } = useContent<Event[]>('events.json', 'events');
+  const { data, loading } = useContent<Event[]>('events.json', 'events', eventsSchema);
   const events = data ?? eventsStatic;
   const [mode, setMode] = useState<'grid' | 'list'>('grid');
   const listRef = useReveal<HTMLDivElement>();

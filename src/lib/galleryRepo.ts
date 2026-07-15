@@ -1,4 +1,5 @@
 import type { GalleryItem } from '../pages/Gallery';
+import { driveImageUrl } from './imageCdn';
 
 const REPO = 'thead4md/vac811';
 const FILE = 'public/content/gallery.json';
@@ -41,7 +42,7 @@ export async function commitDecisions(
   token: string,
   decisions: Map<string, Decision>,
   retryCount = 0,
-): Promise<void> {
+): Promise<{ items: GalleryItem[] }> {
   const { sha, items } = await fetchGallery(token);
 
   const updated = items.map((item) => {
@@ -83,10 +84,12 @@ export async function commitDecisions(
     const body = await res.text();
     throw new Error(`GitHub ${res.status}: ${body.slice(0, 120)}`);
   }
+
+  return { items: updated };
 }
 
 export function cdnUrl(fileId: string, width = 800): string {
-  return `https://lh3.googleusercontent.com/d/${fileId}=w${width}`;
+  return driveImageUrl(fileId, width);
 }
 
 // ── Proxy variants (Google ID token → Cloudflare Worker → GitHub) ────────────
@@ -116,7 +119,7 @@ export async function commitDecisionsViaProxy(
   idToken: string,
   decisions: Map<string, Decision>,
   retryCount = 0,
-): Promise<void> {
+): Promise<{ items: GalleryItem[] }> {
   const { sha, items } = await fetchGalleryViaProxy(proxyUrl, idToken);
 
   const updated = items.map((item) => {
@@ -150,4 +153,6 @@ export async function commitDecisionsViaProxy(
     const body = await res.json().catch(() => ({ error: res.statusText })) as { error?: string };
     throw new Error(body.error ?? `Proxy ${res.status}`);
   }
+
+  return { items: updated };
 }

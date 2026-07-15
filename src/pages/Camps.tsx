@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useContent } from '../hooks/useContent';
 import { type Camp, campsStatic } from '../data/camps';
+import { campsSchema } from '../schemas/content';
 import './Camps.css';
 
 export default function Camps() {
-  const { data, loading } = useContent<Camp[]>('camps.json', 'camps');
+  const { data, loading } = useContent<Camp[]>('camps.json', 'camps', campsSchema);
   const camps = data ?? campsStatic;
   const featured = camps[0];
 

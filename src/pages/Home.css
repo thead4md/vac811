@@ -60,6 +60,18 @@
   color: var(--color-text);
   margin-bottom: var(--space-5);
 }
+/* The hero title is the page's LCP element — .animate-fade-in/.animate-delay-1
+   (global.css) start it at opacity:0, which delays the LCP paint until the
+   fade-in animation finishes. Keep it fully opaque and painted immediately;
+   only animate a transform-based entrance instead (audit finding P7). */
+.hero__title.animate-fade-in {
+  opacity: 1;
+  animation-name: heroTitleSlideIn;
+}
+@keyframes heroTitleSlideIn {
+  from { transform: translateY(20px); }
+  to { transform: translateY(0); }
+}
 
 .hero__title-accent {
   color: var(--color-primary);

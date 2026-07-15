@@ -6,6 +6,7 @@ import { type Event, eventsStatic } from '../data/events';
 import { type Camp, campsStatic } from '../data/camps';
 import { type Settings, settingsStatic } from '../data/settings';
 import { korosztalyokSummary as ageGroups } from '../data/korosztalyok';
+import { settingsSchema, eventsSchema, leadersSchema, campsSchema } from '../schemas/content';
 import CountUp from '../components/CountUp';
 import './Home.css';
 
@@ -99,14 +100,14 @@ export default function Home() {
   const heroPatternRef = useHeroParallax();
 
   // Content is CMS-managed (public/content/*.json); static imports are fallbacks.
-  const { data: settingsData } = useContent<Settings>('settings.json', 'settings');
-  const { data: eventsData } = useContent<Event[]>('events.json', 'events');
-  const { data: leadersData } = useContent<Leader[]>('leaders.json', 'leaders');
-  const { data: campsData } = useContent<Camp[]>('camps.json', 'camps');
+  const { data: settingsData } = useContent<Settings>('settings.json', 'settings', settingsSchema);
+  const { data: eventsData } = useContent<Event[]>('events.json', 'events', eventsSchema);
+  const { data: leadersData } = useContent<Leader[]>('leaders.json', 'leaders', leadersSchema);
+  const { data: campsData } = useContent<Camp[]>('camps.json', 'camps', campsSchema);
 
   const settings = settingsData ?? settingsStatic;
   const events = eventsData ?? eventsStatic;
-  const leaders = leadersData ?? leadersStatic;
+  const leaders = leadersData && leadersData.length ? leadersData : leadersStatic;
   const campCount = (campsData ?? campsStatic).length;
 
   const upcomingEvents = events.slice(0, 3);

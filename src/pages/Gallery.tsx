@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useContent } from '../hooks/useContent';
 import InstagramWall from '../components/InstagramWall';
+import { gallerySchema } from '../schemas/content';
+import { driveImageUrl } from '../lib/imageCdn';
 import './Gallery.css';
 
 export interface GalleryItem {
@@ -8,22 +10,21 @@ export interface GalleryItem {
   name: string;
   year: string;
   event?: string;
+  activity?: string;
+  bucket?: string;
   score?: number;
   phash?: string;
+  reason?: string;
   status?: 'pending' | 'approved' | 'rejected';
   approved?: boolean;
 }
 
-function driveImgUrl(fileId: string, width: number) {
-  return `https://lh3.googleusercontent.com/d/${fileId}=w${width}`;
-}
-
 export default function Gallery() {
-  const { data: items, loading, error } = useContent<GalleryItem[]>('gallery.json', 'gallery');
+  const { data: items, loading, error } = useContent<GalleryItem[]>('gallery.json', 'gallery', gallerySchema);
   const [activeYear, setActiveYear] = useState('all');
 
   // Only approved photos are shown publicly; AI candidates stay hidden until
-  // an editor approves them in Decap CMS.
+  // an editor approves them in Sveltia CMS.
   const approvedItems = useMemo(
     () =>
       items
@@ -117,24 +118,32 @@ export default function Gallery() {
 
           {!loading && !error && filtered.length > 0 && (
             <div className="gallery-grid">
-              {filtered.map((item, i) => (
-                <figure
-                  key={item.id}
-                  className={`gallery-item gallery-item--${i === 0 ? 'large' : i === 4 ? 'medium' : 'small'}`}
-                  aria-label={item.name}
-                >
-                  <img
-                    src={driveImgUrl(item.id, 800)}
-                    srcSet={`${driveImgUrl(item.id, 400)} 400w, ${driveImgUrl(item.id, 800)} 800w, ${driveImgUrl(item.id, 1200)} 1200w`}
-                    sizes="(max-width: 600px) 400px, (max-width: 1200px) 800px, 1200px"
-                    alt={item.name}
-                    loading="lazy"
-                    decoding="async"
-                    className="gallery-item__img"
-                  />
-                  <figcaption className="gallery-item__caption">{item.name}</figcaption>
-                </figure>
-              ))}
+              {filtered.map((item, i) => {
+                const tileSize = i === 0 ? 'large' : i === 4 ? 'medium' : 'small';
+                // Matches the grid's column spans (Gallery.css): large/medium
+                // span 2 of 4 desktop columns (~600px), small spans 1 (~300px);
+                // below 768px the grid drops to 2 columns.
+                const sizes =
+                  tileSize === 'large'
+                    ? '(max-width: 768px) 100vw, 600px'
+                    : tileSize === 'medium'
+                    ? '(max-width: 768px) 50vw, 600px'
+                    : '(max-width: 768px) 50vw, 300px';
+                return (
+                  <figure key={item.id} className={`gallery-item gallery-item--${tileSize}`}>
+                    <img
+                      src={driveImageUrl(item.id, 800)}
+                      srcSet={`${driveImageUrl(item.id, 400)} 400w, ${driveImageUrl(item.id, 800)} 800w, ${driveImageUrl(item.id, 1200)} 1200w`}
+                      sizes={sizes}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="gallery-item__img"
+                    />
+                    <figcaption className="gallery-item__caption">{item.name}</figcaption>
+                  </figure>
+                );
+              })}
             </div>
           )}
         </div>
