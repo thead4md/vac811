@@ -1,4 +1,4 @@
-// NOTE: Runtime content is fetched from /content/leaders.json (managed by Decap CMS).
+// NOTE: Runtime content is fetched from /content/leaders.json (managed by Sveltia CMS).
 // This file only exports the TypeScript interface and static fallback data
 // used during the initial render or if the fetch fails.
 

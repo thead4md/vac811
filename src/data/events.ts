@@ -1,4 +1,4 @@
-// NOTE: Runtime content is fetched from /content/events.json (managed by Decap CMS).
+// NOTE: Runtime content is fetched from /content/events.json (managed by Sveltia CMS).
 
 export interface Event {
   id: string;

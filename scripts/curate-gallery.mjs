@@ -2,7 +2,7 @@
 // ML-curated gallery: walk recent year folders in the shared Google Drive,
 // score each new photo with Claude vision, and keep the best few per event as
 // *candidates* (approved:false) in public/content/gallery.json. A human then
-// approves them in Decap CMS before they appear on the site.
+// approves them in Sveltia CMS before they appear on the site.
 //
 // Required env vars:
 //   GOOGLE_SERVICE_ACCOUNT_KEY – Google service account JSON (full contents)
@@ -44,7 +44,7 @@
 //   - bucket:   normalized activity bucket used for diversity selection
 //   - score:    0–100 scouting-relevance score from Claude
 //   - reason:   one-line justification (CMS hint)
-//   - approved: false until a human approves it in Decap CMS
+//   - approved: false until a human approves it in Sveltia CMS
 
 import { writeFileSync, readFileSync, mkdirSync, existsSync, renameSync } from 'fs';
 import { join, dirname } from 'path';

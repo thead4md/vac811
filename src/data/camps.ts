@@ -1,4 +1,4 @@
-// NOTE: Runtime content is fetched from /content/camps.json (managed by Decap CMS).
+// NOTE: Runtime content is fetched from /content/camps.json (managed by Sveltia CMS).
 
 export interface Camp {
   year: number;

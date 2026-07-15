@@ -4,7 +4,15 @@ on:
   push:
     branches:
       - main
+    # Content-only changes (CMS edits, curate-gallery/sync-ecset bot commits)
+    # take the faster deploy-content.yml path instead of a full rebuild.
+    paths-ignore:
+      - 'public/content/**'
   workflow_dispatch:
+
+concurrency:
+  group: ftp-deploy
+  cancel-in-progress: false
 
 jobs:
   test:

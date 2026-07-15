@@ -11,7 +11,7 @@ interface State<T> {
   error: string | null;
 }
 
-// Generic hook to fetch JSON content files managed by Decap CMS.
+// Generic hook to fetch JSON content files managed by Sveltia CMS.
 // An optional zod schema validates the parsed content; on mismatch the fetch
 // is treated as failed (data stays null) so callers fall back to static data
 // instead of rendering a malformed shape.

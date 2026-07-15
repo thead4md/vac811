@@ -1,4 +1,4 @@
-// NOTE: Runtime content is fetched from /content/rajok.json (managed by Decap CMS).
+// NOTE: Runtime content is fetched from /content/rajok.json (managed by Sveltia CMS).
 
 export interface Raj {
   name: string;

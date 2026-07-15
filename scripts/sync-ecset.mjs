@@ -245,11 +245,16 @@ function transformEvents(ecset, existing) {
     const id = `${slugify(e.summary)}-${e.date.slice(0, 7)}`;
     const prev = existing.events.find(x => x.id === id);
     const dateDisplay = huDate(e.date);
+    // dateDisplay is otherwise editor-owned once set (prev wins), but a stale
+    // double-period value is a known robot artifact from an old date-format
+    // bug, not something a human would type — repair it in place rather than
+    // preserving it forever (audit finding C8).
+    const isStaleBotArtifact = prev?.dateDisplay && /\.\.$/.test(prev.dateDisplay);
     return {
       id,
       title: prev?.title ?? e.summary,
       date: e.date,
-      dateDisplay: prev?.dateDisplay ?? dateDisplay,
+      dateDisplay: !isStaleBotArtifact && prev?.dateDisplay ? prev.dateDisplay : dateDisplay,
       description: prev?.description ?? e.description,
       category: prev?.category ?? eventCategory(e.summary),
     };
@@ -262,15 +267,22 @@ function transformEvents(ecset, existing) {
   return { events };
 }
 
+// Field ownership (audit finding C3): activeMemberCount/activeOrsCount/rajCount
+// are auto-computed stats ECSET/rajok.json always own, so the sync keeps them
+// current every run — CMS shows them as editable but a manual edit there is
+// expected to be overwritten (config.yml documents this with a hint).
+// address/emailMain/facebook/instagram are organizational identity details an
+// editor may reasonably correct in the CMS; once set, an editor's value wins
+// forever and ECSET only fills the field in while it's still empty.
 function transformSettings({ memberCount, orsCount, address, emailMain, facebook, instagram }, existing, rajCount) {
   const s = { ...existing };
   if (memberCount !== null) s.activeMemberCount = memberCount;
   if (orsCount    !== null) s.activeOrsCount    = orsCount;
   if (rajCount    !== null) s.rajCount          = rajCount;
-  if (address     !== null) s.address           = address;
-  if (emailMain   !== null) s.emailMain         = emailMain;
-  if (facebook    !== null) s.facebook          = facebook;
-  if (instagram   !== null) s.instagram         = instagram;
+  s.address   = existing.address   || address   || existing.address;
+  s.emailMain = existing.emailMain || emailMain || existing.emailMain;
+  s.facebook  = existing.facebook  || facebook  || existing.facebook;
+  s.instagram = existing.instagram || instagram || existing.instagram;
   return s;
 }
 

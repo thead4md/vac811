@@ -24,7 +24,7 @@ export default function Gallery() {
   const [activeYear, setActiveYear] = useState('all');
 
   // Only approved photos are shown publicly; AI candidates stay hidden until
-  // an editor approves them in Decap CMS.
+  // an editor approves them in Sveltia CMS.
   const approvedItems = useMemo(
     () =>
       items

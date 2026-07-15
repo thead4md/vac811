@@ -1,0 +1,81 @@
+name: Deploy content-only changes
+
+# Fast path for content-only pushes (CMS edits, curate-gallery/sync-ecset bot
+# commits): upload the changed public/content/*.json straight to /beta/content/
+# without a full npm ci + vite build (audit finding C6 — "a JSON change need
+# not rebuild the whole app"). Full src/ changes still go through deploy.yml.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'public/content/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ftp-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-content:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4.4.0
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate content JSON
+        run: npm run validate:content
+
+      - name: Deploy content to Rackhost via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: wh22.rackhost.hu
+          protocol: ftps
+          port: 21
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./public/content/
+          server-dir: /beta/content/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.DS_Store
+            **/._*
+
+      - name: Smoke-check a content file
+        run: |
+          status=$(curl -s -o /dev/null -w '%{http_code}' https://vac811.hu/beta/content/settings.json)
+          if [ "$status" != "200" ]; then
+            echo "::error::https://vac811.hu/beta/content/settings.json returned HTTP $status after deploy"
+            exit 1
+          fi
+          echo "Smoke check passed: settings.json returns 200."
+
+      - name: Alert on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Workflow failed: ${context.workflow}`;
+            const body = `The **${context.workflow}** workflow failed on run [${context.runId}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) (commit ${context.sha}).`;
+            const issues = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', labels: 'workflow-failure' });
+            const existing = issues.data.find((i) => i.title === title);
+            if (existing) {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number, body });
+            } else {
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['workflow-failure'] });
+            }
