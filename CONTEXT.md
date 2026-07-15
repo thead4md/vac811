@@ -70,12 +70,15 @@ export default defineConfig([
 vac811/
 ├── .github
 │   ├── workflows
+│   │   ├── ci.yml
 │   │   ├── curate-gallery.yml
+│   │   ├── deploy-content.yml
 │   │   ├── deploy.yml
 │   │   ├── sync-ecset.yml
 │   │   └── update-context.yml
 │   └── dependabot.yml
 ├── docs
+│   ├── audit-and-upgrade-plan-2026-07.md
 │   ├── google-sso-setup.md
 │   └── seo-plan.md
 ├── public
@@ -103,10 +106,18 @@ vac811/
 │   ├── sync-ecset.mjs
 │   ├── sync-gallery.mjs
 │   ├── test-preflight.mjs
+│   ├── validate-content.mjs
 │   └── validate_context.py
 ├── src
 │   ├── assets
+│   │   ├── fonts
+│   │   │   ├── generalsans-400.woff2
+│   │   │   ├── generalsans-500.woff2
+│   │   │   ├── generalsans-600.woff2
+│   │   │   ├── sora-600.woff2
+│   │   │   └── sora-700.woff2
 │   │   ├── csapat_gomba.webp
+│   │   ├── csapat_gomba_dark.webp
 │   │   ├── hero.png
 │   │   ├── neckerchief.svg
 │   │   └── vite.svg
@@ -140,7 +151,8 @@ vac811/
 │   ├── lib
 │   │   ├── galleryRepo.ts
 │   │   ├── githubAuth.ts
-│   │   └── googleAuth.ts
+│   │   ├── googleAuth.ts
+│   │   └── imageCdn.ts
 │   ├── pages
 │   │   ├── About.css
 │   │   ├── About.tsx
@@ -159,6 +171,7 @@ vac811/
 │   │   ├── Join.css
 │   │   ├── Join.tsx
 │   │   ├── Leaders.css
+│   │   ├── Leaders.test.tsx
 │   │   ├── Leaders.tsx
 │   │   ├── Naptar.css
 │   │   ├── Naptar.tsx
@@ -169,26 +182,14 @@ vac811/
 │   │   ├── Scouting.css
 │   │   ├── Scouting.test.tsx
 │   │   └── Scouting.tsx
+│   ├── schemas
+│   │   └── content.ts
 │   ├── styles
 │   │   ├── base.css
+│   │   ├── fonts.css
 │   │   ├── global.css
 │   │   └── tokens.css
-│   ├── test
-│   │   └── setup.ts
-│   ├── App.tsx
-│   ├── main.tsx
-│   └── vite-env.d.ts
-├── workers
-│   └── google-git-proxy
-│       ├── index.js
-│       └── wrangler.toml
-├── CLAUDE.md
-├── CONTEXT.md
-├── eslint.config.js
-├── generate.log
-├── index.html
-├── package-lock.json
-├── package.json
+│   └── ... (truncated)
 └── ... (truncated)
 ```
 <!-- AUTO:END:directory_tree -->
@@ -234,13 +235,15 @@ _No open TODOs found._
 ## Tests
 
 <!-- AUTO:START:test_count -->
-**4** tests detected.
+**5** tests detected.
 <!-- AUTO:END:test_count -->
 
 ## Recent Commits
 
 <!-- AUTO:START:recent_commits -->
 ```
+591ebd5 Execute audit-and-upgrade plan Phases 0-5
+c4326ee chore: update CONTEXT.md [auto]
 ae60350 chore: update CONTEXT.md [auto]
 e839c4b chore: curate gallery candidates from Google Drive
 66e0f7f chore: update CONTEXT.md [auto]
@@ -249,12 +252,10 @@ e839c4b chore: curate gallery candidates from Google Drive
 c2d6cd7 chore: update CONTEXT.md [auto]
 37dbff6 chore: update CONTEXT.md [auto]
 b39239a chore: update CONTEXT.md [auto]
-c17c4bb chore: update CONTEXT.md [auto]
-c741293 chore: curate gallery candidates from Google Drive
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 11.9s. Stack: TypeScript / Node.js._
+_Generated in 10.6s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
