@@ -242,6 +242,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+6efe3e9 fix(csp): allow accounts.google.com in script-src (#60)
+46405be chore: update CONTEXT.md [auto]
 d598695 fix(image-cdn): stop duplicating CORS headers on cache hits
 e9e0590 chore: update CONTEXT.md [auto]
 f9ffa97 hotfix: remove broken brotli precompression — it's serving corrupt HTML live
@@ -250,12 +252,10 @@ f9ffa97 hotfix: remove broken brotli precompression — it's serving corrupt HTM
 c4326ee chore: update CONTEXT.md [auto]
 ae60350 chore: update CONTEXT.md [auto]
 e839c4b chore: curate gallery candidates from Google Drive
-66e0f7f chore: update CONTEXT.md [auto]
-1681d6d chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 16.9s. Stack: TypeScript / Node.js._
+_Generated in 21.4s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
