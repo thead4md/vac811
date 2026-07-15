@@ -63,6 +63,10 @@ jobs:
         run: npm ci
 
       - name: Build
+        env:
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+          VITE_PROXY_URL: ${{ vars.VITE_PROXY_URL }}
+          VITE_IMAGE_CDN_URL: ${{ vars.VITE_IMAGE_CDN_URL }}
         run: npm run build
 
       # Rackhost FTP has no server-side rename/rollback support (see docs/audit-and-upgrade-plan-2026-07.md

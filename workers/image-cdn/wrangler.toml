@@ -5,11 +5,9 @@ compatibility_date = "2024-11-01"
 [vars]
 ALLOWED_ORIGIN = "https://vac811.hu"
 
-# Route this worker at img.vac811.hu/* once the subdomain is added to the
-# Cloudflare zone. Requires "Image Resizing" enabled on the zone for
-# AVIF/WebP conversion (Workers Pro+); without it the worker still works as
-# an edge cache in front of Drive, just without format conversion.
-#
-# [[routes]]
-# pattern = "img.vac811.hu/*"
-# zone_name = "vac811.hu"
+# Requires "Image Resizing" enabled on the zone for AVIF/WebP conversion
+# (Workers Pro+); without it the worker still works as an edge cache in
+# front of Drive, just without format conversion.
+[[routes]]
+pattern = "img.vac811.hu/*"
+zone_name = "vac811.hu"
