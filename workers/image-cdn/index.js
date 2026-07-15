@@ -71,10 +71,16 @@ export default {
     const cache = caches.default;
     const cached = await cache.match(cacheKeyUrl);
     if (cached) {
-      return new Response(cached.body, {
-        status: cached.status,
-        headers: { ...Object.fromEntries(cached.headers), ...cors(allowedOrigin) },
-      });
+      // Root cause of the header duplication was two concurrent cache writes
+      // (Cloudflare's automatic edge cache + this file's explicit
+      // caches.default.put(), removed below) racing on the same entry — not
+      // this reconstruction step itself. Still, returning the cached
+      // Response as-is is simpler and avoids re-doing work: the headers were
+      // set with .set() (not appended) at write time, so they're already
+      // correct. Trade-off: if ALLOWED_ORIGIN is ever changed, entries
+      // cached under the old value keep serving it until they expire or the
+      // cache is purged, since we no longer rebuild headers on a hit.
+      return cached;
     }
 
     const originUrl = `${ORIGIN}/d/${fileId}=w${width}`;
@@ -84,11 +90,15 @@ export default {
       // `cf.image` requests Cloudflare's Image Resizing product for this fetch.
       // On zones without it enabled this option is silently ignored by the
       // runtime and we just get the origin bytes back — safe either way.
+      // Deliberately NOT setting cf.cacheEverything/cacheTtl here: that would
+      // trigger Cloudflare's own automatic edge-cache write for this fetch
+      // *in addition to* our explicit caches.default.put() below, and the two
+      // concurrent writes to overlapping cache entries were duplicating
+      // response headers (observed live: CORS headers doubled on cache HITs
+      // but not on MISSes). One explicit cache write, no redundant path.
       originRes = await fetch(originUrl, {
         cf: {
           image: format === 'auto' ? undefined : { width, format, quality: 82 },
-          cacheTtl: EDGE_TTL_SECONDS,
-          cacheEverything: true,
         },
       });
     } catch {
