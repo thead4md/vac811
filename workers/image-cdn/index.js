@@ -71,10 +71,10 @@ export default {
     const cache = caches.default;
     const cached = await cache.match(cacheKeyUrl);
     if (cached) {
-      return new Response(cached.body, {
-        status: cached.status,
-        headers: { ...Object.fromEntries(cached.headers), ...cors(allowedOrigin) },
-      });
+      // The stored response already carries correct, single-valued headers
+      // (they were set with .set(), not appended) — return it as-is rather
+      // than reconstructing headers, which is what introduced duplicates.
+      return cached;
     }
 
     const originUrl = `${ORIGIN}/d/${fileId}=w${width}`;
@@ -84,11 +84,15 @@ export default {
       // `cf.image` requests Cloudflare's Image Resizing product for this fetch.
       // On zones without it enabled this option is silently ignored by the
       // runtime and we just get the origin bytes back — safe either way.
+      // Deliberately NOT setting cf.cacheEverything/cacheTtl here: that would
+      // trigger Cloudflare's own automatic edge-cache write for this fetch
+      // *in addition to* our explicit caches.default.put() below, and the two
+      // concurrent writes to overlapping cache entries were duplicating
+      // response headers (observed live: CORS headers doubled on cache HITs
+      // but not on MISSes). One explicit cache write, no redundant path.
       originRes = await fetch(originUrl, {
         cf: {
           image: format === 'auto' ? undefined : { width, format, quality: 82 },
-          cacheTtl: EDGE_TTL_SECONDS,
-          cacheEverything: true,
         },
       });
     } catch {
