@@ -242,6 +242,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+f9ffa97 hotfix: remove broken brotli precompression — it's serving corrupt HTML live
+4929ab5 chore: update CONTEXT.md [auto]
 591ebd5 Execute audit-and-upgrade plan Phases 0-5
 c4326ee chore: update CONTEXT.md [auto]
 ae60350 chore: update CONTEXT.md [auto]
@@ -250,12 +252,10 @@ e839c4b chore: curate gallery candidates from Google Drive
 1681d6d chore: update CONTEXT.md [auto]
 5219457 chore: update CONTEXT.md [auto]
 c2d6cd7 chore: update CONTEXT.md [auto]
-37dbff6 chore: update CONTEXT.md [auto]
-b39239a chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 10.6s. Stack: TypeScript / Node.js._
+_Generated in 12.0s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
