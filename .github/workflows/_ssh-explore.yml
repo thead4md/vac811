@@ -20,8 +20,13 @@ jobs:
       - name: List remote home directory
         env:
           SSHPASS: ${{ secrets.SSH_PASSWORD }}
+          SSH_USER_RAW: ${{ secrets.SSH_USERNAME }}
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq sshpass
+          # Secrets pasted via the GitHub UI sometimes pick up a trailing
+          # newline/whitespace, which breaks a bare "$user@host" — strip it.
+          SSH_USER=$(printf '%s' "$SSH_USER_RAW" | tr -d '\r\n' | xargs)
+          echo "Connecting as user of length ${#SSH_USER} (whitespace-stripped)"
           sshpass -e ssh -p 22 -o StrictHostKeyChecking=no -o ConnectTimeout=15 \
-            "${{ secrets.SSH_USERNAME }}@wh22.rackhost.hu" \
+            "${SSH_USER}@wh22.rackhost.hu" \
             "echo '--- pwd ---'; pwd; echo '--- home listing ---'; ls -la; echo '--- looking for beta ---'; find . -maxdepth 3 -iname 'beta' -o -iname 'index.html' 2>/dev/null | head -20"
