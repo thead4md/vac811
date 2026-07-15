@@ -1,20 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import viteCompression from 'vite-plugin-compression'
 
 // Deployed under vac811.hu/beta, so production assets are served from /beta/.
 // BrowserRouter (see src/App.tsx) uses basename="/beta" to match these paths.
+//
+// NOTE: vac811.hu is proxied through Cloudflare (confirmed live: `server:
+// cloudflare` on responses), which already does automatic Brotli/gzip
+// compression at the edge. A prior revision here also emitted precompressed
+// .br files served via an .htaccess rewrite — that broke production: Apache
+// (or Cloudflare's request to origin always asking for `br`) served the raw
+// .br bytes as `Content-Type: text/html` with no `Content-Encoding` header
+// (and a stray `content-language: br`, suggesting mod_negotiation read the
+// `.br` suffix as the Breton language code, not a compression encoding).
+// Removed — Cloudflare's own compression makes it redundant anyway.
 export default defineConfig(({ command }) => ({
-  plugins: [
-    react(),
-    // Emit precompressed .br alongside build output (audit finding P9) —
-    // Rackhost already serves gzip on the fly (mod_deflate) but not brotli;
-    // a static .htaccess rewrite serves this file directly when the client
-    // supports it. (Only one viteCompression instance: the plugin's mtime
-    // cache is module-scoped, so a second instance in the same build thinks
-    // every file is already compressed and silently no-ops.)
-    viteCompression({ algorithm: 'brotliCompress', ext: '.br', threshold: 1024 }),
-  ],
+  plugins: [react()],
   base: command === 'serve' ? '/' : '/beta/',
   build: {
     outDir: 'dist',
