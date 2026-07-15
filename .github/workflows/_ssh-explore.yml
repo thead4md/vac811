@@ -1,0 +1,20 @@
+name: (temp) SSH path discovery
+
+# One-off, read-only diagnostic: confirms the SSH login's home directory and
+# where /beta/ lives relative to it, before wiring a real rsync-over-ssh
+# deploy step. Safe to delete once the real deploy step is confirmed working.
+on:
+  workflow_dispatch:
+
+jobs:
+  explore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: List remote home directory
+        env:
+          SSHPASS: ${{ secrets.SSH_PASSWORD }}
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq sshpass
+          sshpass -e ssh -p 22 -o StrictHostKeyChecking=no -o ConnectTimeout=15 \
+            "${{ secrets.SSH_USERNAME }}@wh22.rackhost.hu" \
+            "echo '--- pwd ---'; pwd; echo '--- home listing ---'; ls -la; echo '--- looking for beta ---'; find . -maxdepth 3 -iname 'beta' -o -iname 'index.html' 2>/dev/null | head -20"

@@ -44,7 +44,9 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: wh22.rackhost.hu
-          protocol: ftps
+          # See deploy.yml — Rackhost rejects FTPS outright, plain FTP is the
+          # working baseline.
+          protocol: ftp
           port: 21
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}

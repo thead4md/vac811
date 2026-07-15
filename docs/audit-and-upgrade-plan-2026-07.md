@@ -420,6 +420,11 @@ Phases 1 and 2 can proceed in parallel (different surfaces).
 
 - **Rackhost `mod_headers`/`AddEncoding` support** — confirm the shared plan allows them
   (0.4, 4.5); if not, set headers at the RHProxy layer or via a Cloudflare proxy.
+- **Resolved: Rackhost does not support FTPS.** 0.2's `protocol: ftps` failed in production
+  (`FTPError: 500 This security scheme is not implemented` — the server rejects the AUTH TLS
+  negotiation outright). Reverted to plain `ftp` in `deploy.yml`/`deploy-content.yml`. FTP
+  credentials remain sent in the clear; consider asking Rackhost support whether SFTP or
+  implicit FTPS (port 990) is available on this plan as a follow-up.
 - **Google Workspace domain** — the `hd` claim gate assumes `vac811.hu` is Workspace
   (see `docs/google-sso-setup.md`); confirm before relying on it in 1.7/5.3.
 - **Editor allowlist** — 1.7 needs the list of `@vac811.hu` addresses allowed to commit.

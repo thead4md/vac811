@@ -84,7 +84,11 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: wh22.rackhost.hu
-          protocol: ftps
+          # FTPS (explicit AUTH TLS) attempted in an earlier revision; Rackhost's
+          # FTP server rejects it outright ("500 This security scheme is not
+          # implemented") rather than negotiating, so this falls back to plain
+          # FTP — the working baseline. Revisit if Rackhost adds FTPS/SFTP support.
+          protocol: ftp
           port: 21
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
