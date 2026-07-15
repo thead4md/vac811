@@ -5,6 +5,13 @@ name: (temp) SSH path discovery
 # deploy step. Safe to delete once the real deploy step is confirmed working.
 on:
   workflow_dispatch:
+  # workflow_dispatch can't be API-triggered until the file exists on the
+  # default branch; push on this feature branch fires it in the meantime.
+  push:
+    branches:
+      - claude/audit-upgrade-plan-2026-2b0ibo
+    paths:
+      - '.github/workflows/_ssh-explore.yml'
 
 jobs:
   explore:
