@@ -71,9 +71,15 @@ export default {
     const cache = caches.default;
     const cached = await cache.match(cacheKeyUrl);
     if (cached) {
-      // The stored response already carries correct, single-valued headers
-      // (they were set with .set(), not appended) — return it as-is rather
-      // than reconstructing headers, which is what introduced duplicates.
+      // Root cause of the header duplication was two concurrent cache writes
+      // (Cloudflare's automatic edge cache + this file's explicit
+      // caches.default.put(), removed below) racing on the same entry — not
+      // this reconstruction step itself. Still, returning the cached
+      // Response as-is is simpler and avoids re-doing work: the headers were
+      // set with .set() (not appended) at write time, so they're already
+      // correct. Trade-off: if ALLOWED_ORIGIN is ever changed, entries
+      // cached under the old value keep serving it until they expire or the
+      // cache is purged, since we no longer rebuild headers on a hit.
       return cached;
     }
 
