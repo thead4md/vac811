@@ -216,6 +216,7 @@ _Module map available for Python projects only._
 | `GALLERY_MINOR_THRESHOLD` | `—` | source code |
 | `GALLERY_MODEL` | `—` | source code |
 | `GALLERY_PREFLIGHT_BUDGET` | `—` | source code |
+| `GALLERY_PREFLIGHT_INTERVAL_MS` | `—` | source code |
 | `GALLERY_PREFLIGHT_MODEL` | `—` | source code |
 | `GALLERY_PRIMARY_KEYWORDS` | `—` | source code |
 | `GALLERY_SCORE_THRESHOLD` | `—` | source code |
@@ -242,20 +243,20 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+f951f75 Merge branch 'claude/github-actions-errors-jgrg38'
+c203ff0 chore: update CONTEXT.md [auto]
 708031d kuracio (dudas.adam@vac811.hu): 21 jóváhagyva, 0 elutasítva
+ada158e fix: pace OpenAI preflight calls to avoid 429 retry storms
 372af78 chore: curate gallery candidates from Google Drive
 010f541 chore: curate gallery candidates from Google Drive
 9278f48 chore: curate gallery candidates from Google Drive
 1e4d439 chore: update CONTEXT.md [auto]
 cd9c548 fix: un-poison gallery-pipeline-state.json seenIds
 b01d38c chore: curate gallery candidates from Google Drive
-a85989e chore: update CONTEXT.md [auto]
-4e8e8ba fix: stop dedup from self-matching freshly cached image hashes
-50e260b chore: curate gallery candidates from Google Drive
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 19.8s. Stack: TypeScript / Node.js._
+_Generated in 12.1s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
