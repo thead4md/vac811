@@ -242,6 +242,9 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+cd9c548 fix: un-poison gallery-pipeline-state.json seenIds
+b01d38c chore: curate gallery candidates from Google Drive
+a85989e chore: update CONTEXT.md [auto]
 4e8e8ba fix: stop dedup from self-matching freshly cached image hashes
 50e260b chore: curate gallery candidates from Google Drive
 6fdf210 chore: curate gallery candidates from Google Drive
@@ -249,13 +252,10 @@ eeedcbe chore: update CONTEXT.md [auto]
 4915e5a chore: update CONTEXT.md [auto]
 3d0147f Merge pull request #56 from thead4md/dependabot/npm_and_yarn/undici-7.28.0
 50b0eab Merge pull request #55 from thead4md/dependabot/npm_and_yarn/react-router-7.18.0
-c45cfa1 Merge pull request #54 from thead4md/dependabot/npm_and_yarn/vitest-4.1.9
-9f116f6 Merge pull request #53 from thead4md/dependabot/npm_and_yarn/anthropic-ai/sdk-0.104.2
-fb4ea15 Merge pull request #52 from thead4md/dependabot/npm_and_yarn/typescript-eslint-8.61.1
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 16.2s. Stack: TypeScript / Node.js._
+_Generated in 11.8s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
