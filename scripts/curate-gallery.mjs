@@ -25,6 +25,10 @@
 //   GALLERY_HAIKU_BUDGET       – hard cap on Claude Haiku scoring calls per run (default 600,
 //                                same as preflight so a KEEP is never charged for a run that
 //                                can't afford to Haiku-score it anyway)
+//   GALLERY_PREFLIGHT_INTERVAL_MS – min ms between OpenAI preflight dispatches, serialized
+//                                across the whole CONCURRENCY pool (default 1100). Raise this
+//                                if 429s are still frequent; lower it if the OpenAI account's
+//                                rate limit allows faster pacing.
 //
 // Resumability:
 //   Every Drive image the pipeline finishes deciding about (kept, skipped,
@@ -105,6 +109,7 @@ const PREFLIGHT_MODEL = process.env.GALLERY_PREFLIGHT_MODEL ||
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || null;
 const PREFLIGHT_BUDGET = Number(process.env.GALLERY_PREFLIGHT_BUDGET || 600);
 const HAIKU_BUDGET = Number(process.env.GALLERY_HAIKU_BUDGET || 600);
+const PREFLIGHT_INTERVAL_MS = Number(process.env.GALLERY_PREFLIGHT_INTERVAL_MS || 1100);
 const CONCURRENCY = Number(process.env.GALLERY_CONCURRENCY || 6);
 const DEDUP_DISTANCE = Number(process.env.GALLERY_DEDUP_DISTANCE || 10);
 const MAX_RECURSION_DEPTH = 2; // year → event → (person)
@@ -239,9 +244,23 @@ function detectPrimaryEvent(byEvent) {
   return null;
 }
 
+// Serializes OpenAI preflight dispatches across the whole CONCURRENCY pool: one
+// request in flight at a time, spaced PREFLIGHT_INTERVAL_MS apart. Without this,
+// CONCURRENCY-many workers fire simultaneously and all collide on the same
+// rate-limit window — observed 556/600 calls 429'ing in one run — so retries
+// never actually reduce contention, they just replay the same collision. Pacing
+// trades a little wall-clock for requests that mostly succeed the first time.
+let preflightGate = Promise.resolve();
+function paceOpenaiCall() {
+  const turn = preflightGate.then(() => new Promise((r) => setTimeout(r, PREFLIGHT_INTERVAL_MS)));
+  preflightGate = turn;
+  return turn;
+}
+
 // OpenAI vision binary pre-filter: returns true → proceed to Haiku, false → skip.
-async function quickScoreImage(fileId) {
+async function quickScoreImage(fileId, attempt = 0) {
   if (DRY_RUN) return true; // in dry-run all images pass the pre-filter
+  await paceOpenaiCall();
   // Pass the CDN URL directly so OpenAI fetches it — this activates detail:'low'
   // (85 tokens flat) instead of the ~2900-token cost of base64 data URIs.
   const imageUrl = cdnUrl(fileId, 512);
@@ -273,11 +292,16 @@ async function quickScoreImage(fileId) {
   }
 
   if (res.status === 429) {
+    const MAX_PREFLIGHT_RETRIES = 5;
+    if (attempt >= MAX_PREFLIGHT_RETRIES) {
+      console.warn(`    [preflight] OpenAI 429 for ${fileId} — giving up after ${MAX_PREFLIGHT_RETRIES} retries, defaulting to KEEP`);
+      return true;
+    }
     const retryAfter = Number(res.headers.get('retry-after') || 0);
     const delay = retryAfter > 0 ? retryAfter * 1000 : 10_000;
-    console.warn(`    [preflight] OpenAI 429 for ${fileId} — waiting ${delay / 1000}s then retrying`);
+    console.warn(`    [preflight] OpenAI 429 for ${fileId} — waiting ${delay / 1000}s then retrying (attempt ${attempt + 1}/${MAX_PREFLIGHT_RETRIES})`);
     await new Promise((r) => setTimeout(r, delay));
-    return quickScoreImage(fileId);
+    return quickScoreImage(fileId, attempt + 1);
   }
 
   if (!res.ok) {

@@ -71,6 +71,7 @@ jobs:
           GALLERY_MINOR_THRESHOLD: ${{ github.event.inputs.minor_threshold || '80' }}
           GALLERY_PREFLIGHT_BUDGET: ${{ vars.GALLERY_PREFLIGHT_BUDGET || '600' }}
           GALLERY_HAIKU_BUDGET: ${{ vars.GALLERY_HAIKU_BUDGET || '600' }}
+          GALLERY_PREFLIGHT_INTERVAL_MS: ${{ vars.GALLERY_PREFLIGHT_INTERVAL_MS || '1100' }}
           GALLERY_DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
         run: node scripts/curate-gallery.mjs
 
