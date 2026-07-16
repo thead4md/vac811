@@ -242,20 +242,20 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+4e8e8ba fix: stop dedup from self-matching freshly cached image hashes
+50e260b chore: curate gallery candidates from Google Drive
+6fdf210 chore: curate gallery candidates from Google Drive
+eeedcbe chore: update CONTEXT.md [auto]
 4915e5a chore: update CONTEXT.md [auto]
 3d0147f Merge pull request #56 from thead4md/dependabot/npm_and_yarn/undici-7.28.0
 50b0eab Merge pull request #55 from thead4md/dependabot/npm_and_yarn/react-router-7.18.0
 c45cfa1 Merge pull request #54 from thead4md/dependabot/npm_and_yarn/vitest-4.1.9
 9f116f6 Merge pull request #53 from thead4md/dependabot/npm_and_yarn/anthropic-ai/sdk-0.104.2
 fb4ea15 Merge pull request #52 from thead4md/dependabot/npm_and_yarn/typescript-eslint-8.61.1
-34eb3cb Merge pull request #51 from thead4md/dependabot/npm_and_yarn/types/node-25.9.3
-2cbfa2b chore: update CONTEXT.md [auto]
-6efe3e9 fix(csp): allow accounts.google.com in script-src (#60)
-46405be chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 19.1s. Stack: TypeScript / Node.js._
+_Generated in 16.2s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
