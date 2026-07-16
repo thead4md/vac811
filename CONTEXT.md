@@ -242,20 +242,20 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+708031d kuracio (dudas.adam@vac811.hu): 21 jóváhagyva, 0 elutasítva
+372af78 chore: curate gallery candidates from Google Drive
+010f541 chore: curate gallery candidates from Google Drive
+9278f48 chore: curate gallery candidates from Google Drive
+1e4d439 chore: update CONTEXT.md [auto]
 cd9c548 fix: un-poison gallery-pipeline-state.json seenIds
 b01d38c chore: curate gallery candidates from Google Drive
 a85989e chore: update CONTEXT.md [auto]
 4e8e8ba fix: stop dedup from self-matching freshly cached image hashes
 50e260b chore: curate gallery candidates from Google Drive
-6fdf210 chore: curate gallery candidates from Google Drive
-eeedcbe chore: update CONTEXT.md [auto]
-4915e5a chore: update CONTEXT.md [auto]
-3d0147f Merge pull request #56 from thead4md/dependabot/npm_and_yarn/undici-7.28.0
-50b0eab Merge pull request #55 from thead4md/dependabot/npm_and_yarn/react-router-7.18.0
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 11.8s. Stack: TypeScript / Node.js._
+_Generated in 19.8s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
