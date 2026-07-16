@@ -287,8 +287,8 @@
       "score": 85,
       "phash": "b0b0923238392c49",
       "reason": "Pontszám 85. Tevékenység: erdei foglalkozás.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1sdR9ln8oXh5S6ELXu7dK8IBdFv5GDCN9",
@@ -302,8 +302,8 @@
       "score": 85,
       "phash": "0003436b6a72644d",
       "reason": "Pontszám 85. Tevékenység: túra, pihenő.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1eWQPHh-Un95FHjU_kMts_euXUZ4U7a1Z",
@@ -317,8 +317,8 @@
       "score": 85,
       "phash": "b4b43434eaf994fc",
       "reason": "Pontszám 85. Tevékenység: tábortűz, csapatprogram.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "137AbkCUaoCySLjt3dX5axMtQ8PGm0s3p",
@@ -332,8 +332,8 @@
       "score": 85,
       "phash": "c6dcd8fdb4ae2aaa",
       "reason": "Pontszám 85. Tevékenység: tábor.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1HNaWssLjpH3bdygS_X89FtmtoVUFdVza",
@@ -392,8 +392,8 @@
       "score": 85,
       "phash": "a02c6869fb9e9694",
       "reason": "Pontszám 85. Tevékenység: tábor, csapatélet.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1fy3827LCA7kLFDI4up_a8c_x9vdfa4xE",
@@ -437,8 +437,8 @@
       "score": 85,
       "phash": "c0e06069e9d4b72b",
       "reason": "Pontszám 85. Tevékenység: ünnepség, közösségi program.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1sVDB9oN4cAjzNXyphsBzM8xBLFuYIC1U",
@@ -482,8 +482,8 @@
       "score": 85,
       "phash": "466414365cd8baee",
       "reason": "Pontszám 85. Tevékenység: szertartás, lelki nap.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1lI2BlbbaqWdc0a7RWq44m0KlduRp7ZpP",
@@ -527,8 +527,8 @@
       "score": 85,
       "phash": "8e86e2f049cc8ca4",
       "reason": "Pontszám 85. Tevékenység: túra, természetben lenni.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "10MQhKsl-acIcOAhjIrEMbPHPckjE4PXO",
@@ -557,8 +557,8 @@
       "score": 85,
       "phash": "f1abbcbcb66f7797",
       "reason": "Pontszám 85. Tevékenység: csapatprogram, természet.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "19qn7Oq5PCDnMjOIp6TOgLftNSzGJAz0g",
@@ -695,8 +695,8 @@
       "score": 75,
       "phash": "d89a9b5b3891935b",
       "reason": "Pontszám 75. Tevékenység: erdei pihenő.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1hdL6e4eiwp0BtVs8zPsIqAACZCPHEdO8",
@@ -766,8 +766,8 @@
       "score": 65,
       "phash": "e3f3f5c687861793",
       "reason": "Pontszám 65. Tevékenység: cserkészpromíció.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1KL5z5RtOzB5wv0859FA9ccSI2vmQq521",
