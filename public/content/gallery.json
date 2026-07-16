@@ -23,8 +23,8 @@
       "score": 85,
       "phash": "78d22d66e6d49d93",
       "reason": "Pontszám 85. Tevékenység: ünnepség, fogadalomtétel.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1vy41TuePQnfmsdQUsyM3m2L0DSr-Wuz6",
@@ -36,8 +36,8 @@
       "score": 85,
       "phash": "98116b4939b3b35b",
       "reason": "Pontszám 85. Tevékenység: táborozás, étkezés.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "10Dm_E2XUsOmVHlpa46rOqZbBro5HKYAj",
@@ -66,8 +66,8 @@
       "score": 85,
       "phash": "59d890d09090c9e2",
       "reason": "Pontszám 85. Tevékenység: zászlóterítés, természet.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1QZw1N7tVMIOYKn172l2JNgzWgs0NiqF5",
@@ -126,8 +126,8 @@
       "score": 85,
       "phash": "9c9363734f3d6f27",
       "reason": "Pontszám 85. Tevékenység: csapatprogram.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1eWQPHh-Un95FHjU_kMts_euXUZ4U7a1Z",
@@ -156,8 +156,8 @@
       "score": 85,
       "phash": "919369495de1c58f",
       "reason": "Pontszám 85. Tevékenység: természet, csapatprogram.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1qW3mGa4RPAr8vy0SYbII4dlXpdilxeJN",
@@ -171,8 +171,8 @@
       "score": 85,
       "phash": "e190b03c1c2c3cb8",
       "reason": "Pontszám 85. Tevékenység: tábor.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1dgPDbFGuGkhk34NviyHaemdnA9Kdb9Pi",
@@ -186,8 +186,8 @@
       "score": 85,
       "phash": "dded6466acadada4",
       "reason": "Pontszám 85. Tevékenység: foglalkozás, csapatprogram.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1R1UmwNA-flCdRmr2hBjKI6rxNwbi2ant",
@@ -201,8 +201,8 @@
       "score": 85,
       "phash": "cc6cdcd85c6c5672",
       "reason": "Pontszám 85. Tevékenység: túra, közösség.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "137AbkCUaoCySLjt3dX5axMtQ8PGm0s3p",
@@ -231,8 +231,8 @@
       "score": 85,
       "phash": "6c66e66c68eb6332",
       "reason": "Pontszám 85. Tevékenység: természetismereti túra.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "19qn7Oq5PCDnMjOIp6TOgLftNSzGJAz0g",
@@ -259,8 +259,8 @@
       "score": 82,
       "phash": "d8d9c9c98e83d3b3",
       "reason": "Pontszám 82. Tevékenység: tábortűz, közösség.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1xxAZ6pTgYddTXahNVRqUTTvlE7jqtbpo",
@@ -274,8 +274,8 @@
       "score": 82,
       "phash": "f6946a4b4acbc9d4",
       "reason": "Pontszám 82. Tevékenység: csapatprogram, játék.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1Uz9QEe5VxKcSOHEVVw4nS2LStha5BCoC",
@@ -326,8 +326,8 @@
       "score": 75,
       "phash": "26c2c4e1091676e1",
       "reason": "Pontszám 75. Tevékenység: csapatprogram.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1nfoeo6uqiB9s6-NSABRmYGxxwpybWjE-",
@@ -397,8 +397,8 @@
       "score": 75,
       "phash": "b3e0c0a185cd4dc4",
       "reason": "Pontszám 75. Tevékenység: oktatás, természetben.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1Qe8POC6JYdyYzqWCKVxIkSqEvoybAY98",
@@ -423,8 +423,8 @@
       "score": 72,
       "phash": "0894b5a5a4a4a0e0",
       "reason": "Pontszám 72. Tevékenység: csapatprogram, játék.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1kionCkuD4rZSQUqeCZSWe2MZDKkSv1WM",
@@ -438,8 +438,8 @@
       "score": 72,
       "phash": "c4d49c1352ccf6fd",
       "reason": "Pontszám 72. Tevékenység: szabadidő, sport.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1HCk3tqZ0XYvdlscYQeI-TYel_vSOC5_L",
@@ -466,8 +466,8 @@
       "score": 65,
       "phash": "961546b01950c420",
       "reason": "Pontszám 65. Tevékenység: erdei praktika.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1KL5z5RtOzB5wv0859FA9ccSI2vmQq521",
@@ -528,8 +528,8 @@
       "score": 85,
       "phash": "00c082ac4e4e246d",
       "reason": "Pontszám 85. Tevékenység: sportprogram, csapatépítés.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1TLVPAzUImDEqGfKGvlihgRdhpJJOr62I",
@@ -567,8 +567,8 @@
       "score": 85,
       "phash": "eb6be996c8e921b3",
       "reason": "Pontszám 85. Tevékenység: csapatprogram, éneklés.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1HaquqQV0BFWkR-hlHjBla5ctpix0u6BQ",
@@ -606,8 +606,8 @@
       "score": 75,
       "phash": "6978d2cde4dc8d25",
       "reason": "Pontszám 75. Tevékenység: táborprogram.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1F1TfIbZIb_krkwfUZAPzI1SyWjbLEAI9",
@@ -645,8 +645,8 @@
       "score": 75,
       "phash": "a6a6869bd9c9587d",
       "reason": "Pontszám 75. Tevékenység: kézmű foglalkozás.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1BKBi5HM6eUQAEIG9CTbFn8kg-pRlxryj",
@@ -671,8 +671,8 @@
       "score": 75,
       "phash": "b6f4f6868b13307c",
       "reason": "Pontszám 75. Tevékenység: csapatfoglalkozás.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1wpzrTaAdRY4FQrlK2MlG9yA68X-YI2Dh",
