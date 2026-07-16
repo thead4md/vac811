@@ -83,6 +83,7 @@ jobs:
         env:
           ECSET_USERNAME: ${{ secrets.ECSET_USERNAME }}
           ECSET_PASSWORD: ${{ secrets.ECSET_PASSWORD }}
+          ECSET_TOTP_SECRET: ${{ secrets.ECSET_TOTP_SECRET }}
           DRY_RUN: ${{ inputs.dry_run || 'false' }}
 
       - name: Commit updated content
