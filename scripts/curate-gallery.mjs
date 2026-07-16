@@ -54,7 +54,7 @@ import { z } from 'zod';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { GoogleAuth } from 'google-auth-library';
 import sharp from 'sharp';
-import { bucketActivity, diversePick, mapPool, hamming, clusterByHash } from './curate-lib.mjs';
+import { bucketActivity, diversePick, mapPool, dedupImages } from './curate-lib.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -218,29 +218,6 @@ async function computeDHash(fileId) {
   } catch {
     return null;
   }
-}
-
-// Separate fresh images into representatives (one per near-duplicate cluster) and
-// duplicates (already-kept or intra-event near-duplicates). `stateHashes` is the
-// { [id]: phash } map of already-kept photos from prior runs.
-function dedupImages(freshWithHashes, stateHashes, distance) {
-  const knownHashValues = Object.values(stateHashes);
-
-  const nearKept = new Set();
-  for (const img of freshWithHashes) {
-    if (!img.phash) continue;
-    if (knownHashValues.some((kh) => hamming(img.phash, kh) <= distance)) {
-      nearKept.add(img.id);
-    }
-  }
-
-  const candidates = freshWithHashes.filter((img) => !nearKept.has(img.id));
-  const clusters = clusterByHash(candidates, distance);
-  const representatives = clusters.map((c) => c[0]);
-  const intraDupeIds = new Set(clusters.flatMap((c) => c.slice(1).map((i) => i.id)));
-  const dupIds = new Set([...nearKept, ...intraDupeIds]);
-
-  return { representatives, dupIds };
 }
 
 // Returns true if the event name matches a primary keyword or the auto-detected primary.
@@ -482,6 +459,10 @@ async function main() {
   const runCount = state.runCount + 1;
   const seen = new Set([...state.seenIds, ...knownIds]);
   const stateHashes = { ...state.hashes };
+  // Every id this run has already classed as "fresh" (any year/event so far),
+  // so a later event in the same run never treats an earlier event's
+  // just-cached-but-not-yet-kept hash as a genuine prior-run duplicate.
+  const runFreshIds = new Set();
   console.log(`Resume state: ${state.seenIds.length} seen id(s) from ${state.runCount} prior run(s); budgets: preflight<=${PREFLIGHT_BUDGET}, haiku<=${HAIKU_BUDGET}, concurrency=${CONCURRENCY}, dedup_distance=${DEDUP_DISTANCE}`);
 
   // Map year name → folder id
@@ -534,6 +515,7 @@ async function main() {
     await collectImages(yearFolderId, null, 0, images);
     const fresh = images.filter((img) => !seen.has(img.id));
     totalFetched += fresh.length;
+    fresh.forEach((img) => runFreshIds.add(img.id));
     console.log(`\n  ${year}: ${images.length} image(s), ${fresh.length} new to score`);
 
     // Group fresh images by event.
@@ -570,7 +552,7 @@ async function main() {
         return { ...img, phash };
       });
 
-      const { representatives, dupIds } = dedupImages(withHashes, stateHashes, DEDUP_DISTANCE);
+      const { representatives, dupIds } = dedupImages(withHashes, stateHashes, DEDUP_DISTANCE, runFreshIds);
       dupIds.forEach((id) => seen.add(id));
       if (dupIds.size > 0) {
         console.log(`    Dedup: ${dupIds.size} duplicate(s) dropped → ${representatives.length} to score`);

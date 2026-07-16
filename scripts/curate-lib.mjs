@@ -53,6 +53,42 @@ export function clusterByHash(items, distance = 10) {
   return clusters;
 }
 
+// Separate fresh images into representatives (one per near-duplicate cluster) and
+// duplicates (already-kept or intra-event near-duplicates). `stateHashes` is the
+// { [id]: phash } map of already-kept photos from prior runs. Callers may have
+// already cached this batch's own freshly computed hashes into `stateHashes`
+// (to avoid re-hashing on a later run) — entries whose id appears in
+// `freshWithHashes` are excluded from the comparison pool so an image never
+// matches against its own (or its batch-mates') just-cached hash.
+// `extraExcludeIds` lets a caller that invokes this once per event (while
+// sharing one `stateHashes` object across every event/year in a run) exclude
+// every id it has already treated as "fresh" this run, not just the current
+// batch — otherwise an earlier event's just-cached-but-never-kept hash would
+// wrongly count as "known" once a later event's batch is compared against it.
+export function dedupImages(freshWithHashes, stateHashes, distance, extraExcludeIds = new Set()) {
+  const excludeIds = new Set(freshWithHashes.map((img) => img.id));
+  for (const id of extraExcludeIds) excludeIds.add(id);
+  const knownHashValues = Object.entries(stateHashes)
+    .filter(([id]) => !excludeIds.has(id))
+    .map(([, h]) => h);
+
+  const nearKept = new Set();
+  for (const img of freshWithHashes) {
+    if (!img.phash) continue;
+    if (knownHashValues.some((kh) => hamming(img.phash, kh) <= distance)) {
+      nearKept.add(img.id);
+    }
+  }
+
+  const candidates = freshWithHashes.filter((img) => !nearKept.has(img.id));
+  const clusters = clusterByHash(candidates, distance);
+  const representatives = clusters.map((c) => c[0]);
+  const intraDupeIds = new Set(clusters.flatMap((c) => c.slice(1).map((i) => i.id)));
+  const dupIds = new Set([...nearKept, ...intraDupeIds]);
+
+  return { representatives, dupIds };
+}
+
 // Canonical activity buckets used only for diversity selection. Each bucket has
 // a set of substring cues; a free-form activity label is matched against them
 // after diacritic-stripping. Order matters: more-specific cues first, since

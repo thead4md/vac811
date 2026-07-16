@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 // @ts-expect-error — plain .mjs module without type declarations
-import { bucketActivity, diversePick, mapPool, hamming, clusterByHash } from './curate-lib.mjs';
+import { bucketActivity, diversePick, mapPool, hamming, clusterByHash, dedupImages } from './curate-lib.mjs';
 
 describe('bucketActivity', () => {
   it('maps accented Hungarian labels to canonical buckets', () => {
@@ -123,5 +123,69 @@ describe('clusterByHash', () => {
     const result = clusterByHash([{ id: 'x', phash: null }], 10);
     expect(result).toHaveLength(1);
     expect(result[0][0].id).toBe('x');
+  });
+});
+
+describe('dedupImages', () => {
+  it('does not self-match a fresh batch already cached into stateHashes (regression: 2026-07-16 run scored 0/2714)', () => {
+    // Caller pattern in curate-gallery.mjs: computeDHash results are written into
+    // stateHashes as they're computed, *before* dedupImages is called, so the cache
+    // can be reused on a later run. stateHashes here holds only this batch's own
+    // hashes — no genuinely prior-run "kept" photos exist yet.
+    const freshWithHashes = [
+      { id: 'fresh-1', phash: '0000000000000000' },
+      { id: 'fresh-2', phash: 'ffffffffffffffff' }, // far from fresh-1
+    ];
+    const stateHashes = {
+      'fresh-1': '0000000000000000',
+      'fresh-2': 'ffffffffffffffff',
+    };
+
+    const { representatives, dupIds } = dedupImages(freshWithHashes, stateHashes, 10);
+
+    expect(representatives.map((i) => i.id).sort()).toEqual(['fresh-1', 'fresh-2']);
+    expect(dupIds.size).toBe(0);
+  });
+
+  it('still drops images that match a genuinely prior-run kept hash', () => {
+    const freshWithHashes = [{ id: 'fresh-1', phash: '0000000000000001' }]; // 1 bit from kept-a
+    const stateHashes = { 'kept-a': '0000000000000000' };
+
+    const { representatives, dupIds } = dedupImages(freshWithHashes, stateHashes, 10);
+
+    expect(representatives).toHaveLength(0);
+    expect(dupIds).toEqual(new Set(['fresh-1']));
+  });
+
+  it('still clusters intra-batch near-duplicates down to one representative', () => {
+    const freshWithHashes = [
+      { id: 'a', phash: '0000000000000000' },
+      { id: 'b', phash: '0000000000000001' }, // 1 bit from a
+      { id: 'c', phash: 'ffffffffffffffff' },
+    ];
+    const stateHashes = { a: '0000000000000000', b: '0000000000000001', c: 'ffffffffffffffff' };
+
+    const { representatives, dupIds } = dedupImages(freshWithHashes, stateHashes, 10);
+
+    expect(representatives.map((i) => i.id)).toEqual(['a', 'c']);
+    expect(dupIds).toEqual(new Set(['b']));
+  });
+
+  it('extraExcludeIds prevents an earlier event (same run) from wrongly deduping a later, unrelated event', () => {
+    // Simulates the caller's real pattern: one shared `stateHashes` object across
+    // every event's dedupImages call within a run. Event A's photo gets cached
+    // into stateHashes even though it was never "kept" — without extraExcludeIds,
+    // Event B's visually-similar-but-unrelated photo would wrongly match it.
+    const stateHashes = { 'a-1': '0000000000000000' }; // Event A already processed and cached
+    const runFreshIds = new Set(['a-1', 'b-1']); // both a-1 and b-1 are fresh this run
+
+    const eventBFresh = [{ id: 'b-1', phash: '0000000000000001' }]; // 1 bit from a-1
+
+    const withoutExclude = dedupImages(eventBFresh, stateHashes, 10);
+    expect(withoutExclude.representatives).toHaveLength(0); // demonstrates the leak exists without the guard
+
+    const withExclude = dedupImages(eventBFresh, stateHashes, 10, runFreshIds);
+    expect(withExclude.representatives.map((i) => i.id)).toEqual(['b-1']);
+    expect(withExclude.dupIds.size).toBe(0);
   });
 });
