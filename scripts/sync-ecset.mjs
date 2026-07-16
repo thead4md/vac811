@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // Sync ECSET scout management data → public/content/*.json
 // Usage: node scripts/sync-ecset.mjs [--dry-run]
-// Env:   ECSET_USERNAME, ECSET_PASSWORD, DRY_RUN=true
+// Env:   ECSET_USERNAME, ECSET_PASSWORD, ECSET_TOTP_SECRET (base32 authenticator
+//        secret — required if the account has 2FA enabled), DRY_RUN=true
 import { load } from 'cheerio';
+import { createHmac } from 'node:crypto';
 import { readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,15 +29,113 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const jitter = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
 const humanPause = () => sleep(jitter(2500, 9000));
 
+// ── 2FA (TOTP) ────────────────────────────────────────────────────────────────
+
+// Base32 (RFC 4648) decode — authenticator-app secrets are distributed as base32.
+function base32Decode(input) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  const clean = input.replace(/=+$/, '').toUpperCase().replace(/\s+/g, '');
+  let bits = '';
+  for (const char of clean) {
+    const val = alphabet.indexOf(char);
+    if (val === -1) throw new Error(`Invalid character in ECSET_TOTP_SECRET: ${char}`);
+    bits += val.toString(2).padStart(5, '0');
+  }
+  const bytes = [];
+  for (let i = 0; i + 8 <= bits.length; i += 8) bytes.push(parseInt(bits.slice(i, i + 8), 2));
+  return Buffer.from(bytes);
+}
+
+// RFC 6238 TOTP: 30s step, 6 digits, HMAC-SHA1 — the standard algorithm behind
+// Google Authenticator / Authy / most "scan this QR code" 2FA setups.
+function totp(secret, step = 30, digits = 6) {
+  const key = base32Decode(secret);
+  const counter = Math.floor(Date.now() / 1000 / step);
+  const counterBuf = Buffer.alloc(8);
+  counterBuf.writeBigUInt64BE(BigInt(counter));
+  const hmac = createHmac('sha1', key).update(counterBuf).digest();
+  const offset = hmac[hmac.length - 1] & 0x0f;
+  const code = ((hmac[offset] & 0x7f) << 24 | (hmac[offset + 1] & 0xff) << 16 |
+    (hmac[offset + 2] & 0xff) << 8 | (hmac[offset + 3] & 0xff)) % 10 ** digits;
+  return code.toString().padStart(digits, '0');
+}
+
+// The verification step's field name isn't something we can hardcode sight
+// unseen, so read the real form back instead of guessing: carry over every
+// hidden field it already has (CSRF token + any wizard state) and fill in
+// whichever visible input looks like the code field.
+async function submitTwoFactorCode(cookie, stepLocation, totpSecret) {
+  const stepUrl = stepLocation.startsWith('http') ? stepLocation : `${BASE}${stepLocation}`;
+  const stepRes = await fetch(stepUrl, { headers: { ...BROWSER_HEADERS, Cookie: cookie } });
+  const stepHtml = await stepRes.text();
+  const $ = load(stepHtml);
+  const $form = $('form').first();
+  if (!$form.length) throw new Error('2FA verification form not found — ECSET login page may have changed');
+
+  const body = new URLSearchParams();
+  $form.find('input').each((_, el) => {
+    const $el = $(el);
+    const name = $el.attr('name');
+    if (!name) return;
+    const type = ($el.attr('type') || 'text').toLowerCase();
+    if (type === 'checkbox' || type === 'radio') {
+      if ($el.attr('checked') !== undefined) body.append(name, $el.attr('value') ?? 'on');
+      return;
+    }
+    body.append(name, $el.attr('value') ?? '');
+  });
+
+  // Hidden fields (CSRF token, wizard step state) can themselves contain
+  // "token" in their name (e.g. csrfmiddlewaretoken) — restrict the match to
+  // visible inputs, since the code the user types is never a hidden field.
+  const codeField = $form.find('input').filter((_, el) => {
+    const $el = $(el);
+    const type = ($el.attr('type') || 'text').toLowerCase();
+    if (type === 'hidden') return false;
+    const name = ($el.attr('name') || '').toLowerCase();
+    const id = ($el.attr('id') || '').toLowerCase();
+    return /otp|token|code|2fa/.test(name) || /otp|token|code|2fa/.test(id);
+  }).first();
+  const codeName = codeField.attr('name');
+  if (!codeName) throw new Error('Could not find the 2FA code field on the verification form');
+  body.set(codeName, totp(totpSecret));
+
+  // Pause as if reading the code off an authenticator app and typing it in.
+  await sleep(jitter(2000, 6000));
+
+  const action = $form.attr('action');
+  const postUrl = !action ? stepUrl : action.startsWith('http') ? action : `${BASE}${action}`;
+  const res = await fetch(postUrl, {
+    method: 'POST',
+    headers: {
+      ...BROWSER_HEADERS,
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Cookie: cookie,
+      Referer: stepUrl,
+    },
+    body,
+    redirect: 'manual',
+  });
+
+  const setCookies = res.headers.getSetCookie?.() ?? [res.headers.get('set-cookie') ?? ''];
+  const joined = setCookies.join('; ');
+  return {
+    location: res.headers.get('location') ?? '',
+    sessionId: joined.match(/sessionid=([^;,\s]+)/)?.[1],
+    csrfToken: joined.match(/csrftoken=([^;,\s]+)/)?.[1],
+    status: res.status,
+  };
+}
+
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
 async function login() {
-  const { ECSET_USERNAME: user, ECSET_PASSWORD: pass } = process.env;
+  const { ECSET_USERNAME: user, ECSET_PASSWORD: pass, ECSET_TOTP_SECRET: totpSecret } = process.env;
   if (!user || !pass) throw new Error('Set ECSET_USERNAME and ECSET_PASSWORD env vars');
 
   const pageRes = await fetch(`${BASE}/accounts/login/`, { headers: BROWSER_HEADERS });
   const setCookies1 = pageRes.headers.getSetCookie?.() ?? [pageRes.headers.get('set-cookie') ?? ''];
-  const csrfCookie = setCookies1.join('; ').match(/csrftoken=([^;,\s]+)/)?.[1] ?? '';
+  let csrfCookie = setCookies1.join('; ').match(/csrftoken=([^;,\s]+)/)?.[1] ?? '';
   const pageHtml = await pageRes.text();
   const csrfToken = pageHtml.match(/name="csrfmiddlewaretoken"\s+value="([^"]+)"/)?.[1];
   if (!csrfToken) throw new Error('CSRF token not found on login page');
@@ -56,11 +156,28 @@ async function login() {
     redirect: 'manual',
   });
 
-  const location = postRes.headers.get('location') ?? '';
+  let location = postRes.headers.get('location') ?? '';
   const setCookies2 = postRes.headers.getSetCookie?.() ?? [postRes.headers.get('set-cookie') ?? ''];
-  const sessionId = setCookies2.join('; ').match(/sessionid=([^;,\s]+)/)?.[1];
+  let sessionId = setCookies2.join('; ').match(/sessionid=([^;,\s]+)/)?.[1];
 
-  if (location.includes('2fa')) throw new Error('2FA required — use an account with 2FA disabled');
+  // Django keeps step-1 wizard state in the session even before the user is
+  // fully authenticated, so the intermediate sessionid above is what carries
+  // us into the token step below — it isn't the final authenticated session.
+  if (location.includes('2fa')) {
+    if (!totpSecret) {
+      throw new Error(
+        'Account requires 2FA — set ECSET_TOTP_SECRET to the base32 authenticator secret shown when enabling 2FA on this account'
+      );
+    }
+    if (!sessionId) throw new Error(`Login step 1 failed before reaching 2FA (HTTP ${postRes.status})`);
+    const stepCookie = `csrftoken=${csrfCookie}; sessionid=${sessionId}`;
+    const result = await submitTwoFactorCode(stepCookie, location, totpSecret);
+    location = result.location;
+    sessionId = result.sessionId ?? sessionId;
+    if (result.csrfToken) csrfCookie = result.csrfToken;
+    if (location.includes('2fa')) throw new Error(`2FA verification rejected (HTTP ${result.status}) — check ECSET_TOTP_SECRET`);
+  }
+
   if (!sessionId) throw new Error(`Login failed (HTTP ${postRes.status}, redirect: ${location})`);
 
   const cookie = `csrftoken=${csrfCookie}; sessionid=${sessionId}`;
