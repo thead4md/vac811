@@ -11,6 +11,10 @@ on:
         description: 'Preview changes without writing files or committing'
         type: boolean
         default: false
+      debug_route:
+        description: 'TEMP: ECSET path to dump (tableRows + dt/dd pairs) instead of syncing, e.g. /mcssz/811/rajok/'
+        type: string
+        default: ''
 
 concurrency:
   group: content-write
@@ -85,6 +89,7 @@ jobs:
           ECSET_PASSWORD: ${{ secrets.ECSET_PASSWORD }}
           ECSET_TOTP_SECRET: ${{ secrets.ECSET_TOTP_SECRET }}
           DRY_RUN: ${{ inputs.dry_run || 'false' }}
+          DEBUG_ROUTE: ${{ inputs.debug_route || '' }}
 
       - name: Commit updated content
         if: always() && steps.gate.outputs.proceed == 'true' && inputs.dry_run != 'true'

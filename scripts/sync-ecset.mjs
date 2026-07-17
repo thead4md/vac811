@@ -442,6 +442,36 @@ async function main() {
   const cookie = await login();
   console.log('✓ logged in');
 
+  // TEMP diagnostic (DEBUG_ROUTE): dump a page's parsed table rows + dt/dd
+  // pairs and exit — used to discover where ECSET exposes raj/korosztály
+  // data before writing a real scraper for it. Never touches any content file.
+  if (process.env.DEBUG_ROUTE) {
+    const route = process.env.DEBUG_ROUTE;
+    console.log(`\n── DEBUG_ROUTE: ${route} ──`);
+    const html = await get(cookie, route);
+    const $ = load(html);
+    const dtdd = {};
+    $('dt').each((_, dt) => {
+      dtdd[$(dt).text().trim()] = $(dt).next('dd').text().replace(/\s+/g, ' ').trim();
+    });
+    console.log('dt/dd pairs:', JSON.stringify(dtdd, null, 2));
+    const rows = tableRows(html);
+    console.log(`table rows (${rows.length}):`, JSON.stringify(rows.slice(0, 30), null, 2));
+    // Also surface any nav links that look raj/korosztály-related, in case this
+    // page isn't the right one and links to the real one.
+    const links = [];
+    $('a[href]').each((_, a) => {
+      const href = $(a).attr('href') ?? '';
+      const text = $(a).text().trim();
+      if (/raj|korosztály|korosztaly|csoport|őrs|ors/i.test(href + ' ' + text)) {
+        links.push({ href, text });
+      }
+    });
+    console.log('candidate links:', JSON.stringify(links, null, 2));
+    console.log('\n✓ debug route dump complete — no files written');
+    return;
+  }
+
   // Settle after login, as a user reading the dashboard would.
   await sleep(jitter(1500, 6000));
 
