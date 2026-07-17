@@ -244,6 +244,9 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+15db261 kuracio (dudas.adam@vac811.hu): 10 jóváhagyva, 0 elutasítva
+3237f02 chore: curate gallery candidates from Google Drive
+4525adc chore: update CONTEXT.md [auto]
 0609a5c Merge pull request #64 from thead4md/claude/vac811-beta-improvements-705a4d
 b6deb00 fix: sync rajok (name/ageGroup) from ECSET, drop hallucinated description
 543612b chore: dump raj-link ancestor text + korosztály/Anonymus presence checks
@@ -251,13 +254,10 @@ b6deb00 fix: sync rajok (name/ageGroup) from ECSET, drop hallucinated descriptio
 fdcd6bf chore: temp DEBUG_ROUTE diagnostic for ECSET raj/korosztály discovery
 97dbb74 chore: curate gallery candidates from Google Drive
 a01be73 chore: sync ECSET data [auto]
-942e029 chore: update CONTEXT.md [auto]
-91d7e99 Update Tábor “camps”
-7a017fd chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 13.6s. Stack: TypeScript / Node.js._
+_Generated in 13.8s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
