@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useContent } from '../hooks/useContent';
+import { type Settings, settingsStatic } from '../data/settings';
+import { settingsSchema } from '../schemas/content';
 import './History.css';
 
-const timeline = [
+const staticTimelineEntries = [
   {
     year: '1929',
     title: 'Alapítás',
@@ -53,22 +56,32 @@ const timeline = [
   {
     year: '2013–2025',
     title: 'A tábortörténet aranykora',
-    content: `Az elmúlt tizenkét évben a csapat 13 emlékezetes nyári tábort szervezett, számos különböző 
-    helyszínen és keretmesével. 2022-ben Alsópetényben 266 cserkész vett részt a táborban — ez volt 
+    content: `Az elmúlt tizenkét évben a csapat 13 emlékezetes nyári tábort szervezett, számos különböző
+    helyszínen és keretmesével. 2022-ben Alsópetényben 266 cserkész vett részt a táborban — ez volt
     eddigi legnagyobb táborunk. 2025-ben Süttőn, 135 fővel kalózoztunk.`,
-    highlight: true,
-  },
-  {
-    year: 'Ma',
-    title: '232 aktív cserkész',
-    content: `Jelenleg 232 aktív cserkész alkotja a csapatot 26 aktív őrsben, 11 rajba szervezve. 
-    Csapatparancsnokunk Kucsera Boglárka, és egy elkötelezett vezető csapat állt össze, hogy 
-    folytassa azt a nevelési munkát, amelyet elődjeink 1929-ben elkezdtek.`,
     highlight: true,
   },
 ];
 
+// "Ma" (today) reflects live ECSET-sourced numbers rather than a hardcoded
+// snapshot, so this entry doesn't go stale as the roster changes.
+function buildTimeline(settings: Settings) {
+  return [
+    ...staticTimelineEntries,
+    {
+      year: 'Ma',
+      title: `${settings.activeMemberCount} aktív cserkész`,
+      content: `Jelenleg ${settings.activeMemberCount} aktív cserkész alkotja a csapatot ${settings.activeOrsCount} aktív őrsben, ${settings.rajCount} rajba szervezve.
+      Csapatparancsnokunk Kucsera Boglárka, és egy elkötelezett vezető csapat állt össze, hogy
+      folytassa azt a nevelési munkát, amelyet elődjeink 1929-ben elkezdtek.`,
+      highlight: true,
+    },
+  ];
+}
+
 export default function History() {
+  const { data: settingsData } = useContent<Settings>('settings.json', 'settings', settingsSchema);
+  const timeline = buildTimeline(settingsData ?? settingsStatic);
   return (
     <main aria-label="Történet oldal">
       {/* Hero */}

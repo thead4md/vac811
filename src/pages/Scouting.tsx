@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom';
 import { korosztalyok } from '../data/korosztalyok';
+import { useContent } from '../hooks/useContent';
+import { type Settings, settingsStatic } from '../data/settings';
+import { settingsSchema } from '../schemas/content';
 import './Scouting.css';
 
 const törvények = [
@@ -16,6 +19,8 @@ const törvények = [
 ];
 
 export default function Scouting() {
+  const { data: settingsData } = useContent<Settings>('settings.json', 'settings', settingsSchema);
+  const settings = settingsData ?? settingsStatic;
   return (
     <main aria-label="A cserkészetről oldal">
 
@@ -148,8 +153,8 @@ export default function Scouting() {
             </div>
           </div>
           <p className="scouting-structure-note">
-            A 811-es csapatban jelenleg <strong>11 raj</strong> és <strong>26 aktív őrs</strong> működik,
-            összesen <strong>232 cserkésszel</strong>.
+            A 811-es csapatban jelenleg <strong>{settings.rajCount} raj</strong> és <strong>{settings.activeOrsCount} aktív őrs</strong> működik,
+            összesen <strong>{settings.activeMemberCount} cserkésszel</strong>.
           </p>
         </div>
       </section>

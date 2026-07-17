@@ -308,6 +308,40 @@ async function scrapeHomepage(cookie) {
   };
 }
 
+// The org-structure page lists each raj as a link ("Andromeda raj") whose
+// grandparent element's text is "{raj name} {korosztály} {nem}" (e.g.
+// "Corvus raj kiscserkész vegyes") — korosztály and nem (gender mix) are
+// plain sibling text, not their own links, so this reads that container
+// rather than the link alone. Rajok with no age classification (e.g. the
+// cross-age "Operatív raj" work-group hub) have no such suffix.
+const KOROSZTALY_MAP = {
+  'kiscserkész': 'Kiscserkész',
+  'cserkész': 'Cserkész',
+  'kósza': 'Kósza',
+  'vándor': 'Vándor',
+  'felnőtt': 'Felnőtt',
+};
+
+async function scrapeRajok(cookie) {
+  const html = await get(cookie, '/mcssz/811/felepites/');
+  const $ = load(html);
+  const rajok = [];
+  const seen = new Set();
+  // Top-level raj pages only (e.g. /mcssz/811/corvus-raj/) — excludes nested
+  // munkacsoport sub-pages like /mcssz/811/operativ-raj/munkacsoport/gh/.
+  $('a[href]').each((_, a) => {
+    const href = $(a).attr('href') ?? '';
+    if (!/^\/mcssz\/811\/[a-z0-9-]+-raj\/$/.test(href) || seen.has(href)) return;
+    seen.add(href);
+    const name = $(a).text().trim();
+    const context = $(a).parent().parent().text().replace(/\s+/g, ' ').trim();
+    const rest = context.startsWith(name) ? context.slice(name.length).trim() : '';
+    const korosztalyRaw = rest.split(/\s+/)[0]?.toLowerCase();
+    rajok.push({ name, ageGroup: KOROSZTALY_MAP[korosztalyRaw] ?? null });
+  });
+  return rajok;
+}
+
 // ── Transformers ──────────────────────────────────────────────────────────────
 
 function transformCamps(ecset, existing) {
@@ -384,6 +418,21 @@ function transformEvents(ecset, existing) {
   return { events };
 }
 
+// ECSET is the sole source of truth for rajok — name and ageGroup both come
+// straight from it, with no editor-owned field left to preserve. A raj ECSET
+// no longer lists (disbanded/renamed) is dropped rather than kept stale
+// forever. A raj with no korosztály in ECSET (e.g. "Operatív raj", which
+// isn't age-based) keeps whatever ageGroup it last had rather than having it
+// overwritten with null — there's nothing in ECSET to overwrite it *with*.
+function transformRajok(ecset, existing) {
+  const byName = new Map(existing.rajok.map(r => [r.name, r]));
+  const rajok = ecset.map(r => ({
+    name: r.name,
+    ageGroup: r.ageGroup ?? byName.get(r.name)?.ageGroup ?? '',
+  }));
+  return { rajok };
+}
+
 // Field ownership (audit finding C3): activeMemberCount/activeOrsCount/rajCount
 // are auto-computed stats ECSET/rajok.json always own, so the sync keeps them
 // current every run — CMS shows them as editable but a manual edit there is
@@ -406,7 +455,7 @@ function transformSettings({ memberCount, orsCount, address, emailMain, facebook
 // A maintenance page, error page, or table-format drift tends to produce data
 // that "parses" but is empty or wildly different from last time. Refuse to
 // write in that case rather than silently corrupting the content files.
-function assertSanity({ homepage, camps, events }, existingSettings) {
+function assertSanity({ homepage, camps, events, rajok }, existingSettings, existingRajok) {
   const prevMembers = existingSettings.activeMemberCount;
   if (homepage.memberCount !== null && prevMembers) {
     const delta = Math.abs(homepage.memberCount - prevMembers) / prevMembers;
@@ -421,6 +470,18 @@ function assertSanity({ homepage, camps, events }, existingSettings) {
   }
   if (events.length === 0) {
     throw new Error('Sanity check failed: 0 events scraped from the ICS feed (possible maintenance/error page or format change)');
+  }
+  if (rajok.length < 1) {
+    throw new Error('Sanity check failed: 0 rajok scraped from /felepites/ (possible maintenance/error page or markup change)');
+  }
+  const prevRajCount = existingRajok.length;
+  if (prevRajCount > 0) {
+    const delta = Math.abs(rajok.length - prevRajCount) / prevRajCount;
+    if (delta > 0.3) {
+      throw new Error(
+        `Sanity check failed: scraped raj count ${rajok.length} deviates >30% from previous ${prevRajCount} (possible maintenance/error page or markup change)`
+      );
+    }
   }
 }
 
@@ -451,6 +512,7 @@ async function main() {
     ['homepage', () => scrapeHomepage(cookie)],
     ['camps',    () => scrapeCamps(cookie)],
     ['events',   () => scrapeEvents(cookie)],
+    ['rajok',    () => scrapeRajok(cookie)],
   ];
   for (let i = tasks.length - 1; i > 0; i--) {  // Fisher–Yates shuffle
     const j = jitter(0, i);
@@ -464,22 +526,24 @@ async function main() {
     if (i < tasks.length - 1) await humanPause();
   }
   const { memberCount, orsCount } = out.homepage;
-  console.log(`  members: ${memberCount}, ors: ${orsCount}, camps: ${out.camps.length}, events: ${out.events.length}`);
+  console.log(`  members: ${memberCount}, ors: ${orsCount}, camps: ${out.camps.length}, events: ${out.events.length}, rajok: ${out.rajok.length}`);
 
-  // rajCount is derived from rajok.json (maintained in CMS) rather than ECSET,
-  // since ECSET has no structured raj count endpoint.
   const existingSettings = read('settings.json');
-  const rajCount = read('rajok.json').rajok?.length ?? null;
+  const existingRajok = read('rajok.json');
 
-  assertSanity(out, existingSettings);
+  assertSanity(out, existingSettings, existingRajok.rajok ?? []);
 
   const camps    = transformCamps(out.camps, read('camps.json'));
   const events   = transformEvents(out.events, read('events.json'));
-  const settings = transformSettings(out.homepage, existingSettings, rajCount);
+  const rajok    = transformRajok(out.rajok, existingRajok);
+  // rajCount reflects the freshly-scraped raj list, not the pre-sync file, so
+  // a raj ECSET added/dropped this run is already correct on the same run.
+  const settings = transformSettings(out.homepage, existingSettings, rajok.rajok.length);
 
   if (DRY_RUN) {
     console.log('\n── camps.json ──\n', JSON.stringify(camps, null, 2));
     console.log('\n── events.json ──\n', JSON.stringify(events, null, 2));
+    console.log('\n── rajok.json ──\n', JSON.stringify(rajok, null, 2));
     console.log('\n── settings.json ──\n', JSON.stringify(settings, null, 2));
     console.log('\n✓ dry run complete — no files written');
     return;
@@ -487,8 +551,9 @@ async function main() {
 
   write('camps.json', camps);
   write('events.json', events);
+  write('rajok.json', rajok);
   write('settings.json', settings);
-  console.log('✓ wrote 3 content files');
+  console.log('✓ wrote 4 content files');
 }
 
 main().catch(err => { console.error(err.message); process.exit(1); });

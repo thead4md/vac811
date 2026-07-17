@@ -66,12 +66,9 @@ export default function Curate() {
 
   const [decisions, setDecisions] = useState<Map<string, Decision>>(new Map());
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [draftCaption, setDraftCaption] = useState('');
   const [activeTab, setActiveTab] = useState<'pending' | 'published' | 'rejected'>('pending');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const captionEscaped = useRef(false);
 
   // ── Load gallery after login ──────────────────────────────────────────────
   useEffect(() => {
@@ -118,30 +115,8 @@ export default function Curate() {
     : rejectedItems;
 
   // ── Helpers ───────────────────────────────────────────────────────────────
-  const getEffectiveCaption = (item: GalleryItem) =>
-    decisions.get(item.id)?.caption ?? item.name;
-
-  const confirmOpenEdit = useCallback(() => {
-    if (editingId !== null) {
-      const item = allItems.find((i) => i.id === editingId);
-      if (item) {
-        setDecisions((prev) => {
-          const next = new Map(prev);
-          const existing = prev.get(editingId);
-          next.set(editingId, {
-            status: (existing?.status ?? effectiveStatus(item, prev)) as Decision['status'],
-            caption: draftCaption,
-          });
-          return next;
-        });
-      }
-      setEditingId(null);
-    }
-  }, [editingId, draftCaption, allItems]);
-
   const toggleSelect = useCallback(
     (id: string) => {
-      confirmOpenEdit();
       setSelectedIds((prev) => {
         const next = new Set(prev);
         if (next.has(id)) next.delete(id);
@@ -149,13 +124,12 @@ export default function Curate() {
         return next;
       });
     },
-    [confirmOpenEdit],
+    [],
   );
 
   const selectAll = useCallback(() => {
-    confirmOpenEdit();
     setSelectedIds(new Set(activeItems.map((i) => i.id)));
-  }, [confirmOpenEdit, activeItems]);
+  }, [activeItems]);
 
   const deselectAll = useCallback(() => {
     setSelectedIds(new Set());
@@ -168,29 +142,13 @@ export default function Curate() {
         for (const id of selectedIds) {
           const item = allItems.find((i) => i.id === id);
           if (!item) continue;
-          const caption = prev.get(id)?.caption ?? item.name;
-          next.set(id, { status, caption });
+          next.set(id, { status, caption: item.name });
         }
         return next;
       });
       setSelectedIds(new Set());
     },
     [selectedIds, allItems],
-  );
-
-  const commitCaption = useCallback(
-    (id: string, caption: string) => {
-      const item = allItems.find((i) => i.id === id);
-      if (!item) return;
-      setDecisions((prev) => {
-        const next = new Map(prev);
-        const existing = prev.get(id);
-        const status = (existing?.status ?? effectiveStatus(item, prev)) as Decision['status'];
-        next.set(id, { status, caption });
-        return next;
-      });
-    },
-    [allItems],
   );
 
   // ── Commit ────────────────────────────────────────────────────────────────
@@ -208,7 +166,6 @@ export default function Curate() {
       }
       setDecisions(new Map());
       setSelectedIds(new Set());
-      setEditingId(null);
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : 'Ismeretlen hiba');
     } finally {
@@ -458,7 +415,6 @@ export default function Curate() {
           <div className="cms-grid">
             {activeItems.map((item) => {
               const isSelected = selectedIds.has(item.id);
-              const isEditing = editingId === item.id;
               return (
                 <div
                   key={item.id}
@@ -487,44 +443,6 @@ export default function Curate() {
                     {item.year && <span className="curate-chip">{item.year}</span>}
                     {item.event && <span className="curate-chip">{item.event}</span>}
                   </div>
-
-                  {isEditing ? (
-                    <textarea
-                      className="cms-card__caption-edit"
-                      autoFocus
-                      value={draftCaption}
-                      onChange={(e) => setDraftCaption(e.target.value)}
-                      onBlur={() => {
-                        if (!captionEscaped.current) commitCaption(item.id, draftCaption);
-                        captionEscaped.current = false;
-                        setEditingId(null);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          commitCaption(item.id, draftCaption);
-                          setEditingId(null);
-                        }
-                        if (e.key === 'Escape') {
-                          captionEscaped.current = true;
-                          setEditingId(null);
-                        }
-                      }}
-                      rows={2}
-                    />
-                  ) : (
-                    <p
-                      className="cms-card__caption"
-                      title="Kattints a szerkesztéshez"
-                      onClick={() => {
-                        confirmOpenEdit();
-                        setDraftCaption(getEffectiveCaption(item));
-                        setEditingId(item.id);
-                      }}
-                    >
-                      {getEffectiveCaption(item)}
-                    </p>
-                  )}
                 </div>
               );
             })}

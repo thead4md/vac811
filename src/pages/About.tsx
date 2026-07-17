@@ -1,4 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useContent } from '../hooks/useContent';
+import { type Raj, rajokStatic } from '../data/rajok';
+import { type Settings, settingsStatic } from '../data/settings';
+import { rajokSchema, settingsSchema } from '../schemas/content';
 import './About.css';
 
 const values = [
@@ -10,21 +14,13 @@ const values = [
   { icon: '⚜️', title: 'Egyéni növekedés', desc: 'Próbák, fokozatok és szalagok — a személyes fejlődés közösségi keretben. Minden cserkész a saját tempójában fejlődik, de sosem egyedül.' },
 ];
 
-const rajok = [
-  { name: 'Anonymus', ageGroup: 'Idősebb korosztály', desc: 'Tapasztalt, idősebb cserkészekből álló raj.' },
-  { name: 'Corvus', ageGroup: 'Középső korosztály', desc: 'Dinamikus, aktív fiatalokból álló raj.' },
-  { name: 'Taurus', ageGroup: 'Középső korosztály', desc: 'Kitartó és elszánt cserkészek közössége.' },
-  { name: 'Dorado', ageGroup: 'Fiatalabb korosztály', desc: 'Kalandszerető, felfedező szellemű raj.' },
-  { name: 'Andromeda', ageGroup: 'Fiatalabb korosztály', desc: 'Összetartó, barátságos cserkészcsapat.' },
-  { name: 'Cygnus', ageGroup: 'Fiatalabb korosztály', desc: 'Kreatív és lelkes cserkészek rajja.' },
-  { name: 'Gemini', ageGroup: 'Fiatalabb korosztály', desc: 'Vidám, szoros barátságokra épülő közösség.' },
-  { name: 'Göncöl', ageGroup: 'Idősebb korosztály', desc: 'Hagyományőrző, tapasztalt cserkészekből álló raj.' },
-  { name: 'Szent Hubertusz', ageGroup: 'Középső korosztály', desc: 'Természetszerető, erdőjáró szellemű raj.' },
-  { name: 'Felnőtt raj', ageGroup: 'Felnőtt', desc: 'A felnőtt cserkészek és vezető képzések közössége.' },
-  { name: 'Operatív raj', ageGroup: 'Felnőtt / Senior', desc: 'A csapat szervezési és logisztikai feladatait ellátó raj.' },
-];
-
 export default function About() {
+  // rajok/raj count are ECSET-sourced (scripts/sync-ecset.mjs) — no local
+  // duplicate list here, so this page can't drift from the real roster.
+  const { data: rajokData } = useContent<Raj[]>('rajok.json', 'rajok', rajokSchema);
+  const rajok = rajokData ?? rajokStatic;
+  const { data: settingsData } = useContent<Settings>('settings.json', 'settings', settingsSchema);
+  const settings = settingsData ?? settingsStatic;
   return (
     <main aria-label="Rólunk oldal">
       {/* Hero */}
@@ -47,19 +43,19 @@ export default function About() {
           <div className="about-overview">
             <div className="about-stats" aria-label="Csapat statisztikák">
               <div className="about-stat">
-                <strong>232</strong>
+                <strong>{settings.activeMemberCount}</strong>
                 <span>aktív cserkész</span>
               </div>
               <div className="about-stat">
-                <strong>26</strong>
+                <strong>{settings.activeOrsCount}</strong>
                 <span>aktív őrs</span>
               </div>
               <div className="about-stat">
-                <strong>11</strong>
+                <strong>{rajok.length}</strong>
                 <span>raj</span>
               </div>
               <div className="about-stat">
-                <strong>1929</strong>
+                <strong>{settings.foundedYear}</strong>
                 <span>alapítás éve</span>
               </div>
             </div>
@@ -76,8 +72,8 @@ export default function About() {
                   a stabil hátteret a csapat működéséhez.
                 </p>
                 <p>
-                  Jelenleg <strong>232 aktív cserkészt</strong> foglalunk magában <strong>26 aktív
-                  őrsben</strong>, 11 rajba szervezve. Csapatparancsnokunk Kucsera Boglárka,
+                  Jelenleg <strong>{settings.activeMemberCount} aktív cserkészt</strong> foglalunk magában <strong>{settings.activeOrsCount} aktív
+                  őrsben</strong>, {rajok.length} rajba szervezve. Csapatparancsnokunk Kucsera Boglárka,
                   aki az egész vezető csapattal együtt minden gyermek és fiatal számára értékes
                   és maradandó élményt kíván nyújtani.
                 </p>
@@ -160,7 +156,7 @@ export default function About() {
           <span className="section-label">Szervezet</span>
           <h2 id="rajok-heading" className="section-title">Rajaink</h2>
           <p className="section-subtitle" style={{ marginBottom: 'var(--space-8)' }}>
-            A csapat 11 rajból és 26 aktív őrsből áll. Minden raj élén tapasztalt
+            A csapat {rajok.length} rajból és {settings.activeOrsCount} aktív őrsből áll. Minden raj élén tapasztalt
             rajparancsnok vagy rajvezető áll.
           </p>
           <div className="grid-3">
@@ -168,9 +164,8 @@ export default function About() {
               <article key={raj.name} className="raj-card card">
                 <div className="raj-card__header">
                   <h3 className="raj-card__name">{raj.name}</h3>
-                  <span className="badge">{raj.ageGroup}</span>
+                  {raj.ageGroup && <span className="badge">{raj.ageGroup}</span>}
                 </div>
-                <p className="raj-card__desc">{raj.desc}</p>
               </article>
             ))}
           </div>

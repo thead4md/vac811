@@ -35,7 +35,6 @@ export const eventsSchema = z.array(eventSchema);
 
 export const rajSchema = z.object({
   name: z.string(),
-  description: z.string(),
   ageGroup: z.string(),
 });
 export const rajokSchema = z.array(rajSchema);

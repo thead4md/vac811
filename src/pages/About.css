@@ -99,7 +99,6 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  margin-bottom: var(--space-3);
   flex-wrap: wrap;
 }
 .raj-card__name {
@@ -107,11 +106,6 @@
   font-size: var(--text-base);
   font-weight: 700;
   color: var(--color-text);
-}
-.raj-card__desc {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  line-height: 1.6;
 }
 
 /* Org cards */

@@ -92,7 +92,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add public/content/camps.json \
-                  public/content/events.json public/content/settings.json
+                  public/content/events.json public/content/rajok.json \
+                  public/content/settings.json
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else

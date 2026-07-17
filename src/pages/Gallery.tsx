@@ -135,12 +135,11 @@ export default function Gallery() {
                       src={driveImageUrl(item.id, 800)}
                       srcSet={`${driveImageUrl(item.id, 400)} 400w, ${driveImageUrl(item.id, 800)} 800w, ${driveImageUrl(item.id, 1200)} 1200w`}
                       sizes={sizes}
-                      alt=""
+                      alt={item.name}
                       loading="lazy"
                       decoding="async"
                       className="gallery-item__img"
                     />
-                    <figcaption className="gallery-item__caption">{item.name}</figcaption>
                   </figure>
                 );
               })}

@@ -94,32 +94,10 @@ collections:
                   - { label: Tábor, value: tábor }
                   - { label: Egyéb, value: egyéb }
 
-  # ─── RAJOK ──────────────────────────────────────────────────────────────────
-  - name: rajok
-    label: Rajok
-    label_singular: Raj
-    description: "A csapat rajai és leírásaik."
-    files:
-      - name: rajok
-        label: Rajok listája
-        file: public/content/rajok.json
-        fields:
-          - label: Rajok
-            name: rajok
-            widget: list
-            label_singular: Raj
-            fields:
-              - { label: Raj neve, name: name, widget: string }
-              - { label: Leírás, name: description, widget: text }
-              - label: Korosztály
-                name: ageGroup
-                widget: select
-                options:
-                  - Fiatalabb korosztály
-                  - Középső korosztály
-                  - Idősebb korosztály
-                  - Felnőtt
-                  - Felnőtt / Senior
+  # Rajok (public/content/rajok.json) intentionally has NO CMS collection:
+  # name + ageGroup are 100% ECSET-derived (scripts/sync-ecset.mjs, from the
+  # /felepites/ org-structure page) with no editor-owned field left to edit —
+  # editing it here would just reintroduce drift the sync would fight.
 
   # ─── SETTINGS ───────────────────────────────────────────────────────────────
   - name: settings

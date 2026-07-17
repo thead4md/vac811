@@ -15,7 +15,7 @@ export default function Rajok() {
           <div className="hero-badge">⚜️ Rajok</div>
           <h1 id="rajok-page-heading" className="section-title section-title--lg">Rajaink</h1>
           <p className="page-hero__subtitle">
-            A 811-es csapat 11 rajból áll — mindegyiknek saját neve, szelleme és vezető csapata van.
+            A 811-es csapat {rajok.length} rajból áll — mindegyiknek saját neve, szelleme és vezető csapata van.
           </p>
         </div>
       </section>
@@ -35,9 +35,8 @@ export default function Rajok() {
                 <article key={raj.name} className="raj-full-card">
                   <div className="raj-full-card__name-row">
                     <h3 className="raj-full-card__name">{raj.name}</h3>
-                    <span className="badge">{raj.ageGroup}</span>
+                    {raj.ageGroup && <span className="badge">{raj.ageGroup}</span>}
                   </div>
-                  <p className="raj-full-card__desc">{raj.description}</p>
                 </article>
               ))}
             </div>
