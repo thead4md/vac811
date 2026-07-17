@@ -467,6 +467,26 @@ async function main() {
       if (href && !href.startsWith('#')) links.push({ href, text });
     });
     console.log(`all links (${links.length}):`, JSON.stringify(links, null, 2));
+
+    // For each "-raj/" link, dump its ancestor elements' full text (a few
+    // levels up) — a korosztály badge would likely sit as sibling/nearby text
+    // rather than its own link, so link text alone won't show it.
+    const rajContext = [];
+    $('a[href*="-raj/"], a[href*="/raj/"]').each((_, a) => {
+      const $a = $(a);
+      const href = $a.attr('href');
+      const levels = [];
+      let $node = $a;
+      for (let i = 0; i < 4; i++) {
+        $node = $node.parent();
+        if (!$node.length) break;
+        levels.push($node.text().replace(/\s+/g, ' ').trim().slice(0, 300));
+      }
+      rajContext.push({ href, levels });
+    });
+    console.log('raj ancestor text:', JSON.stringify(rajContext, null, 2));
+    console.log('mentions "Anonymus"?', html.includes('Anonymus'));
+    console.log('mentions "korosztály"/"korosztaly"?', /korosztály|korosztaly/i.test(html));
     console.log('\n✓ debug route dump complete — no files written');
     return;
   }
