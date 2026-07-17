@@ -1,30 +1,6 @@
 {
   "events": [
     {
-      "id": "elotabor-2026-06",
-      "title": "Előtábor",
-      "date": "2026-06-30",
-      "dateDisplay": "2026. június 30.",
-      "description": "",
-      "category": "tábor"
-    },
-    {
-      "id": "nyari-tabor-2026",
-      "title": "Nyári tábor 2026",
-      "date": "2026-07-01",
-      "dateDisplay": "2026. július (dátum hamarosan)",
-      "description": "Az idei nyári tábor részletei hamarosan elérhetők. Kövesd oldalunkat!",
-      "category": "tábor"
-    },
-    {
-      "id": "csapattabor-2026-07",
-      "title": "Csapattábor",
-      "date": "2026-07-03",
-      "dateDisplay": "2026. július 3.",
-      "description": "",
-      "category": "tábor"
-    },
-    {
       "id": "kcs-tanyazas-2026-08",
       "title": "KCS tanyázás",
       "date": "2026-08-14",
