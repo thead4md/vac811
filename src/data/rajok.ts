@@ -1,23 +1,29 @@
-// NOTE: Runtime content is fetched from /content/rajok.json (managed by Sveltia CMS).
+// NOTE: Runtime content is fetched from /content/rajok.json, which is written
+// by scripts/sync-ecset.mjs from ECSET's /felepites/ (org structure) page —
+// not editable in the CMS. name/ageGroup always mirror ECSET; there is no
+// editor-authored description field (a prior invented one has been removed).
 
 export interface Raj {
   name: string;
-  description: string;
   ageGroup: string;
 }
 
+// Verified against live ECSET data on 2026-07-17. "Anonymus raj" is absent:
+// it no longer exists in ECSET (disbanded/renamed). "Operatív raj" has no
+// ageGroup: ECSET doesn't classify it by age — it's a cross-age hub of work
+// groups (GH, Keretmese, Lelki, Logisztika, Média, Pénzügy), not an
+// age-based patrol.
 export const rajokStatic: Raj[] = [
-  { name: 'Anonymus', description: 'Tapasztalt, idősebb cserkészekből álló raj.', ageGroup: 'Idősebb korosztály' },
-  { name: 'Corvus', description: 'Dinamikus, aktív fiatalokból álló raj.', ageGroup: 'Középső korosztály' },
-  { name: 'Taurus', description: 'Kitartó és elszánt cserkészek közössége.', ageGroup: 'Középső korosztály' },
-  { name: 'Dorado', description: 'Kalandszerető, felfedező szellemű raj.', ageGroup: 'Fiatalabb korosztály' },
-  { name: 'Andromeda', description: 'Összetartó, barátságos csapat.', ageGroup: 'Fiatalabb korosztály' },
-  { name: 'Cygnus', description: 'Kreatív és lelkes cserkészek rajja.', ageGroup: 'Fiatalabb korosztály' },
-  { name: 'Gemini', description: 'Vidám, szoros barátságokra épülő közösség.', ageGroup: 'Fiatalabb korosztály' },
-  { name: 'Göncöl', description: 'Hagyományőrző, tapasztalt cserkészekből álló raj.', ageGroup: 'Idősebb korosztály' },
-  { name: 'Szent Hubertusz', description: 'Természetszerető, erdőjáró szellemű raj.', ageGroup: 'Középső korosztály' },
-  { name: 'Felnőtt raj', description: 'A felnőtt cserkészek és vezetők közössége.', ageGroup: 'Felnőtt' },
-  { name: 'Operatív raj', description: 'A csapat szervezési és logisztikai feladatait ellátó raj.', ageGroup: 'Felnőtt / Senior' },
+  { name: 'Corvus', ageGroup: 'Kiscserkész' },
+  { name: 'Taurus', ageGroup: 'Kiscserkész' },
+  { name: 'Dorado', ageGroup: 'Cserkész' },
+  { name: 'Andromeda', ageGroup: 'Cserkész' },
+  { name: 'Cygnus', ageGroup: 'Cserkész' },
+  { name: 'Gemini', ageGroup: 'Kósza' },
+  { name: 'Göncöl', ageGroup: 'Kósza' },
+  { name: 'Szent Hubertusz', ageGroup: 'Vándor' },
+  { name: 'Felnőtt raj', ageGroup: 'Felnőtt' },
+  { name: 'Operatív raj', ageGroup: '' },
 ];
 
 export const rajok = rajokStatic;

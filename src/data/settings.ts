@@ -27,6 +27,6 @@ export const settingsStatic: Settings = {
   instagram: 'https://www.instagram.com/811szentjozsef',
   activeMemberCount: 232,
   activeOrsCount: 26,
-  rajCount: 11,
+  rajCount: 10,
   foundedYear: 1929,
 };
