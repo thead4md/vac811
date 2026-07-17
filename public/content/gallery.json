@@ -409,8 +409,8 @@
       "score": 87,
       "phash": "d2d3d3664bc3d1b9",
       "reason": "Pontszám 87. Tevékenység: tábor.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "13-t8QrM15FOH-m70dTV5P1V1Kq48t0Fx",
@@ -422,8 +422,8 @@
       "score": 85,
       "phash": "e068cadeb8b90b2b",
       "reason": "Pontszám 85. Tevékenység: kereszt körüli ünnepség.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "10Dm_E2XUsOmVHlpa46rOqZbBro5HKYAj",
@@ -437,8 +437,8 @@
       "score": 85,
       "phash": "889ab9a9b2b3f0f0",
       "reason": "Pontszám 85. Tevékenység: tábortűz.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1QZw1N7tVMIOYKn172l2JNgzWgs0NiqF5",
@@ -632,8 +632,8 @@
       "score": 85,
       "phash": "88bacac9d8c29a99",
       "reason": "Pontszám 85. Tevékenység: ünnepség, obszervanciá.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1U77AFe8OMaM8Kg07amVRFEChKrb2kmTQ",
@@ -737,8 +737,8 @@
       "score": 85,
       "phash": "b3b668c8c6f6b732",
       "reason": "Pontszám 85. Tevékenység: cserkészmesterség, oktatás.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1O4bS8CJYUW-YgLJj_mLOfUmVrpGL7XBa",
@@ -782,8 +782,8 @@
       "score": 85,
       "phash": "e888489c8ebe70f0",
       "reason": "Pontszám 85. Tevékenység: kézműves foglalkozás.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1jOzn57hCrAysdMqKQiDFLk6-Q6C-brCa",
@@ -842,8 +842,8 @@
       "score": 85,
       "phash": "0381157839381978",
       "reason": "Pontszám 85. Tevékenység: táborfoglalkozás, közösségi munka.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1OnU8XjhnNzfG9wmy_h8CUMtvNhUb0jz3",
@@ -887,8 +887,8 @@
       "score": 85,
       "phash": "6242c2d2c9c8a696",
       "reason": "Pontszám 85. Tevékenység: kézműves foglalkozás, csomókötés.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "19qn7Oq5PCDnMjOIp6TOgLftNSzGJAz0g",
@@ -1367,8 +1367,8 @@
       "score": 85,
       "phash": "bfba78e8c8273735",
       "reason": "Pontszám 85. Tevékenység: csapatprogram, természet.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1KY4XHs1rELZYKpjwQl5MgUPhEnnFPW2b",
@@ -1412,8 +1412,8 @@
       "score": 85,
       "phash": "5bd7cdccac8c9493",
       "reason": "Pontszám 85. Tevékenység: tábortűz, csapatfoto.",
-      "status": "pending",
-      "approved": false
+      "status": "approved",
+      "approved": true
     },
     {
       "id": "1Ps8G_0LDcoZWMxOxTYYyh4YL3wRJQeKP",
