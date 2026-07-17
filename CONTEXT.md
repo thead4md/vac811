@@ -68,6 +68,8 @@ export default defineConfig([
 <!-- AUTO:START:directory_tree -->
 ```
 vac811/
+├── .claude
+│   └── launch.json
 ├── .github
 │   ├── workflows
 │   │   ├── ci.yml
@@ -187,8 +189,7 @@ vac811/
 │   ├── styles
 │   │   ├── base.css
 │   │   ├── fonts.css
-│   │   ├── global.css
-│   │   └── tokens.css
+│   │   └── ... (truncated)
 │   └── ... (truncated)
 └── ... (truncated)
 ```
@@ -243,20 +244,20 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+0609a5c Merge pull request #64 from thead4md/claude/vac811-beta-improvements-705a4d
+b6deb00 fix: sync rajok (name/ageGroup) from ECSET, drop hallucinated description
+543612b chore: dump raj-link ancestor text + korosztály/Anonymus presence checks
+7a8d6b1 chore: widen DEBUG_ROUTE link dump (no keyword filter)
+fdcd6bf chore: temp DEBUG_ROUTE diagnostic for ECSET raj/korosztály discovery
+97dbb74 chore: curate gallery candidates from Google Drive
+a01be73 chore: sync ECSET data [auto]
+942e029 chore: update CONTEXT.md [auto]
 91d7e99 Update Tábor “camps”
 7a017fd chore: update CONTEXT.md [auto]
-4aadb09 chore: curate gallery candidates from Google Drive
-366de9d chore: update CONTEXT.md [auto]
-ef54e26 kuracio (dudas.adam@vac811.hu): 11 jóváhagyva, 0 elutasítva
-f8f6a81 chore: update CONTEXT.md [auto]
-db7e27c Merge pull request #62 from thead4md/claude/ecset-2fa-bug-97c3ed
-dc146db chore: curate gallery candidates from Google Drive
-67bb629 fix: complete ECSET login when 2FA is enabled
-eca46bb chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 13.9s. Stack: TypeScript / Node.js._
+_Generated in 13.6s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
