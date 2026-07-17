@@ -457,17 +457,16 @@ async function main() {
     console.log('dt/dd pairs:', JSON.stringify(dtdd, null, 2));
     const rows = tableRows(html);
     console.log(`table rows (${rows.length}):`, JSON.stringify(rows.slice(0, 30), null, 2));
-    // Also surface any nav links that look raj/korosztály-related, in case this
-    // page isn't the right one and links to the real one.
+    // Dump every nav link — first pass filtered by keyword and found nothing,
+    // which likely means either different wording or JS-rendered nav; dump
+    // everything so a human can spot the real path.
     const links = [];
     $('a[href]').each((_, a) => {
       const href = $(a).attr('href') ?? '';
-      const text = $(a).text().trim();
-      if (/raj|korosztály|korosztaly|csoport|őrs|ors/i.test(href + ' ' + text)) {
-        links.push({ href, text });
-      }
+      const text = $(a).text().replace(/\s+/g, ' ').trim();
+      if (href && !href.startsWith('#')) links.push({ href, text });
     });
-    console.log('candidate links:', JSON.stringify(links, null, 2));
+    console.log(`all links (${links.length}):`, JSON.stringify(links, null, 2));
     console.log('\n✓ debug route dump complete — no files written');
     return;
   }
