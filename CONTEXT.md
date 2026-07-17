@@ -243,6 +243,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+91d7e99 Update Tábor “camps”
+7a017fd chore: update CONTEXT.md [auto]
 4aadb09 chore: curate gallery candidates from Google Drive
 366de9d chore: update CONTEXT.md [auto]
 ef54e26 kuracio (dudas.adam@vac811.hu): 11 jóváhagyva, 0 elutasítva
@@ -251,12 +253,10 @@ db7e27c Merge pull request #62 from thead4md/claude/ecset-2fa-bug-97c3ed
 dc146db chore: curate gallery candidates from Google Drive
 67bb629 fix: complete ECSET login when 2FA is enabled
 eca46bb chore: update CONTEXT.md [auto]
-f951f75 Merge branch 'claude/github-actions-errors-jgrg38'
-c203ff0 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 15.2s. Stack: TypeScript / Node.js._
+_Generated in 13.9s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
