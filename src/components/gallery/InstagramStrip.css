@@ -5,7 +5,10 @@
 }
 .instagram-strip__cell {
   position: relative;
-  aspect-ratio: 1;
+  /* Matches Instagram's default upload ratio so most posts show close to
+     full via object-fit: cover, instead of a 1:1 crop losing ~20% off most
+     (predominantly portrait) posts. */
+  aspect-ratio: 4 / 5;
 }
 
 @media (max-width: 900px) {

@@ -85,9 +85,9 @@ export default function GaleriaPage() {
     items.length === 0 ? (
       <EmptyState onBackToAll={backToAll} />
     ) : (
-      <div className="gallery-grid">
+      <div className="gallery-grid gallery-grid--flat">
         {items.map((item, i) => (
-          <div key={item.id} className="gallery-grid__cell">
+          <div key={item.id} className="gallery-grid__cell gallery-grid__cell--portrait">
             <GalleryCard item={item} size="small" onOpen={() => openLightbox(items, i)} />
           </div>
         ))}
