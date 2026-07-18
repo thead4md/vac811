@@ -77,11 +77,14 @@ vac811/
 │   │   ├── deploy-content.yml
 │   │   ├── deploy.yml
 │   │   ├── sync-ecset.yml
+│   │   ├── sync-instagram-feed.yml
 │   │   └── update-context.yml
 │   └── dependabot.yml
 ├── docs
 │   ├── audit-and-upgrade-plan-2026-07.md
+│   ├── galeria-audit.md
 │   ├── google-sso-setup.md
+│   ├── instagram-sync-setup.md
 │   └── seo-plan.md
 ├── public
 │   ├── admin
@@ -92,6 +95,7 @@ vac811/
 │   │   ├── events.json
 │   │   ├── gallery-pipeline-state.json
 │   │   ├── gallery.json
+│   │   ├── instagram.json
 │   │   ├── leaders.json
 │   │   ├── rajok.json
 │   │   └── settings.json
@@ -107,6 +111,7 @@ vac811/
 │   ├── generate_context.py
 │   ├── sync-ecset.mjs
 │   ├── sync-gallery.mjs
+│   ├── sync-instagram-feed.mjs
 │   ├── test-preflight.mjs
 │   ├── validate-content.mjs
 │   └── validate_context.py
@@ -124,6 +129,22 @@ vac811/
 │   │   ├── neckerchief.svg
 │   │   └── vite.svg
 │   ├── components
+│   │   ├── gallery
+│   │   │   ├── EventGroupSection.css
+│   │   │   ├── EventGroupSection.tsx
+│   │   │   ├── FeaturedEventBlock.css
+│   │   │   ├── FeaturedEventBlock.tsx
+│   │   │   ├── FleurDeLisIcon.tsx
+│   │   │   ├── GalleriaHero.css
+│   │   │   ├── GalleriaHero.tsx
+│   │   │   ├── GalleryCard.css
+│   │   │   ├── GalleryCard.tsx
+│   │   │   ├── GalleryLightbox.css
+│   │   │   ├── GalleryLightbox.tsx
+│   │   │   ├── InstagramStrip.css
+│   │   │   ├── InstagramStrip.tsx
+│   │   │   ├── YearJumpNav.css
+│   │   │   └── YearJumpNav.tsx
 │   │   ├── BackgroundField.css
 │   │   ├── BackgroundField.tsx
 │   │   ├── CountUp.tsx
@@ -131,8 +152,6 @@ vac811/
 │   │   ├── EventCalendar.tsx
 │   │   ├── Footer.css
 │   │   ├── Footer.tsx
-│   │   ├── InstagramWall.css
-│   │   ├── InstagramWall.tsx
 │   │   ├── Navbar.css
 │   │   ├── Navbar.tsx
 │   │   ├── NeckerchiefDivider.css
@@ -151,6 +170,12 @@ vac811/
 │   │   ├── useContent.ts
 │   │   └── useReveal.ts
 │   ├── lib
+│   │   ├── gallery
+│   │   │   ├── adaptDriveItem.ts
+│   │   │   ├── adaptInstagramItem.ts
+│   │   │   ├── buildGalleryModel.ts
+│   │   │   ├── slugify.ts
+│   │   │   └── useGalleryModel.ts
 │   │   ├── galleryRepo.ts
 │   │   ├── githubAuth.ts
 │   │   ├── googleAuth.ts
@@ -164,31 +189,6 @@ vac811/
 │   │   ├── Contact.tsx
 │   │   ├── Curate.css
 │   │   ├── Curate.tsx
-│   │   ├── Gallery.css
-│   │   ├── Gallery.tsx
-│   │   ├── History.css
-│   │   ├── History.tsx
-│   │   ├── Home.css
-│   │   ├── Home.tsx
-│   │   ├── Join.css
-│   │   ├── Join.tsx
-│   │   ├── Leaders.css
-│   │   ├── Leaders.test.tsx
-│   │   ├── Leaders.tsx
-│   │   ├── Naptar.css
-│   │   ├── Naptar.tsx
-│   │   ├── NotFound.tsx
-│   │   ├── pages.integration.test.tsx
-│   │   ├── Rajok.css
-│   │   ├── Rajok.tsx
-│   │   ├── Scouting.css
-│   │   ├── Scouting.test.tsx
-│   │   └── Scouting.tsx
-│   ├── schemas
-│   │   └── content.ts
-│   ├── styles
-│   │   ├── base.css
-│   │   ├── fonts.css
 │   │   └── ... (truncated)
 │   └── ... (truncated)
 └── ... (truncated)
@@ -225,7 +225,10 @@ _Module map available for Python projects only._
 | `GOOGLE_DRIVE_API_KEY` | `—` | source code |
 | `GOOGLE_DRIVE_FOLDER_ID` | `—` | source code |
 | `GOOGLE_SERVICE_ACCOUNT_KEY` | `—` | source code |
+| `INSTAGRAM_SYNC_ENDPOINT` | `—` | source code |
+| `INSTAGRAM_SYNC_TOKEN` | `—` | source code |
 | `OPENAI_API_KEY` | `—` | source code |
+| `SYNC_LIMIT` | `—` | source code |
 <!-- AUTO:END:env_vars -->
 
 ## Open TODOs
@@ -244,20 +247,20 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+d93a3dc Merge pull request #66 from thead4md/claude/vac811-plan-execution-5ffa42
+f51b2dc fix: use a plain div for the event-group header, not <header>
+d446e93 feat: redesign /galeria with unified Drive+Instagram layout, drop Behold
+79af872 chore: curate gallery candidates from Google Drive
+b0e58d1 feat: add unified gallery types, adapters, and Instagram sync pipeline
+461d453 chore: audit current galeria implementation and design tokens
+17fcdf8 chore: update CONTEXT.md [auto]
 cdd4aec chore: update CONTEXT.md [auto]
 15db261 kuracio (dudas.adam@vac811.hu): 10 jóváhagyva, 0 elutasítva
 3237f02 chore: curate gallery candidates from Google Drive
-4525adc chore: update CONTEXT.md [auto]
-0609a5c Merge pull request #64 from thead4md/claude/vac811-beta-improvements-705a4d
-b6deb00 fix: sync rajok (name/ageGroup) from ECSET, drop hallucinated description
-543612b chore: dump raj-link ancestor text + korosztály/Anonymus presence checks
-7a8d6b1 chore: widen DEBUG_ROUTE link dump (no keyword filter)
-fdcd6bf chore: temp DEBUG_ROUTE diagnostic for ECSET raj/korosztály discovery
-97dbb74 chore: curate gallery candidates from Google Drive
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 11.6s. Stack: TypeScript / Node.js._
+_Generated in 15.0s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
