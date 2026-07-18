@@ -247,6 +247,9 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+aa264e0 fix: explicitly dispatch deploy-content.yml after an Instagram sync commit
+00a3e23 chore: sync instagram feed
+0030c25 chore: update CONTEXT.md [auto]
 d93a3dc Merge pull request #66 from thead4md/claude/vac811-plan-execution-5ffa42
 f51b2dc fix: use a plain div for the event-group header, not <header>
 d446e93 feat: redesign /galeria with unified Drive+Instagram layout, drop Behold
@@ -254,13 +257,10 @@ d446e93 feat: redesign /galeria with unified Drive+Instagram layout, drop Behold
 b0e58d1 feat: add unified gallery types, adapters, and Instagram sync pipeline
 461d453 chore: audit current galeria implementation and design tokens
 17fcdf8 chore: update CONTEXT.md [auto]
-cdd4aec chore: update CONTEXT.md [auto]
-15db261 kuracio (dudas.adam@vac811.hu): 10 jóváhagyva, 0 elutasítva
-3237f02 chore: curate gallery candidates from Google Drive
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 15.0s. Stack: TypeScript / Node.js._
+_Generated in 12.1s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
