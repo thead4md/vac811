@@ -32,6 +32,7 @@ jobs:
     permissions:
       contents: write
       issues: write
+      actions: write
 
     steps:
       - uses: actions/checkout@v4.2.2
@@ -52,6 +53,7 @@ jobs:
         run: node scripts/sync-instagram-feed.mjs
 
       - name: Commit updated feed
+        id: commit
         if: always() && github.event.inputs.dry_run != 'true'
         run: |
           git config user.name "github-actions[bot]"
@@ -59,6 +61,7 @@ jobs:
           git add public/content/instagram.json
           if git diff --cached --quiet; then
             echo "No changes to commit"
+            echo "committed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "chore: sync instagram feed"
             for i in 1 2 3 4 5; do
@@ -70,7 +73,18 @@ jobs:
                 exit 1
               fi
             done
+            echo "committed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      # A push made with the default GITHUB_TOKEN does NOT trigger other
+      # workflows (GitHub's anti-recursion rule) — deploy-content.yml's
+      # `on: push` never fires for the commit above, so it has to be
+      # dispatched explicitly instead.
+      - name: Trigger content deploy
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-content.yml --repo ${{ github.repository }} --ref main
 
       - name: Alert on failure
         if: failure()
