@@ -10,12 +10,12 @@ interface Props {
 export default function EventGroupSection({ group, onOpenLightbox }: Props) {
   return (
     <article className="event-group">
-      <header className="event-group__header">
+      <div className="event-group__header">
         <h3 className="event-group__title">{group.eventTitle}</h3>
         <p className="event-group__meta">
           {group.year} · {group.items.length} fotó
         </p>
-      </header>
+      </div>
       <div className="gallery-grid">
         {group.items.map((item, i) => (
           <div key={item.id} className={`gallery-grid__cell gallery-grid__cell--${i === 0 ? 'large' : 'small'}`}>
