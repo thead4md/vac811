@@ -1,0 +1,29 @@
+.event-group {
+  margin-bottom: var(--space-12);
+}
+.event-group:last-child {
+  margin-bottom: 0;
+}
+
+.event-group__header {
+  padding: var(--space-3) var(--space-5);
+  margin-bottom: var(--space-5);
+  background: var(--color-surface);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+.event-group__title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--color-text);
+  margin: 0;
+}
+.event-group__meta {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* .gallery-grid / .gallery-grid__cell--large are shared, page-level rules —
+   see GaleriaPage.css (also used by the flat Instagram/Videók views). */

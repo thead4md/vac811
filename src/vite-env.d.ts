@@ -1,8 +1,6 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  /** Behold.so Instagram feed id (see .env.production). */
-  readonly VITE_BEHOLD_FEED_ID?: string;
   /** Google OAuth 2.0 Web client ID used by the Curate tool. */
   readonly VITE_GOOGLE_CLIENT_ID?: string;
   /** URL of the google-git-proxy Cloudflare Worker. */

@@ -15,7 +15,7 @@ const Leaders = lazy(() => import('./pages/Leaders'));
 const Rajok = lazy(() => import('./pages/Rajok'));
 const Camps = lazy(() => import('./pages/Camps'));
 const Naptar = lazy(() => import('./pages/Naptar'));
-const Gallery = lazy(() => import('./pages/Gallery'));
+const GaleriaPage = lazy(() => import('./pages/GaleriaPage'));
 const Join = lazy(() => import('./pages/Join'));
 const Contact = lazy(() => import('./pages/Contact'));
 const NotFound = lazy(() => import('./pages/NotFound'));
@@ -100,7 +100,7 @@ function AppLayout() {
             <Route path="/naptar" element={<Naptar />} />
             {/* Faithful slug kept; the beta's /hirek redirects here */}
             <Route path="/hirek" element={<Navigate to="/naptar" replace />} />
-            <Route path="/galeria" element={<Gallery />} />
+            <Route path="/galeria" element={<GaleriaPage />} />
             <Route path="/csatlakozas" element={<Join />} />
             <Route path="/kapcsolat" element={<Contact />} />
             <Route path="/cserkeszet" element={<Scouting />} />
