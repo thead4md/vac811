@@ -13,7 +13,7 @@ import {
   commitDecisionsViaProxy,
   cdnUrl,
 } from '../lib/galleryRepo';
-import type { GalleryItem } from './Gallery';
+import type { DriveGalleryItem as GalleryItem } from '../types/gallery';
 import type { Decision } from '../lib/galleryRepo';
 import './Curate.css';
 

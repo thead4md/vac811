@@ -67,5 +67,23 @@ export const galleryItemSchema = z.object({
   reason: z.string().optional(),
   status: z.enum(['pending', 'approved', 'rejected']).optional(),
   approved: z.boolean().optional(),
+  primary: z.boolean().optional(),
+  cap: z.number().optional(),
 });
 export const gallerySchema = z.array(galleryItemSchema);
+
+// Written by scripts/sync-instagram-feed.mjs to public/content/instagram.json.
+// See src/types/gallery.ts InstagramFeedItem — kept in sync by hand.
+export const instagramItemSchema = z.object({
+  id: z.string(),
+  imageUrl: z.string(),
+  thumbnailUrl: z.string().optional(),
+  caption: z.string().optional(),
+  permalink: z.string(),
+  mediaType: z.enum(['image', 'video']),
+  postedAt: z.string(),
+  eventSlug: z.string().nullable().optional(),
+  eventTitle: z.string().nullable().optional(),
+  year: z.number().optional(),
+});
+export const instagramSchema = z.array(instagramItemSchema);
