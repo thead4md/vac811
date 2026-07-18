@@ -247,6 +247,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+afc1c60 fix: size Instagram tiles to portrait (4:5), not landscape crop
+5f9f122 chore: update CONTEXT.md [auto]
 aa264e0 fix: explicitly dispatch deploy-content.yml after an Instagram sync commit
 00a3e23 chore: sync instagram feed
 0030c25 chore: update CONTEXT.md [auto]
@@ -255,12 +257,10 @@ f51b2dc fix: use a plain div for the event-group header, not <header>
 d446e93 feat: redesign /galeria with unified Drive+Instagram layout, drop Behold
 79af872 chore: curate gallery candidates from Google Drive
 b0e58d1 feat: add unified gallery types, adapters, and Instagram sync pipeline
-461d453 chore: audit current galeria implementation and design tokens
-17fcdf8 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 12.1s. Stack: TypeScript / Node.js._
+_Generated in 13.8s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
