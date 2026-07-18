@@ -1,0 +1,20 @@
+.instagram-strip__grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-3);
+}
+.instagram-strip__cell {
+  position: relative;
+  aspect-ratio: 1;
+}
+
+@media (max-width: 900px) {
+  .instagram-strip__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .instagram-strip__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

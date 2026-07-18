@@ -1,4 +1,4 @@
-import type { GalleryItem } from '../pages/Gallery';
+import type { DriveGalleryItem as GalleryItem } from '../types/gallery';
 import { driveImageUrl } from './imageCdn';
 
 const REPO = 'thead4md/vac811';

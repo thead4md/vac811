@@ -1,0 +1,106 @@
+name: Sync Instagram Feed
+
+# Runs the read-only Instagram sync every 6h, plus a biweekly reminder to
+# manually refresh INSTAGRAM_SYNC_TOKEN before its 60-day expiry (see
+# docs/instagram-sync-setup.md — a scheduled workflow rewriting its own repo
+# secret would need a standing high-privilege credential this repo doesn't
+# otherwise have; a 2-minute manual refresh is cheaper and safer for a
+# low-maintenance site).
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+    - cron: '0 9 1,16 * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run without committing changes'
+        type: boolean
+        default: false
+      limit:
+        description: 'Max posts to fetch'
+        type: string
+        default: '24'
+
+concurrency:
+  group: content-write
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.event.schedule != '0 9 1,16 * *'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync Instagram feed
+        env:
+          INSTAGRAM_SYNC_ENDPOINT: ${{ secrets.INSTAGRAM_SYNC_ENDPOINT }}
+          INSTAGRAM_SYNC_TOKEN: ${{ secrets.INSTAGRAM_SYNC_TOKEN }}
+          SYNC_LIMIT: ${{ github.event.inputs.limit || '24' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: node scripts/sync-instagram-feed.mjs
+
+      - name: Commit updated feed
+        if: always() && github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/content/instagram.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: sync instagram feed"
+            for i in 1 2 3 4 5; do
+              git pull --rebase origin main && git push && break
+              echo "Push attempt $i failed (concurrent write?), retrying..."
+              sleep $((i * 5))
+              if [ "$i" = 5 ]; then
+                echo "::error::Failed to push after 5 attempts — content-write concurrency not resolved"
+                exit 1
+              fi
+            done
+          fi
+
+      - name: Alert on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Workflow failed: ${context.workflow}`;
+            const body = `The **${context.workflow}** workflow failed on run [${context.runId}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) (commit ${context.sha}). If this is an auth error (HTTP 400/401 from the Instagram Graph API), the token likely expired — see docs/instagram-sync-setup.md to regenerate it.`;
+            const issues = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', labels: 'workflow-failure' });
+            const existing = issues.data.find((i) => i.title === title);
+            if (existing) {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number, body });
+            } else {
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['workflow-failure'] });
+            }
+
+  remind-token-refresh:
+    if: github.event.schedule == '0 9 1,16 * *'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Open/update a token-refresh reminder issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'Instagram sync token due for refresh';
+            const body = `\`INSTAGRAM_SYNC_TOKEN\` is a 60-day Instagram long-lived access token — it does not renew itself. Regenerate it at developers.facebook.com (see docs/instagram-sync-setup.md, "Refreshing the token") and update the \`INSTAGRAM_SYNC_TOKEN\` repo secret. This reminder repeats twice a month; close it once you've refreshed.`;
+            const issues = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', labels: 'instagram-token-refresh' });
+            const existing = issues.data.find((i) => i.title === title);
+            if (!existing) {
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['instagram-token-refresh'] });
+            }

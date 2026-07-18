@@ -9,6 +9,7 @@ import {
   rajokSchema,
   settingsSchema,
   gallerySchema,
+  instagramSchema,
 } from '../src/schemas/content.ts';
 
 const files = [
@@ -18,6 +19,7 @@ const files = [
   { path: 'public/content/rajok.json', key: 'rajok', schema: rajokSchema },
   { path: 'public/content/settings.json', key: 'settings', schema: settingsSchema },
   { path: 'public/content/gallery.json', key: 'gallery', schema: gallerySchema },
+  { path: 'public/content/instagram.json', key: 'instagram', schema: instagramSchema },
 ];
 
 let failed = false;
