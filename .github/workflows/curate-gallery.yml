@@ -46,6 +46,7 @@ jobs:
     permissions:
       contents: write
       issues: write
+      actions: write  # to dispatch sync-content-kv.yml after committing
 
     steps:
       - uses: actions/checkout@v4.2.2
@@ -76,6 +77,7 @@ jobs:
         run: node scripts/curate-gallery.mjs
 
       - name: Commit updated gallery.json
+        id: commit
         if: always() && github.event.inputs.dry_run != 'true'
         run: |
           git config user.name "github-actions[bot]"
@@ -84,6 +86,7 @@ jobs:
           [ -f public/content/gallery-pipeline-state.json ] && git add public/content/gallery-pipeline-state.json || true
           if git diff --cached --quiet; then
             echo "No changes to commit"
+            echo "committed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "chore: curate gallery candidates from Google Drive"
             for i in 1 2 3 4 5; do
@@ -95,7 +98,17 @@ jobs:
                 exit 1
               fi
             done
+            echo "committed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      # gallery.json only reaches the app via the KV fast-path now; a
+      # GITHUB_TOKEN push won't trigger sync-content-kv.yml, so dispatch it.
+      # (gallery-pipeline-state.json is internal and intentionally not synced.)
+      - name: Trigger content KV sync
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run sync-content-kv.yml --repo ${{ github.repository }} --ref main
 
       - name: Alert on failure
         if: failure()

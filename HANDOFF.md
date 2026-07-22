@@ -15,7 +15,8 @@ merged). The site is a React 19 + Vite 8 SPA; both curation Workers
   **explicitly gated on business go-live timing** — do not flip these without
   the owner's direct go-ahead, even if asked to "do Phase 3."
 
-All work so far is on branch `claude/vac811-beta-deploy-env-ydyu8v`, unmerged.
+Phases 1/2/3.2 (PR #75) are merged into `main`. Phase 4 work is on its own
+branch/PR, opened from a rebased `main`.
 
 Effort key: **S** <2h · **M** ~half-day · **L** 1–3d · **XL** >3d.
 
@@ -29,7 +30,7 @@ Effort key: **S** <2h · **M** ~half-day · **L** 1–3d · **XL** >3d.
 | 2 — Prerender/SSG | ✅ Done | vite-react-ssg, 10 static routes |
 | 3.2 — Social + structured data | ✅ Done | og-image, Event JSON-LD |
 | 3.1 / 3.3 — SEO cutover | ⏸️ Deliberately not started | Gated on go-live decision |
-| 4 — Content KV fast-path | ⏸️ Not started | Independent, ready to pick up |
+| 4 — Content KV fast-path | ✅ Code done / ⏳ 3 dashboard items open | See below |
 | 5 — Security & auth consolidation | ⏸️ Not started | Independent |
 | 6 — Edge consolidation | ⏸️ Not started | Depends on 4 & 5 being proven; nothing concrete to build yet |
 
@@ -159,24 +160,69 @@ canonical, `public/sitemap.xml`, or `public/robots.txt`.
 
 ---
 
-## Phase 4 — Content fast-path via edge storage (not started)
+## Phase 4 — Content fast-path via edge storage ✅ (code) / ⏳ (dashboard)
 
 **Goal:** decouple content edits (CMS, ECSET sync, curate, Instagram sync)
-from full-app redeploys. Currently every content commit triggers a full
-`npm ci` + Vite build + Pages deploy (`deploy-content.yml` was deleted during
-the FTP→Pages migration since Pages has no partial-deploy equivalent).
+from full-app redeploys. Previously every content commit triggered a full
+`npm ci` + Vite build + Pages deploy.
 
-**Recommended approach (per the original plan):** a
-`functions/content/[file].ts` Pages Function reading from Workers KV, with
-content writers (Sveltia commit hook / `google-git-proxy` / the
-`scripts/*.mjs` pipelines) writing to KV in addition to git. Point
-`useContent` (`src/hooks/useContent.ts:31`) at `/content/<file>` — same URL,
-now KV-backed, so edits go live in seconds with no rebuild. Keep git as the
-audit trail; keep `scripts/validate-content.mjs` (zod) as the gate before any
-KV write.
+**Implemented (diverges from the original plan in one way — see below):**
+a `functions/content/[file].js` Pages Function reads from a Workers KV
+namespace (`CONTENT`) and returns it; on a KV miss it calls `context.next()`
+to serve the committed static file in `dist/content/`. `useContent`
+(`src/hooks/useContent.ts`) needed **zero changes** — it already fetches
+`/content/<file>`, which is now KV-backed transparently. Full design and
+runbook: **`docs/content-kv-fast-path.md`**.
 
-Neither Worker uses KV/R2 today — this is greenfield binding config, not a
-migration of existing infra.
+**Divergence from the plan:** instead of having each content writer (Sveltia
+commit hook, `google-git-proxy`, the sync scripts) write to KV directly, a
+single new workflow — `.github/workflows/sync-content-kv.yml` — re-validates
+content with the existing zod gate (`npm run validate:content`) and pushes it
+to KV on every push to `main` touching `public/content/**`. Every writer
+already funnels through a git commit, so one workflow covers all of them
+uniformly (Sveltia in particular is client→GitHub only and has no path to
+write KV directly without its own webhook). Git remains authoritative; the
+static files stay the automatic fallback.
+
+**Also changed, required for Functions to actually deploy:**
+- Added root `wrangler.toml` (Pages project config + documented KV binding).
+- `deploy.yml`'s deploy step moved from the deprecated `cloudflare/pages-action@v1`
+  to `cloudflare/wrangler-action` (`wrangler pages deploy`) — the old action's
+  Functions support was undocumented/unreliable; wrangler compiles `functions/`
+  properly. Content-only pushes now skip this workflow (`paths-ignore:
+  public/content/**`) — they take the KV path instead.
+- `sync-ecset.yml`, `sync-instagram-feed.yml`, `curate-gallery.yml`: their
+  post-commit dispatch (previously `deploy.yml`, or absent) now dispatches
+  `sync-content-kv.yml`, since GITHUB_TOKEN pushes don't trigger other
+  workflows and these bots only ever touch `public/content/**`.
+
+**Verified locally:** `wrangler pages dev` end-to-end — seeded a KV key and
+confirmed the Function serves it (with `Cache-Control: max-age=60,
+stale-while-revalidate=300`); an unseeded file falls through to the real
+static content unchanged. Also confirmed via a standalone unit test (13
+cases: KV hit/miss/error, missing binding, unknown file, non-GET, HEAD).
+`npm run lint` / `npm test` (64 tests) / `npm run validate:content` / `npm run
+build` all green.
+
+**Still open (needs the owner's Cloudflare account — I can't do these):**
+1. `wrangler kv namespace create CONTENT` — create the KV namespace.
+2. Bind it to the `vac811-beta` Pages project as `CONTENT` (dashboard →
+   Settings → Bindings).
+3. Add `CONTENT_KV_NAMESPACE_ID` as a repo secret, and confirm
+   `CLOUDFLARE_API_TOKEN` has **Workers KV Storage: Edit** permission (it's
+   also used for Pages deploys, which may need a different scope).
+
+Until these are done, `env.CONTENT` is undefined in the Function and every
+`/content/*` request falls straight through to static — i.e. today's
+behavior, unchanged. Full steps: `docs/content-kv-fast-path.md`.
+
+**Note:** while verifying this phase, found that `patches/react-router-dom+7.17.0.patch`
+(from Phase 2) had been truncated/incomplete since the commit that introduced
+it, breaking a clean `npm ci` + build. That was unrelated to Phase 4's own
+logic but blocked verifying it — already fixed and merged into `main`
+separately (PR #75's CI was red for the same reason; see the "Repo landmines"
+section below for the root cause and the AppleDouble-cleanup habit it
+motivated).
 
 ---
 
@@ -225,6 +271,20 @@ A/B tests / feature flags / bot filtering *only* if a real need appears.
   Phase 2 known limitation above) — this is expected, not a regression.
 - **Site is still `noindex`.** Don't remove it without an explicit go-live
   confirmation (see Phase 3.1/3.3 section).
+- **This repo lives on an external drive that generates macOS AppleDouble
+  sidecar files (`._*`) on nearly every file read/write**, including inside
+  `node_modules/` and `patches/`. They're gitignored/untracked and harmless
+  *until* one gets swept into something generated at commit time — that's
+  what silently truncated `patches/react-router-dom+7.17.0.patch` (see Phase
+  4 section above). Run `find . -name '._*' -not -path './.git/*' -delete`
+  before committing anything under `patches/`, and double-check `git status`
+  doesn't show a `._`-prefixed path before staging.
+- **`patches/react-router-dom+7.17.0.patch` now has two hunks** (the
+  `dist/server.mjs` shim it always had, plus the `package.json` `exports`
+  entries it was missing). If `patch-package` output on `npm install` doesn't
+  say `react-router-dom@7.17.0 ✔`, the build will fail — check the patch file
+  is intact (should end with a `package.json` hunk) before assuming it's a new
+  problem.
 
 ---
 

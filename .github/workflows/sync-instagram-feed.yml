@@ -77,13 +77,15 @@ jobs:
           fi
 
       # A push made with the default GITHUB_TOKEN does NOT trigger other
-      # workflows (GitHub's anti-recursion rule) — deploy.yml's `on: push`
-      # never fires for the commit above, so it has to be dispatched explicitly.
-      - name: Trigger deploy
+      # workflows (GitHub's anti-recursion rule), so sync-content-kv.yml's
+      # `on: push` never fires for the commit above — dispatch it explicitly.
+      # Content changes now take the KV fast-path (live in ~1 min) instead of a
+      # full rebuild; the deployed static instagram.json is only the fallback.
+      - name: Trigger content KV sync
         if: steps.commit.outputs.committed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run deploy.yml --repo ${{ github.repository }} --ref main
+        run: gh workflow run sync-content-kv.yml --repo ${{ github.repository }} --ref main
 
       - name: Alert on failure
         if: failure()

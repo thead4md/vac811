@@ -15,13 +15,19 @@
 Push to `main` triggers `.github/workflows/deploy.yml`, which:
 1. Runs tests and linting (`npm run lint`, `npm test`, `npm run validate:content`)
 2. Builds the Vite dist (`npm run build`)
-3. Deploys to Cloudflare Pages via `cloudflare/pages-action@v1`
+3. Deploys to Cloudflare Pages via `cloudflare/wrangler-action` (`wrangler pages
+   deploy`), which also compiles the Pages Functions under `functions/` (the
+   content KV fast-path — see `docs/content-kv-fast-path.md`)
    - Project: `vac811-beta`
    - Branch: `main`
 4. Smoke-checks the deployed build (HTTP 200 on `/` and the main JS bundle)
 5. Alerts on failure
 
 Deploy time: ~5–8 minutes (test + build + upload + smoke check).
+
+**Content-only pushes are excluded** (`paths-ignore: public/content/**`) — CMS
+edits and bot content syncs go live via the Workers KV fast-path in ~1 minute
+instead of triggering this full rebuild. See `docs/content-kv-fast-path.md`.
 
 ### Preview Deployments (Pull Requests)
 
@@ -140,3 +146,4 @@ Both are set in `public/_headers`. Enable analytics in Cloudflare dashboard (Pag
 - [Pages Deployments & Rollbacks](https://developers.cloudflare.com/pages/platform/deployments/)
 - [Preview Deployments](https://developers.cloudflare.com/pages/platform/preview-deployments/)
 - [Build Environment Variables](https://developers.cloudflare.com/pages/configuration/build-configuration/)
+- [Content KV fast-path (Phase 4)](./content-kv-fast-path.md)

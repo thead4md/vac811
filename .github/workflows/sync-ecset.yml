@@ -22,6 +22,7 @@ jobs:
     permissions:
       contents: write
       issues: write
+      actions: write  # to dispatch sync-content-kv.yml after committing
 
     steps:
       - uses: actions/checkout@v4.2.2
@@ -87,6 +88,7 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run || 'false' }}
 
       - name: Commit updated content
+        id: commit
         if: always() && steps.gate.outputs.proceed == 'true' && inputs.dry_run != 'true'
         run: |
           git config user.name "github-actions[bot]"
@@ -96,6 +98,7 @@ jobs:
                   public/content/settings.json
           if git diff --cached --quiet; then
             echo "No changes to commit"
+            echo "committed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "chore: sync ECSET data [auto]"
             for i in 1 2 3 4 5; do
@@ -107,7 +110,17 @@ jobs:
                 exit 1
               fi
             done
+            echo "committed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      # GITHUB_TOKEN pushes don't trigger other workflows, so push the freshly
+      # committed content to the KV fast-path explicitly (live in ~1 min, no
+      # full rebuild). See sync-content-kv.yml.
+      - name: Trigger content KV sync
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run sync-content-kv.yml --repo ${{ github.repository }} --ref main
 
       - name: Alert on failure
         if: failure()
