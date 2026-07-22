@@ -240,13 +240,16 @@ _No open TODOs found._
 ## Tests
 
 <!-- AUTO:START:test_count -->
-**5** tests detected.
+**6** tests detected.
 <!-- AUTO:END:test_count -->
 
 ## Recent Commits
 
 <!-- AUTO:START:recent_commits -->
 ```
+ca8274c Merge pull request #77 from thead4md/claude/phase-5-implementation-d9a32f
+a9417e2 feat: Phase 5.2 — Google-gated sveltia-cms-auth fork; 5.1/5.3 reviewed & documented
+97745d3 chore: update CONTEXT.md [auto]
 d5b9118 Merge pull request #76 from thead4md/claude/content-kv-fast-path-phase4
 33fa727 feat: Phase 4 — content fast-path via Workers KV
 3a82426 chore: update CONTEXT.md [auto]
@@ -254,13 +257,10 @@ d5b9118 Merge pull request #76 from thead4md/claude/content-kv-fast-path-phase4
 747e6a7 fix: complete truncated react-router-dom patch (missing exports hunk)
 a93de19 docs: add HANDOFF.md tracking roadmap progress and repo landmines
 ae01f2c feat: Phase 3.2 — social share image + Event structured data
-3e5ed5d feat: Phase 2 — prerender/SSG the static routes (vite-react-ssg)
-fe12713 chore: Phase 1 quick wins — preview deploys, Web Analytics, admin link
-1cbdd9b chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 10.1s. Stack: TypeScript / Node.js._
+_Generated in 11.1s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
