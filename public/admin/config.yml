@@ -2,7 +2,7 @@ backend:
   name: github
   repo: thead4md/vac811
   branch: main
-  base_url: https://sveltia-cms-auth.dudas-adam99.workers.dev
+  base_url: https://vac811-sveltia-cms-auth.dudas-adam99.workers.dev
   site_domain: beta.vac811.hu
 
 
