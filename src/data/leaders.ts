@@ -13,7 +13,7 @@ export interface Leader {
 }
 
 /** Build a usable <img src> from a CMS-stored media path, accounting for the
- *  site's base path (/beta/ in production). Returns '' for empty input. */
+ *  site's base path. Returns '' for empty input. */
 export function leaderPhotoSrc(photo?: string): string {
   if (!photo) return '';
   if (/^https?:\/\//.test(photo)) return photo;

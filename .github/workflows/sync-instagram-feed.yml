@@ -77,14 +77,13 @@ jobs:
           fi
 
       # A push made with the default GITHUB_TOKEN does NOT trigger other
-      # workflows (GitHub's anti-recursion rule) — deploy-content.yml's
-      # `on: push` never fires for the commit above, so it has to be
-      # dispatched explicitly instead.
-      - name: Trigger content deploy
+      # workflows (GitHub's anti-recursion rule) — deploy.yml's `on: push`
+      # never fires for the commit above, so it has to be dispatched explicitly.
+      - name: Trigger deploy
         if: steps.commit.outputs.committed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run deploy-content.yml --repo ${{ github.repository }} --ref main
+        run: gh workflow run deploy.yml --repo ${{ github.repository }} --ref main
 
       - name: Alert on failure
         if: failure()

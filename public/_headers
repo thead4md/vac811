@@ -1,0 +1,13 @@
+# Cloudflare Pages headers (replaces the old Rackhost/Apache .htaccess mod_headers
+# block — same policy, no more /beta/ prefix since this is now its own domain root).
+/*
+  Strict-Transport-Security: max-age=63072000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://unpkg.com https://accounts.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://lh3.googleusercontent.com https://img.vac811.hu https://*.cdninstagram.com https://*.fbcdn.net; media-src 'self' https://*.cdninstagram.com https://*.fbcdn.net; font-src 'self'; connect-src 'self' https://accounts.google.com https://api.github.com https://*.workers.dev; frame-src https://accounts.google.com; frame-ancestors 'self'
+
+# Hashed assets — safe to cache forever (Vite content-hashes filenames)
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

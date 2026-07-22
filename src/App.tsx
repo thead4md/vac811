@@ -22,9 +22,6 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const Scouting = lazy(() => import('./pages/Scouting'));
 const Curate = lazy(() => import('./pages/Curate'));
 
-// Derive router basename from Vite base ('/' in dev, '/beta/' in prod build).
-const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
-
 // Scroll to top on route change
 function ScrollReset() {
   const { pathname } = useLocation();
@@ -119,7 +116,7 @@ function CurateLayout() {
     <>
       <meta name="robots" content="noindex" />
       <a
-        href="/beta/admin/"
+        href="/admin/"
         style={{
           position: 'fixed',
           top: 8,
@@ -142,7 +139,7 @@ function CurateLayout() {
 
 export default function App() {
   return (
-    <BrowserRouter basename={basename}>
+    <BrowserRouter>
       <Routes>
         <Route path="/admin/kuracio" element={<CurateLayout />} />
         <Route path="/kuracio" element={<Navigate to="/admin/kuracio" replace />} />

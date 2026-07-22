@@ -3,7 +3,7 @@ backend:
   repo: thead4md/vac811
   branch: main
   base_url: https://sveltia-cms-auth.dudas-adam99.workers.dev
-  site_domain: vac811.hu/beta
+  site_domain: beta.vac811.hu
 
 
 # Where Sveltia CMS stores uploaded images
