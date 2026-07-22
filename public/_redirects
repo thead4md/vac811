@@ -1,0 +1,4 @@
+# SPA fallback for BrowserRouter — Cloudflare Pages serves real files/assets
+# first automatically, so this only fires for unmatched paths (deep links
+# like /naptar, /admin/kuracio).
+/*  /index.html  200

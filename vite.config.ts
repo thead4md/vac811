@@ -1,21 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// Deployed under vac811.hu/beta, so production assets are served from /beta/.
-// BrowserRouter (see src/App.tsx) uses basename="/beta" to match these paths.
+// Deployed to Cloudflare Pages at beta.vac811.hu (its own domain root), so
+// assets are served from '/' in both dev and prod — no path-prefix base needed.
 //
-// NOTE: vac811.hu is proxied through Cloudflare (confirmed live: `server:
-// cloudflare` on responses), which already does automatic Brotli/gzip
-// compression at the edge. A prior revision here also emitted precompressed
-// .br files served via an .htaccess rewrite — that broke production: Apache
-// (or Cloudflare's request to origin always asking for `br`) served the raw
-// .br bytes as `Content-Type: text/html` with no `Content-Encoding` header
-// (and a stray `content-language: br`, suggesting mod_negotiation read the
-// `.br` suffix as the Breton language code, not a compression encoding).
-// Removed — Cloudflare's own compression makes it redundant anyway.
-export default defineConfig(({ command }) => ({
+// NOTE: Cloudflare already does automatic Brotli/gzip compression at the edge
+// for Pages deployments, same as it did for the old vac811.hu proxy. A prior
+// revision here emitted precompressed .br files for the Rackhost/Apache
+// deploy — dropped as redundant once the origin itself is behind Cloudflare.
+export default defineConfig(() => ({
   plugins: [react()],
-  base: command === 'serve' ? '/' : '/beta/',
+  base: '/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

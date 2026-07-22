@@ -1,17 +1,13 @@
-name: Build & Deploy to Rackhost
+name: Build & Deploy to Cloudflare Pages
 
 on:
   push:
     branches:
       - main
-    # Content-only changes (CMS edits, curate-gallery/sync-ecset bot commits)
-    # take the faster deploy-content.yml path instead of a full rebuild.
-    paths-ignore:
-      - 'public/content/**'
   workflow_dispatch:
 
 concurrency:
-  group: ftp-deploy
+  group: pages-deploy
   cancel-in-progress: false
 
 jobs:
@@ -69,57 +65,37 @@ jobs:
           VITE_IMAGE_CDN_URL: ${{ vars.VITE_IMAGE_CDN_URL }}
         run: npm run build
 
-      # Rackhost FTP has no server-side rename/rollback support (see docs/audit-and-upgrade-plan-2026-07.md
-      # §Open questions), so a "previous good build" is kept here instead: if a deploy's smoke check
-      # fails, download the last successful run's artifact and re-run the FTP-Deploy-Action step
-      # manually (or via workflow_dispatch against that commit) to roll back.
-      - name: Archive build for rollback
-        uses: actions/upload-artifact@v4
+      # Cloudflare Pages keeps every deployment and supports instant rollback
+      # from the dashboard/API, so unlike the old Rackhost FTP setup there's
+      # no need to archive an artifact here for manual redeploy.
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
         with:
-          name: dist-${{ github.sha }}
-          path: dist/
-          retention-days: 30
-
-      - name: Deploy to Rackhost via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: wh22.rackhost.hu
-          # FTPS (explicit AUTH TLS) attempted in an earlier revision; Rackhost's
-          # FTP server rejects it outright ("500 This security scheme is not
-          # implemented") rather than negotiating, so this falls back to plain
-          # FTP — the working baseline. Revisit if Rackhost adds FTPS/SFTP support.
-          protocol: ftp
-          port: 21
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist/
-          server-dir: /beta/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/.DS_Store
-            **/._*
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: vac811-beta
+          directory: dist
+          branch: main
 
       - name: Smoke-check the deployed build
         run: |
           set -e
           for i in 1 2 3 4 5; do
-            status=$(curl -s -o /tmp/beta_index.html -w '%{http_code}' https://vac811.hu/beta/)
+            status=$(curl -s -o /tmp/beta_index.html -w '%{http_code}' https://beta.vac811.hu/)
             if [ "$status" = "200" ]; then break; fi
             echo "Attempt $i: got HTTP $status, retrying in 10s..."
             sleep 10
           done
           if [ "$status" != "200" ]; then
-            echo "::error::https://vac811.hu/beta/ returned HTTP $status after deploy"
+            echo "::error::https://beta.vac811.hu/ returned HTTP $status after deploy"
             exit 1
           fi
-          main_js=$(grep -oE '/beta/assets/index-[^"]+\.js' /tmp/beta_index.html | head -1)
+          main_js=$(grep -oE '/assets/index-[^"]+\.js' /tmp/beta_index.html | head -1)
           if [ -z "$main_js" ]; then
             echo "::error::Could not find the main JS bundle reference in the deployed index.html"
             exit 1
           fi
-          js_status=$(curl -s -o /dev/null -w '%{http_code}' "https://vac811.hu${main_js}")
+          js_status=$(curl -s -o /dev/null -w '%{http_code}' "https://beta.vac811.hu${main_js}")
           if [ "$js_status" != "200" ]; then
             echo "::error::Main JS bundle ${main_js} returned HTTP $js_status"
             exit 1
