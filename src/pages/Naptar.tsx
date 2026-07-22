@@ -1,11 +1,51 @@
 import { useState } from 'react';
+import { Head } from 'vite-react-ssg';
 import { useContent } from '../hooks/useContent';
 import { useReveal } from '../hooks/useReveal';
 import { type Event, eventsStatic } from '../data/events';
 import { eventsSchema } from '../schemas/content';
 import EventCalendar from '../components/EventCalendar';
 import NeckerchiefDivider from '../components/NeckerchiefDivider';
+import eventsContent from '../../public/content/events.json';
 import './Naptar.css';
+
+// Sourced from the live content file (not the render's useContent/eventsStatic
+// fallback) so the structured data matches what the hydrated page ends up
+// showing once the client-side fetch resolves, not the prerendered snapshot.
+function EventsJsonLd() {
+  const events = (eventsContent as { events: Event[] }).events;
+  const jsonLd = events.map((ev) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: ev.title,
+    startDate: ev.date,
+    description: ev.description || ev.title,
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    eventStatus: 'https://schema.org/EventScheduled',
+    location: {
+      '@type': 'Place',
+      name: '811. Szent József Cserkészcsapat',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Dr. Csányi László krt. 58.',
+        addressLocality: 'Vác',
+        postalCode: '2600',
+        addressCountry: 'HU',
+      },
+    },
+    organizer: {
+      '@type': 'Organization',
+      name: '811. Szent József Cserkészcsapat',
+      url: 'https://vac811.hu',
+    },
+  }));
+
+  return (
+    <Head>
+      <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+    </Head>
+  );
+}
 
 const categoryLabel: Record<string, string> = {
   mise: 'Mise',
@@ -25,6 +65,7 @@ export default function Naptar() {
 
   return (
     <main aria-label="Naptár oldal">
+      <EventsJsonLd />
       <section className="page-hero" aria-labelledby="naptar-page-heading">
         <div className="container">
           <div className="hero-badge">Naptár</div>
