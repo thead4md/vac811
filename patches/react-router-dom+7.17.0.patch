@@ -8,3 +8,18 @@ index 0000000..7cbb41f
 +// server-render APIs into the `react-router` core package. vite-react-ssg
 +// still imports `react-router-dom/server.js`, so this re-export restores it.
 +export { StaticRouterProvider, createStaticHandler, createStaticRouter } from 'react-router';
+diff --git a/node_modules/react-router-dom/package.json b/node_modules/react-router-dom/package.json
+index 1111111..2222222 100644
+--- a/node_modules/react-router-dom/package.json
++++ b/node_modules/react-router-dom/package.json
+@@ -37,7 +37,9 @@
+         "default": "./dist/index.js"
+       }
+     },
+-    "./package.json": "./package.json"
++    "./package.json": "./package.json",
++    "./server": "./dist/server.mjs",
++    "./server.js": "./dist/server.mjs"
+   },
+   "wireit": {
+     "build": {
