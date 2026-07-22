@@ -25,8 +25,8 @@ compatibility_date = "2024-11-01"
 
 [[kv_namespaces]]
 binding = "CONTENT"
-id = "YOUR_PRODUCTION_NAMESPACE_ID"
-preview_id = "YOUR_PREVIEW_NAMESPACE_ID"
+id = "c0ba36f3b9d04829abcf44a7b9c9afe0"
+preview_id = "109fc89545c34bbfbdb28edd0fd8027b"
 
 # ─── Environment Variables & Secrets ─────────────────────────────────────────
 # Secrets are read from .env.production and .env.preview files
