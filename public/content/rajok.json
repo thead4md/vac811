@@ -1,14 +1,44 @@
 {
   "rajok": [
-    { "name": "Corvus", "ageGroup": "Kiscserkész" },
-    { "name": "Taurus", "ageGroup": "Kiscserkész" },
-    { "name": "Dorado", "ageGroup": "Cserkész" },
-    { "name": "Andromeda", "ageGroup": "Cserkész" },
-    { "name": "Cygnus", "ageGroup": "Cserkész" },
-    { "name": "Gemini", "ageGroup": "Kósza" },
-    { "name": "Göncöl", "ageGroup": "Kósza" },
-    { "name": "Szent Hubertusz", "ageGroup": "Vándor" },
-    { "name": "Felnőtt raj", "ageGroup": "Felnőtt" },
-    { "name": "Operatív raj", "ageGroup": "" }
+    {
+      "name": "Andromeda raj",
+      "ageGroup": "Cserkész"
+    },
+    {
+      "name": "Corvus raj",
+      "ageGroup": "Kiscserkész"
+    },
+    {
+      "name": "Cygnus raj",
+      "ageGroup": "Cserkész"
+    },
+    {
+      "name": "Dorado raj",
+      "ageGroup": "Cserkész"
+    },
+    {
+      "name": "Felnőtt raj",
+      "ageGroup": "Felnőtt"
+    },
+    {
+      "name": "Gemini raj",
+      "ageGroup": "Kósza"
+    },
+    {
+      "name": "Göncöl raj",
+      "ageGroup": "Kósza"
+    },
+    {
+      "name": "Operatív raj",
+      "ageGroup": ""
+    },
+    {
+      "name": "Szent Hubertusz raj",
+      "ageGroup": "Vándor"
+    },
+    {
+      "name": "Taurus raj",
+      "ageGroup": "Kiscserkész"
+    }
   ]
 }
