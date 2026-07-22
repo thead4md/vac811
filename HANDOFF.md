@@ -31,7 +31,7 @@ Effort key: **S** <2h · **M** ~half-day · **L** 1–3d · **XL** >3d.
 | 3.2 — Social + structured data | ✅ Done | og-image, Event JSON-LD |
 | 3.1 / 3.3 — SEO cutover | ⏸️ Deliberately not started | Gated on go-live decision |
 | 4 — Content KV fast-path | ✅ Code done / ⏳ 3 dashboard items open | See below |
-| 5 — Security & auth consolidation | ⏸️ Not started | Independent |
+| 5 — Security & auth consolidation | ✅ 5.2 code done / ⏳ dashboard+account items open | 5.1 & 5.3 are owner-only Cloudflare actions |
 | 6 — Edge consolidation | ⏸️ Not started | Depends on 4 & 5 being proven; nothing concrete to build yet |
 
 ---
@@ -226,20 +226,52 @@ motivated).
 
 ---
 
-## Phase 5 — Security & auth consolidation (not started)
+## Phase 5 — Security & auth consolidation ✅ (5.2 code) / ⏳ (owner dashboard)
 
-- **5.1** Cloudflare Access in front of `/admin/*` (Sveltia CMS) and
-  `/admin/kuracio` (Curate) — gate on `@vac811.hu` Google identity before the
-  app loads. Would need `public/_headers` CSP/frame-policy review if Access
-  injects its own login flow.
-- **5.2** Finish Google-SSO "Scope 2" per `docs/google-sso-setup.md` — fork
-  `sveltia-cms-auth` into the repo (`workers/sveltia-cms-auth/`), add a
-  `verifyGoogle()` gate mirroring the pattern in
-  `workers/google-git-proxy/index.js:40-62`, so one `@vac811.hu` login serves
-  both CMS and Curate.
-- **5.3** Move Workers off the personal `dudas-adam99.workers.dev` account to
-  an org-owned account on `*.vac811.hu` subdomains; update `base_url` in
-  `public/admin/config.yml` and `VITE_PROXY_URL`.
+The code-implementable core (5.2) is done and tested on this branch. 5.1 and
+5.3 are almost entirely **owner-only Cloudflare dashboard/account actions** — the
+code/config side of each is a review + documentation, captured below and in
+`docs/google-sso-setup.md`.
+
+- **5.2 — Google-SSO "Scope 2" ✅ (code).** Forked the third-party
+  `sveltia-cms-auth` authenticator into `workers/sveltia-cms-auth/` and gated it
+  behind the **same** `@vac811.hu` Google check as Curate, so one login now
+  serves both the CMS and Curate — no editor needs a GitHub account.
+  - **Design divergence from the doc's original sketch:** the doc imagined
+    Sveltia passing a Google ID token to the worker. Sveltia's popup has no such
+    hook, so the worker owns the gate: `GET /auth` serves a self-contained
+    Google Sign-In interstitial (its own origin, its own CSP) → `POST
+    /auth/continue` runs `verifyGoogle()` (identical checks/strings to
+    `workers/google-git-proxy/index.js`) → only then the normal GitHub OAuth
+    exchange + `postMessage`. All inside Sveltia's popup, so the token still
+    reaches `window.opener`.
+  - Unit-tested: `workers/sveltia-cms-auth/index.test.ts` (24 cases — identity
+    decision, tokeninfo handling, and the router/gate) runs under `npm test`.
+  - **Still open (owner Cloudflare/Google steps — I can't do these):** deploy
+    the worker (`cd workers/sveltia-cms-auth && npx wrangler deploy`), set the
+    `GOOGLE_CLIENT_ID` / `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` secrets, add
+    the worker origin as an Authorized JavaScript origin on the Google client,
+    and (if the hostname changes) point `public/admin/config.yml`
+    `backend.base_url` at it. Until then the CMS keeps using the current un-gated
+    upstream worker — no regression. Full steps: `docs/google-sso-setup.md`
+    (Scope 2) and `workers/sveltia-cms-auth/README.md`.
+- **5.1 — Cloudflare Access in front of `/admin/*` ⏳ (owner dashboard).**
+  Complementary edge layer (gates *page access*; the 5.2 worker gates *token
+  minting*). Setting it up is a Zero Trust dashboard action.
+  - **CSP/`_headers` review (the code side): no change needed today.** Access
+    authenticates via a top-level redirect (not an iframe), and the 5.2 sign-in
+    page lives on the worker's own origin with its own CSP — so the site
+    `public/_headers` CSP gates neither. Only an *embedded* Access challenge
+    (unusual) would need `https://*.cloudflareaccess.com` in `frame-src`.
+    Documented in `docs/google-sso-setup.md`.
+- **5.3 — Move Workers off the personal account ⏳ (owner account action).**
+  Move `google-git-proxy`, `image-cdn`, and the new `sveltia-cms-auth` off
+  `dudas-adam99.workers.dev` onto an org-owned account on `*.vac811.hu`
+  subdomains; then update `public/admin/config.yml` `base_url`, `VITE_PROXY_URL`,
+  and tighten the `https://*.workers.dev` wildcard in `public/_headers`
+  `connect-src` to the specific new hostnames. Requires Cloudflare account
+  credentials an agent doesn't have. Steps: `docs/google-sso-setup.md`
+  ("Moving workers off the personal Cloudflare account").
 
 ---
 
@@ -279,6 +311,13 @@ A/B tests / feature flags / bot filtering *only* if a real need appears.
   4 section above). Run `find . -name '._*' -not -path './.git/*' -delete`
   before committing anything under `patches/`, and double-check `git status`
   doesn't show a `._`-prefixed path before staging.
+- **`workers/**/index.js` are neither linted nor type-checked.** `eslint .`
+  only targets `**/*.{ts,tsx}` (see `eslint.config.js`) and `tsc -b` only
+  compiles `src/` + `vite.config.ts` (see the tsconfig `include`s). So the
+  Worker JS gets *no* static analysis — the `.test.ts` beside it (e.g.
+  `workers/sveltia-cms-auth/index.test.ts`, discovered by the repo-wide
+  `vitest run`) is the only automated guard on that logic. Add/extend a test
+  when you touch a worker; don't assume lint/tsc caught anything there.
 - **`patches/react-router-dom+7.17.0.patch` now has two hunks** (the
   `dist/server.mjs` shim it always had, plus the `package.json` `exports`
   entries it was missing). If `patch-package` output on `npm install` doesn't
