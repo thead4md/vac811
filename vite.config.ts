@@ -35,7 +35,7 @@ export default defineConfig(() => ({
     cssCodeSplit: true,
   },
   ssgOptions: {
-    script: 'async',
+    script: 'defer',
     formatting: 'minify',
     // Prerender only the static routes; everything else stays client-only SPA.
     // The crawler emits child segments relative to their parent (e.g. "rolunk"),
