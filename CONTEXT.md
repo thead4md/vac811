@@ -247,6 +247,9 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+11f12b8 Merge pull request #80 from thead4md/claude/fix-cms-icon-font-csp
+c98b898 fix: allow Google Fonts in CSP so Sveltia CMS icons render
+b2fbf39 chore: update CONTEXT.md [auto]
 81ac795 Merge pull request #79 from thead4md/claude/activate-cms-auth-worker
 997850b chore: point Sveltia CMS at the deployed Google-gated auth worker
 30fbbc8 chore: sync instagram feed
@@ -254,13 +257,10 @@ _No open TODOs found._
 ca8274c Merge pull request #77 from thead4md/claude/phase-5-implementation-d9a32f
 a9417e2 feat: Phase 5.2 — Google-gated sveltia-cms-auth fork; 5.1/5.3 reviewed & documented
 97745d3 chore: update CONTEXT.md [auto]
-d5b9118 Merge pull request #76 from thead4md/claude/content-kv-fast-path-phase4
-33fa727 feat: Phase 4 — content fast-path via Workers KV
-3a82426 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 16.2s. Stack: TypeScript / Node.js._
+_Generated in 13.1s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
