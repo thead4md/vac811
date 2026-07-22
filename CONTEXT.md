@@ -120,6 +120,7 @@ vac811/
 │   ├── curate-lib.test.ts
 │   ├── generate-og-image.mjs
 │   ├── generate_context.py
+│   ├── inject-csp-hashes.mjs
 │   ├── sync-ecset.mjs
 │   ├── sync-gallery.mjs
 │   ├── sync-instagram-feed.mjs
@@ -188,7 +189,6 @@ vac811/
 │   │   │   ├── slugify.ts
 │   │   │   └── useGalleryModel.ts
 │   │   ├── galleryRepo.ts
-│   │   ├── githubAuth.ts
 │   │   └── ... (truncated)
 │   └── ... (truncated)
 └── ... (truncated)
@@ -247,6 +247,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+103875d fix(csp): allow required inline scripts via build-time sha256 hashes (#83)
+0449f91 chore: update CONTEXT.md [auto]
 1f31b1a fix(ssg): use defer instead of async for entry script (#82)
 ab398e8 chore: update CONTEXT.md [auto]
 365de36 Merge pull request #81 from thead4md/claude/fix-deploy-pages-project-name
@@ -255,12 +257,10 @@ f9dd4f8 fix(ci): correct Cloudflare Pages project name in deploy.yml
 aebeef9 chore: update CONTEXT.md [auto]
 11f12b8 Merge pull request #80 from thead4md/claude/fix-cms-icon-font-csp
 c98b898 fix: allow Google Fonts in CSP so Sveltia CMS icons render
-b2fbf39 chore: update CONTEXT.md [auto]
-81ac795 Merge pull request #79 from thead4md/claude/activate-cms-auth-worker
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 10.8s. Stack: TypeScript / Node.js._
+_Generated in 11.3s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
