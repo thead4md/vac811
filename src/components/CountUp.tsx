@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+
+// useLayoutEffect on the client (so the reset-to-0 lands before the browser
+// paints — no flash of the final value), but a no-op useEffect during SSR to
+// avoid React's "useLayoutEffect does nothing on the server" warning.
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 // Whether to skip the count-up and render the final value immediately.
 function skipAnimation(): boolean {
@@ -23,13 +29,22 @@ interface Props {
 // final value immediately — no animation.
 export default function CountUp({ value, suffix = '', duration = 1400 }: Props) {
   const ref = useRef<HTMLSpanElement>(null);
-  // Reduced-motion / no-IO environments start (and stay) at the final value, so
-  // the effect never needs a synchronous setState (react-hooks/set-state-in-effect).
-  const [display, setDisplay] = useState(() => (skipAnimation() ? value : 0));
+  // The server and the first client render both show the final value, so the
+  // hydrated markup matches the prerendered HTML (no hydration mismatch). The
+  // layout effect below — client-only, before first paint — drops to 0 and
+  // animates up when the element scrolls into view. Reduced-motion / no-IO
+  // environments keep the final value and never reset.
+  const [display, setDisplay] = useState(value);
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const el = ref.current;
     if (!el || skipAnimation()) return;
+
+    // Reset to 0 before paint so the count-up starts from zero without briefly
+    // flashing the final value the initial render committed. This deliberate
+    // one-time pre-paint reset is why the render-time initializer stays at
+    // `value` (SSR-safe) rather than 0.
+    setDisplay(0);
 
     let raf = 0;
     let started = false;
