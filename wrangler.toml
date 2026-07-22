@@ -17,13 +17,23 @@ compatibility_date = "2024-11-01"
 # seconds without a full rebuild; git stays the source of truth and the static
 # files in dist/content/ remain the automatic fallback on a KV miss.
 #
-# The binding is attached to the Pages project in the Cloudflare dashboard
-# (Settings → Bindings → Add → KV namespace, variable name = CONTENT). See
-# docs/content-kv-fast-path.md for the one-time setup.
+# To create the namespace, run:
+#   wrangler kv namespace create CONTENT
+#   wrangler kv namespace create CONTENT --preview
 #
-# To manage the binding as code instead of via the dashboard, uncomment the
-# block below and fill in the id printed by `wrangler kv namespace create CONTENT`:
-#
-# [[kv_namespaces]]
-# binding = "CONTENT"
-# id = "<your-namespace-id>"
+# Then fill in the returned namespace IDs below:
+
+[[kv_namespaces]]
+binding = "CONTENT"
+id = "YOUR_PRODUCTION_NAMESPACE_ID"
+preview_id = "YOUR_PREVIEW_NAMESPACE_ID"
+
+# ─── Environment Variables & Secrets ─────────────────────────────────────────
+# Secrets are read from .env.production and .env.preview files
+# See .env.example for the full list of required variables
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+[env.preview]
+vars = { ENVIRONMENT = "preview" }
