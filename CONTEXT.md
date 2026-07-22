@@ -247,16 +247,16 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+fd05db2 Merge pull request #70 from thead4md/dependabot/npm_and_yarn/google-auth-library-10.9.0
+9fe0e65 Merge pull request #71 from thead4md/dependabot/npm_and_yarn/vite-8.1.5
+d0d0b6e Merge pull request #72 from thead4md/dependabot/npm_and_yarn/vitejs/plugin-react-6.0.3
+f276c96 chore: sync instagram feed
+d28d77d chore: update CONTEXT.md [auto]
+8f52991 chore(deps-dev): bump @vitejs/plugin-react from 6.0.1 to 6.0.3
+8345501 chore(deps-dev): bump vite from 8.0.16 to 8.1.5
+c025abb chore(deps): bump google-auth-library from 10.7.0 to 10.9.0
 777bcc4 chore: sync instagram feed
 a60c2ad chore: sync instagram feed
-b66b938 chore: sync instagram feed
-7b632de chore: curate gallery candidates from Google Drive
-d377238 chore: sync instagram feed
-150dd6d chore: update CONTEXT.md [auto]
-4df76d9 chore: sync instagram feed
-c03c235 chore: sync instagram feed
-5cab6be chore: sync instagram feed
-8090c1b chore: curate gallery candidates from Google Drive
 ```
 <!-- AUTO:END:recent_commits -->
 
