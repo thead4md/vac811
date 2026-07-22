@@ -1,0 +1,29 @@
+# Cloudflare Pages project config for vac811-beta.
+#
+# This exists so `wrangler pages deploy` (used by .github/workflows/deploy.yml)
+# knows the project name + output dir and compiles the Pages Functions under
+# functions/ (see functions/content/[file].js — the content KV fast-path).
+#
+# NOTE: this is the *Pages* project config. The two standalone Workers keep
+# their own wrangler.toml under workers/google-git-proxy/ and workers/image-cdn/.
+
+name = "vac811-beta"
+pages_build_output_dir = "dist"
+compatibility_date = "2024-11-01"
+
+# ─── Workers KV: content fast-path ───────────────────────────────────────────
+# The CONTENT namespace backs functions/content/[file].js. Content edits are
+# written to it by .github/workflows/sync-content-kv.yml so they go live in
+# seconds without a full rebuild; git stays the source of truth and the static
+# files in dist/content/ remain the automatic fallback on a KV miss.
+#
+# The binding is attached to the Pages project in the Cloudflare dashboard
+# (Settings → Bindings → Add → KV namespace, variable name = CONTENT). See
+# docs/content-kv-fast-path.md for the one-time setup.
+#
+# To manage the binding as code instead of via the dashboard, uncomment the
+# block below and fill in the id printed by `wrangler kv namespace create CONTENT`:
+#
+# [[kv_namespaces]]
+# binding = "CONTENT"
+# id = "<your-namespace-id>"

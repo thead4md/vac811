@@ -1,0 +1,96 @@
+name: Sync content to Workers KV
+
+# Content fast-path (Phase 4): pushes public/content/*.json into the CONTENT
+# Workers KV namespace that backs functions/content/[file].js, so editor changes
+# go live in seconds without a full app rebuild + Pages redeploy.
+#
+# Git stays the source of truth: this only runs AFTER content is committed to
+# main, re-validates it with the same zod gate the build uses, and the static
+# files in the deployed dist/ remain the automatic fallback on a KV miss.
+#
+# Triggers:
+#   • push to main touching public/content/** — covers writers that push with a
+#     user/PAT token (Sveltia CMS, the google-git-proxy Curate worker).
+#   • workflow_dispatch — manual full re-sync (initial seeding / recovery).
+# The scheduled bot writers (sync-ecset, sync-instagram-feed, curate-gallery)
+# commit with the Actions GITHUB_TOKEN, whose pushes do NOT trigger other
+# workflows, so those workflows dispatch this one explicitly after committing.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'public/content/**'
+  workflow_dispatch:
+
+concurrency:
+  group: content-kv-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Gate: never write malformed-but-parseable content into KV. Same schemas
+      # as the build (scripts/validate-content.mjs → src/schemas/content.ts).
+      - name: Validate content JSON
+        run: npm run validate:content
+
+      - name: Push content to Workers KV
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_KV_NAMESPACE_ID: ${{ secrets.CONTENT_KV_NAMESPACE_ID }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CF_KV_NAMESPACE_ID:-}" ]; then
+            echo "::error::CONTENT_KV_NAMESPACE_ID secret is not set. Create the KV namespace and add its id — see docs/content-kv-fast-path.md."
+            exit 1
+          fi
+          # Keep this list in sync with KV_FILES in functions/content/[file].js.
+          files="leaders.json camps.json events.json rajok.json settings.json gallery.json instagram.json"
+          base="https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/storage/kv/namespaces/${CF_KV_NAMESPACE_ID}/values"
+          for f in $files; do
+            echo "→ PUT ${f}"
+            resp=$(curl -sS -w '\n%{http_code}' -X PUT "${base}/${f}" \
+              -H "Authorization: Bearer ${CF_API_TOKEN}" \
+              -H "Content-Type: application/json" \
+              --data-binary @"public/content/${f}")
+            code=$(printf '%s' "$resp" | tail -n1)
+            body=$(printf '%s' "$resp" | sed '$d')
+            if [ "$code" != "200" ] || ! printf '%s' "$body" | grep -q '"success":true'; then
+              echo "::error::KV write failed for ${f} (HTTP ${code}): ${body}"
+              exit 1
+            fi
+          done
+          echo "Synced ${files} to KV namespace ${CF_KV_NAMESPACE_ID}."
+
+      - name: Alert on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Workflow failed: ${context.workflow}`;
+            const body = `The **${context.workflow}** workflow failed on run [${context.runId}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) (commit ${context.sha}). Content in git is unaffected; the live site keeps serving the last-synced KV values (or the static fallback). If this is a 403/401, check that CLOUDFLARE_API_TOKEN has the Workers KV Storage: Edit permission and that CONTENT_KV_NAMESPACE_ID is correct — see docs/content-kv-fast-path.md.`;
+            const issues = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', labels: 'workflow-failure' });
+            const existing = issues.data.find((i) => i.title === title);
+            if (existing) {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number, body });
+            } else {
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['workflow-failure'] });
+            }

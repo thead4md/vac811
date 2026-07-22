@@ -4,6 +4,14 @@ on:
   push:
     branches:
       - main
+    # Content-only commits (public/content/**) intentionally do NOT trigger a
+    # full rebuild + deploy. They're pushed to Workers KV by sync-content-kv.yml
+    # and served live via functions/content/[file].js (Phase 4 fast-path); the
+    # deployed dist keeps the previous content as the static fallback until the
+    # next code deploy, which is expected. A commit touching code AND content
+    # still deploys — paths-ignore only skips when every changed path matches.
+    paths-ignore:
+      - 'public/content/**'
   workflow_dispatch:
 
 concurrency:
@@ -68,14 +76,16 @@ jobs:
       # Cloudflare Pages keeps every deployment and supports instant rollback
       # from the dashboard/API, so unlike the old Rackhost FTP setup there's
       # no need to archive an artifact here for manual redeploy.
+      # Deploy via wrangler (cloudflare/pages-action@v1 is deprecated and does
+      # not reliably compile Pages Functions). `wrangler pages deploy` compiles
+      # the functions/ directory — including the content KV fast-path — and
+      # ships it alongside the static dist/ assets.
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: vac811-beta
-          directory: dist
-          branch: main
+          command: pages deploy dist --project-name=vac811-beta --branch=main
 
       - name: Smoke-check the deployed build
         run: |
