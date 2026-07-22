@@ -75,6 +75,7 @@ vac811/
 │   │   ├── ci.yml
 │   │   ├── curate-gallery.yml
 │   │   ├── deploy.yml
+│   │   ├── sync-content-kv.yml
 │   │   ├── sync-ecset.yml
 │   │   ├── sync-instagram-feed.yml
 │   │   └── update-context.yml
@@ -82,10 +83,14 @@ vac811/
 ├── docs
 │   ├── audit-and-upgrade-plan-2026-07.md
 │   ├── cloudflare-pages-deploy.md
+│   ├── content-kv-fast-path.md
 │   ├── galeria-audit.md
 │   ├── google-sso-setup.md
 │   ├── instagram-sync-setup.md
 │   └── seo-plan.md
+├── functions
+│   └── content
+│       └── [file].js
 ├── patches
 │   └── react-router-dom+7.17.0.patch
 ├── public
@@ -184,11 +189,6 @@ vac811/
 │   │   │   └── useGalleryModel.ts
 │   │   ├── galleryRepo.ts
 │   │   ├── githubAuth.ts
-│   │   ├── googleAuth.ts
-│   │   └── imageCdn.ts
-│   ├── pages
-│   │   ├── About.css
-│   │   ├── About.tsx
 │   │   └── ... (truncated)
 │   └── ... (truncated)
 └── ... (truncated)
@@ -247,6 +247,9 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+d5b9118 Merge pull request #76 from thead4md/claude/content-kv-fast-path-phase4
+33fa727 feat: Phase 4 — content fast-path via Workers KV
+3a82426 chore: update CONTEXT.md [auto]
 9a7da54 Merge pull request #75 from thead4md/claude/vac811-beta-deploy-env-ydyu8v
 747e6a7 fix: complete truncated react-router-dom patch (missing exports hunk)
 a93de19 docs: add HANDOFF.md tracking roadmap progress and repo landmines
@@ -254,13 +257,10 @@ ae01f2c feat: Phase 3.2 — social share image + Event structured data
 3e5ed5d feat: Phase 2 — prerender/SSG the static routes (vite-react-ssg)
 fe12713 chore: Phase 1 quick wins — preview deploys, Web Analytics, admin link
 1cbdd9b chore: update CONTEXT.md [auto]
-afaa0ce Merge pull request #73 from thead4md/claude/vac811-beta-deploy-env-ydyu8v
-c1fe375 Point Worker ALLOWED_ORIGIN at beta.vac811.hu
-d26f1b4 chore: curate gallery candidates from Google Drive
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 18.7s. Stack: TypeScript / Node.js._
+_Generated in 10.1s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
