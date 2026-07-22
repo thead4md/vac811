@@ -1,0 +1,32 @@
+name = "vac811-sveltia-cms-auth"
+main = "index.js"
+compatibility_date = "2024-11-01"
+
+# Sveltia CMS points its `backend.base_url` (public/admin/config.yml) at this
+# worker. The deployed URL becomes that base_url — currently
+# sveltia-cms-auth.dudas-adam99.workers.dev (Phase 5.3 moves it onto a
+# vac811.hu subdomain on an org-owned account).
+
+[vars]
+# Google hosted-domain / email domain the editor must belong to.
+ALLOWED_GOOGLE_DOMAIN = "vac811.hu"
+# Which CMS site(s) may use this authenticator (upstream site_id gate).
+# Comma-separated; `*` wildcard allowed. localhost entries cover local dev.
+ALLOWED_DOMAINS = "beta.vac811.hu,vac811.hu,localhost,127.0.0.1"
+# GitHub OAuth app default host.
+GITHUB_HOSTNAME = "github.com"
+# Recommended: restrict sign-in to specific editor accounts rather than the
+# whole @vac811.hu domain. Comma-separated, e.g. "a@vac811.hu,b@vac811.hu".
+# ALLOWED_EMAILS = ""
+
+# Secrets — set with `wrangler secret put ...`, do NOT commit here:
+#   GOOGLE_CLIENT_ID       OAuth 2.0 Web client id (ID-token audience + the id
+#                          embedded in the sign-in page). The deployed worker
+#                          origin must be an Authorized JavaScript origin on it.
+#                          (public value; kept as a secret only for parity with
+#                          workers/google-git-proxy — a [vars] entry works too.)
+#   GITHUB_CLIENT_ID       GitHub OAuth app client id
+#   GITHUB_CLIENT_SECRET   GitHub OAuth app client secret
+#
+# The GitHub OAuth app's "Authorization callback URL" must be
+# <this-worker-origin>/callback.

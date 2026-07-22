@@ -60,29 +60,61 @@ This is our own React code, so it's self-contained and low-risk.
    all reads/writes through the Worker. When either is absent it falls back to
    the PAT token form — nothing breaks before the Worker is live.
 
-### Scope 2: the content CMS (Sveltia)
+### Scope 2: the content CMS (Sveltia) — ✅ code done (Phase 5.2)
 
-Sveltia speaks the GitHub API natively, so it can't talk to the proxy directly.
-Cleanest path: extend the existing `sveltia-cms-auth` Worker so it only mints a
-GitHub token **after** verifying a Google `@vac811.hu` identity (a git-gateway
-style gate). Bigger lift; do it after Scope 1 proves out.
-
-`sveltia-cms-auth` isn't vendored in this repo — it's the third-party
+Sveltia speaks the GitHub API natively, so it can't talk to the `google-git-proxy`
+directly. The upstream authenticator it uses,
 [`sveltia/sveltia-cms-auth`](https://github.com/sveltia/sveltia-cms-auth)
-project, deployed separately at `sveltia-cms-auth.dudas-adam99.workers.dev`
-(`public/admin/config.yml` `base_url`). To gate it:
+(deployed at `sveltia-cms-auth.dudas-adam99.workers.dev`,
+`public/admin/config.yml` `base_url`), has now been **forked into this repo at
+[`workers/sveltia-cms-auth/`](../workers/sveltia-cms-auth/)** and gated behind
+the same Google check as Curate.
 
-1. **Fork it into this repo** (e.g. `workers/sveltia-cms-auth/`) so it can be
-   customized and deployed the same way as `workers/google-git-proxy` and
-   `workers/image-cdn`.
-2. Before it exchanges the GitHub OAuth code for a token, add the same
-   `verifyGoogle()`-style check already in `workers/google-git-proxy/index.js`
-   — require a valid Google ID token (passed as an extra header/param from
-   the Sveltia login flow) with `email_verified` and an `@vac811.hu` (or
-   allowlisted) address, and reject the request otherwise.
-3. Once both the CMS and Curate paths sit behind the same Google gate, a
-   single `@vac811.hu` sign-in works for both — no GitHub account needed by
-   any editor.
+**Design note — why the gate lives in the worker, not "passed from Sveltia":**
+the original sketch above imagined Sveltia handing the worker a Google ID token
+as an extra header/param. In practice Sveltia's login popup has *no hook* to do
+that — it only knows how to start a provider OAuth flow. So the fork makes the
+worker own the gate end-to-end:
+
+1. `GET /auth` no longer redirects straight to GitHub — it serves a
+   **self-contained Google Sign-In interstitial** (on the worker's own origin,
+   inside Sveltia's existing popup).
+2. On sign-in, the page POSTs the Google ID token to `POST /auth/continue`,
+   which runs the **same `verifyGoogle()` check as
+   `workers/google-git-proxy/index.js`** (`aud` = our client id,
+   `email_verified`, `@vac811.hu` domain / `hd`, optional `ALLOWED_EMAILS`
+   allowlist) — identical rule and error strings.
+3. Only on success does it proceed to the normal GitHub OAuth exchange and
+   `postMessage` the token back to Sveltia. Everything stays inside the popup,
+   so `window.opener` still receives the token unchanged.
+
+Result: one `@vac811.hu` sign-in now gates **both** the CMS and Curate — no
+editor needs a GitHub account. The decision logic (`evaluateGoogleIdentity`,
+`verifyGoogle`, `buildProviderRedirect`) and the request router are unit-tested
+in `workers/sveltia-cms-auth/index.test.ts` (runs under `npm test`).
+
+**To activate (owner Cloudflare/Google steps — I can't do these):**
+
+```bash
+cd workers/sveltia-cms-auth
+npx wrangler deploy
+npx wrangler secret put GOOGLE_CLIENT_ID       # the OAuth Web client id from Scope 1
+npx wrangler secret put GITHUB_CLIENT_ID       # existing Sveltia GitHub OAuth app id
+npx wrangler secret put GITHUB_CLIENT_SECRET   # existing Sveltia GitHub OAuth app secret
+# optional but recommended: restrict to named editors
+# npx wrangler secret put ALLOWED_EMAILS
+```
+
+- On the **Google OAuth Web client** (same one Scope 1 created): add the
+  deployed worker origin as an **Authorized JavaScript origin**.
+- On the **GitHub OAuth app**: set the Authorization callback URL to
+  `<worker-origin>/callback` (unchanged from today if you redeploy to the same
+  hostname).
+- Point Sveltia at the new deployment: `public/admin/config.yml` →
+  `backend.base_url`.
+
+Until deployed, the CMS keeps using the current un-gated upstream worker — no
+regression. Full config table + flow diagram: `workers/sveltia-cms-auth/README.md`.
 
 **Folding gallery approval into the CMS as one tool:** the plan's other half —
 replacing the dedicated Curate page with a Sveltia "approve"-style collection
@@ -93,6 +125,31 @@ collection doesn't have batch actions or an image-grid view out of the box.
 Do this only after confirming with the site owner that a generic CMS list
 view is an acceptable review experience — otherwise keep Curate as a
 separate, purpose-built tool and only unify the *auth*, not the *UI*.
+
+## Cloudflare Access in front of `/admin/*` (Phase 5.1) — owner dashboard step
+
+Access is a **complementary** edge layer, not a replacement for the worker gate
+above: Access controls *who can reach the admin pages*; the worker gate above
+controls *who can mint a repo-writing token*. Together they're defence in depth.
+Setting Access up is a Cloudflare **dashboard** action (I can't do it):
+
+1. Zero Trust → Access → Applications → **Add a self-hosted application** for
+   `beta.vac811.hu/admin/*` (and `/admin/kuracio` if it isn't covered by the
+   `/admin/*` path).
+2. Add a policy: **Allow** where *Emails ending in* `@vac811.hu` (or a named
+   allowlist), identity provider = Google.
+
+**CSP / `_headers` review (the code-side of 5.1): no change required today.**
+- Access authenticates via a **top-level redirect** to
+  `<team>.cloudflareaccess.com` and back with a `CF_Authorization` cookie — a
+  full-page navigation, not an iframe, so the site's `frame-src` /
+  `frame-ancestors` in `public/_headers` don't gate it.
+- The Phase 5.2 Google sign-in page is served on the **worker's** origin with
+  its own CSP (set in `renderGoogleGate`), so the site `_headers` CSP doesn't
+  apply to it either.
+- **Only if** you later configure Access to render its login as an *embedded*
+  challenge (unusual) would you need to add `https://*.cloudflareaccess.com` to
+  `frame-src` in `public/_headers`. Revisit then, not now.
 
 ## Security notes
 
@@ -120,8 +177,12 @@ without Cloudflare credentials can't do it — but the steps are:
 4. Update the URLs that reference the old `*.workers.dev` addresses:
    - `public/admin/config.yml` → `backend.base_url`
    - `.env.production` → `VITE_PROXY_URL`, `VITE_IMAGE_CDN_URL`
-   - `public/.htaccess` → the CSP's `connect-src`/`img-src` if it lists the
+   - `public/_headers` → the CSP's `connect-src`/`img-src` if it lists the
      specific worker hostnames (currently `https://*.workers.dev` is
-     wildcarded, so a custom domain will need adding there explicitly)
+     wildcarded, so a custom domain like `git-proxy.vac811.hu` will need
+     adding there explicitly, and the `*.workers.dev` wildcard can then be
+     tightened). Note the CMS auth worker is reached via a `window.open`
+     popup, not `fetch`/iframe, so it needs no `connect-src`/`frame-src`
+     entry — only the Curate page's `fetch` to `google-git-proxy` does.
 5. Re-run `wrangler secret put ...` for each secret on the new deployment —
    secrets don't carry over between accounts.
