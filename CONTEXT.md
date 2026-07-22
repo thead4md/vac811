@@ -247,16 +247,16 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+365de36 Merge pull request #81 from thead4md/claude/fix-deploy-pages-project-name
+f9dd4f8 fix(ci): correct Cloudflare Pages project name in deploy.yml
+1ed982c chore: sync instagram feed
+aebeef9 chore: update CONTEXT.md [auto]
 11f12b8 Merge pull request #80 from thead4md/claude/fix-cms-icon-font-csp
 c98b898 fix: allow Google Fonts in CSP so Sveltia CMS icons render
 b2fbf39 chore: update CONTEXT.md [auto]
 81ac795 Merge pull request #79 from thead4md/claude/activate-cms-auth-worker
 997850b chore: point Sveltia CMS at the deployed Google-gated auth worker
 30fbbc8 chore: sync instagram feed
-0c54d04 chore: update CONTEXT.md [auto]
-ca8274c Merge pull request #77 from thead4md/claude/phase-5-implementation-d9a32f
-a9417e2 feat: Phase 5.2 — Google-gated sveltia-cms-auth fork; 5.1/5.3 reviewed & documented
-97745d3 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
