@@ -1,0 +1,10 @@
+diff --git a/node_modules/react-router-dom/dist/server.mjs b/node_modules/react-router-dom/dist/server.mjs
+new file mode 100644
+index 0000000..7cbb41f
+--- /dev/null
++++ b/node_modules/react-router-dom/dist/server.mjs
+@@ -0,0 +1,4 @@
++// Shim: RR7 dropped the `react-router-dom/server` subpath and moved these
++// server-render APIs into the `react-router` core package. vite-react-ssg
++// still imports `react-router-dom/server.js`, so this re-export restores it.
++export { StaticRouterProvider, createStaticHandler, createStaticRouter } from 'react-router';
