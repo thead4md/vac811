@@ -81,10 +81,13 @@ vac811/
 │   └── dependabot.yml
 ├── docs
 │   ├── audit-and-upgrade-plan-2026-07.md
+│   ├── cloudflare-pages-deploy.md
 │   ├── galeria-audit.md
 │   ├── google-sso-setup.md
 │   ├── instagram-sync-setup.md
 │   └── seo-plan.md
+├── patches
+│   └── react-router-dom+7.17.0.patch
 ├── public
 │   ├── admin
 │   │   ├── config.yml
@@ -103,12 +106,14 @@ vac811/
 │   ├── favicon.svg
 │   ├── icons.svg
 │   ├── logo.svg
+│   ├── og-image.png
 │   ├── robots.txt
 │   └── sitemap.xml
 ├── scripts
 │   ├── curate-gallery.mjs
 │   ├── curate-lib.mjs
 │   ├── curate-lib.test.ts
+│   ├── generate-og-image.mjs
 │   ├── generate_context.py
 │   ├── sync-ecset.mjs
 │   ├── sync-gallery.mjs
@@ -184,11 +189,6 @@ vac811/
 │   ├── pages
 │   │   ├── About.css
 │   │   ├── About.tsx
-│   │   ├── Camps.css
-│   │   ├── Camps.tsx
-│   │   ├── Contact.css
-│   │   ├── Contact.tsx
-│   │   ├── Curate.css
 │   │   └── ... (truncated)
 │   └── ... (truncated)
 └── ... (truncated)
@@ -247,20 +247,20 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+9a7da54 Merge pull request #75 from thead4md/claude/vac811-beta-deploy-env-ydyu8v
+747e6a7 fix: complete truncated react-router-dom patch (missing exports hunk)
+a93de19 docs: add HANDOFF.md tracking roadmap progress and repo landmines
+ae01f2c feat: Phase 3.2 — social share image + Event structured data
+3e5ed5d feat: Phase 2 — prerender/SSG the static routes (vite-react-ssg)
+fe12713 chore: Phase 1 quick wins — preview deploys, Web Analytics, admin link
+1cbdd9b chore: update CONTEXT.md [auto]
 afaa0ce Merge pull request #73 from thead4md/claude/vac811-beta-deploy-env-ydyu8v
 c1fe375 Point Worker ALLOWED_ORIGIN at beta.vac811.hu
 d26f1b4 chore: curate gallery candidates from Google Drive
-9251b00 Migrate beta deploy from Rackhost FTP to Cloudflare Pages (beta.vac811.hu)
-d72597b chore: update CONTEXT.md [auto]
-adaae80 Merge pull request #68 from thead4md/dependabot/npm_and_yarn/brace-expansion-5.0.7
-efb6389 chore: update CONTEXT.md [auto]
-fd05db2 Merge pull request #70 from thead4md/dependabot/npm_and_yarn/google-auth-library-10.9.0
-9fe0e65 Merge pull request #71 from thead4md/dependabot/npm_and_yarn/vite-8.1.5
-d0d0b6e Merge pull request #72 from thead4md/dependabot/npm_and_yarn/vitejs/plugin-react-6.0.3
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 11.8s. Stack: TypeScript / Node.js._
+_Generated in 18.7s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
