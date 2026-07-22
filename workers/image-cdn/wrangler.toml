@@ -3,7 +3,7 @@ main = "index.js"
 compatibility_date = "2024-11-01"
 
 [vars]
-ALLOWED_ORIGIN = "https://vac811.hu"
+ALLOWED_ORIGIN = "https://beta.vac811.hu"
 
 # Requires "Image Resizing" enabled on the zone for AVIF/WebP conversion
 # (Workers Pro+); without it the worker still works as an edge cache in
