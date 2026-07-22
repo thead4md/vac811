@@ -247,20 +247,20 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+81ac795 Merge pull request #79 from thead4md/claude/activate-cms-auth-worker
+997850b chore: point Sveltia CMS at the deployed Google-gated auth worker
+30fbbc8 chore: sync instagram feed
+0c54d04 chore: update CONTEXT.md [auto]
 ca8274c Merge pull request #77 from thead4md/claude/phase-5-implementation-d9a32f
 a9417e2 feat: Phase 5.2 — Google-gated sveltia-cms-auth fork; 5.1/5.3 reviewed & documented
 97745d3 chore: update CONTEXT.md [auto]
 d5b9118 Merge pull request #76 from thead4md/claude/content-kv-fast-path-phase4
 33fa727 feat: Phase 4 — content fast-path via Workers KV
 3a82426 chore: update CONTEXT.md [auto]
-9a7da54 Merge pull request #75 from thead4md/claude/vac811-beta-deploy-env-ydyu8v
-747e6a7 fix: complete truncated react-router-dom patch (missing exports hunk)
-a93de19 docs: add HANDOFF.md tracking roadmap progress and repo landmines
-ae01f2c feat: Phase 3.2 — social share image + Event structured data
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 11.1s. Stack: TypeScript / Node.js._
+_Generated in 16.2s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
