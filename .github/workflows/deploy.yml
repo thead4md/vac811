@@ -85,7 +85,12 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=vac811-beta --branch=main
+          # Project is "vac811" (renamed off "vac811-beta" during the account
+          # migration). The stale name made this step fail silently on every
+          # run for a while — production stayed up regardless because
+          # Cloudflare's own Git integration deploys "vac811" independently of
+          # this job; this step's failure just meant CI showed a false red X.
+          command: pages deploy dist --project-name=vac811 --branch=main
 
       - name: Smoke-check the deployed build
         run: |
