@@ -24,16 +24,29 @@ const navItems = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    const stored = localStorage.getItem('theme');
-    if (stored === 'light' || stored === 'dark') return stored;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
+  // SSR-safe default: the inline no-flash script in index.html already resolved
+  // the real theme (localStorage → matchMedia) and set data-theme on <html>
+  // before paint, so we default to 'light' here to match the server-rendered
+  // markup and adopt the actual theme in an effect after hydration — reading
+  // localStorage/matchMedia during render would throw when prerendered.
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const location = useLocation();
   const navRef = useRef<HTMLElement>(null);
 
-  // Sync the chosen theme to the DOM (runs on mount and whenever it changes).
+  // Adopt whatever theme the no-flash script already applied to <html>. This
+  // one-time post-mount sync from external (pre-paint) DOM state is deliberate:
+  // doing it in the useState initializer instead would read the real theme
+  // during render and break hydration (the prerendered markup is always
+  // 'light'), so the setState here is the correct place, not a cascading-render
+  // smell.
+  useEffect(() => {
+    const current = document.documentElement.getAttribute('data-theme');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (current === 'light' || current === 'dark') setTheme(current);
+  }, []);
+
+  // Sync the chosen theme to the DOM (runs whenever it changes).
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);

@@ -1,0 +1,241 @@
+# Handoff: Cloudflare Pages Migration & Roadmap
+
+## Context
+
+`beta.vac811.hu` was migrated from Rackhost FTP to Cloudflare Pages (PR #73,
+merged). The site is a React 19 + Vite 8 SPA; both curation Workers
+(`google-git-proxy`, `image-cdn`) are redeployed pointing at the new origin.
+
+**Decisions driving priority (confirmed with owner):**
+- **beta will eventually become the real public site**, retiring/replacing the
+  WordPress apex. This makes SSR/prerender + the SEO cutover *high-value*, not
+  cosmetic — it's the north star of this roadmap.
+- Work is a **full sequenced roadmap**, ordered by dependency and value/effort.
+- The SEO cutover (noindex removal, canonical change, WordPress redirects) is
+  **explicitly gated on business go-live timing** — do not flip these without
+  the owner's direct go-ahead, even if asked to "do Phase 3."
+
+All work so far is on branch `claude/vac811-beta-deploy-env-ydyu8v`, unmerged.
+
+Effort key: **S** <2h · **M** ~half-day · **L** 1–3d · **XL** >3d.
+
+---
+
+## Status at a glance
+
+| Phase | Status | Notes |
+|---|---|---|
+| 1 — Quick wins | ✅ Done (code) / ⏳ 2 dashboard items open | See below |
+| 2 — Prerender/SSG | ✅ Done | vite-react-ssg, 10 static routes |
+| 3.2 — Social + structured data | ✅ Done | og-image, Event JSON-LD |
+| 3.1 / 3.3 — SEO cutover | ⏸️ Deliberately not started | Gated on go-live decision |
+| 4 — Content KV fast-path | ⏸️ Not started | Independent, ready to pick up |
+| 5 — Security & auth consolidation | ⏸️ Not started | Independent |
+| 6 — Edge consolidation | ⏸️ Not started | Depends on 4 & 5 being proven; nothing concrete to build yet |
+
+---
+
+## Phase 1 — Quick wins ✅ (mostly)
+
+Commit: `d9a3ce7`
+
+**Done:**
+- **1.3** Fixed stale `/beta/admin/kuracio` link → `/admin/kuracio`
+  (`public/admin/index.html`).
+- **1.2** Added Cloudflare Web Analytics beacon hosts to CSP in
+  `public/_headers` (`script-src`/`connect-src` allow `*.cloudflareinsights.com`).
+- **1.5** Wrote `docs/cloudflare-pages-deploy.md` — rollback, preview URLs,
+  build env vars, smoke check, troubleshooting.
+
+**Still open (requires Cloudflare dashboard access, not code):**
+- **1.1** Verify the `vac811-beta` Pages project has preview builds enabled
+  and production branch set to `main`.
+- **1.4** Confirm `VITE_GOOGLE_CLIENT_ID` and `VITE_PROXY_URL` are set as
+  **Pages build environment variables** (Settings → Environment variables).
+  Without these, `/admin/kuracio` shows a "misconfigured" screen instead of
+  the Google sign-in button. Both documented in `docs/cloudflare-pages-deploy.md`.
+
+---
+
+## Phase 2 — Prerender/SSG the static routes ✅
+
+Commit: `d0ab1d4`
+
+Ships real per-route HTML for 10 static routes (`/`, `/rolunk`, `/tortenet`,
+`/cserkeszet`, `/vezetok`, `/rajok`, `/taborok`, `/naptar`, `/csatlakozas`,
+`/kapcsolat`) via **vite-react-ssg**, keeping full SPA hydration. `/galeria`
+and `/admin/kuracio` stay client-only via the existing `_redirects` catch-all.
+
+**What changed:**
+- `src/App.tsx` — converted from `<BrowserRouter>/<Routes>` to a
+  `RouteRecord[]` data-router with an `<Outlet/>` layout; exports `routes`.
+- `src/main.tsx` — now `export const createRoot = ViteReactSSG({ routes, ... })`.
+- `vite.config.ts` — `ssgOptions.includedRoutes` filters the crawler's
+  (relative-path) output down to the 10 static routes.
+- `src/components/Navbar.tsx` — the one real SSR blocker. It read
+  `localStorage`/`matchMedia` in a `useState` initializer (throws
+  server-side). Now defaults to `'light'` (matches the prerendered markup and
+  the existing no-flash script in `index.html`) and adopts the real theme in
+  a post-mount effect.
+- New `RouteHead` component in `App.tsx` bakes per-route `<title>`/
+  description/canonical/og via vite-react-ssg's `<Head>` (react-helmet-async
+  under the hood), replacing the old crawler-invisible post-mount
+  `SeoManager` DOM mutation. Duplicate static SEO tags removed from
+  `index.html` (kept site-wide constants: keywords, author, robots,
+  og:type/locale/site_name).
+- `package.json` — `dev`/`build` scripts now run through `vite-react-ssg`.
+
+**Tooling gotchas resolved (worth knowing before touching this area again):**
+- `vite-react-ssg`'s `react-router-dom` peer range is `^6.14.1`; this repo is
+  on RR7. RR7 moved the server-render APIs
+  (`StaticRouterProvider`/`createStaticHandler`/`createStaticRouter`) from
+  `react-router-dom/server` into `react-router` core and dropped the
+  `/server` subpath entirely — `vite-react-ssg` still imports the old path
+  and throws `ERR_PACKAGE_PATH_NOT_EXPORTED` without a fix.
+  - **Fix:** `patches/react-router-dom+7.17.0.patch` (via `patch-package`)
+    adds back `react-router-dom/server(.js)` as a shim re-exporting those
+    three symbols from `react-router`. Reapplied automatically on every
+    install via the `postinstall` script — don't remove that hook.
+  - `.npmrc` sets `legacy-peer-deps=true` so `npm install`/`npm ci` don't
+    choke on the RR6-vs-RR7 peer mismatch.
+  - Side-effect: `legacy-peer-deps` stopped npm auto-installing
+    `@testing-library/dom` (a peer of `@testing-library/react`), which broke
+    `screen`/`within` imports in tests. Added as an explicit devDependency.
+- If `vite-react-ssg` ever ships a release with a real RR7 peer range, revisit
+  whether the patch and `legacy-peer-deps` are still needed.
+
+**Known limitation (not a blocker, just be aware):**
+- The prerendered `/naptar` HTML renders `eventsStatic` (the static fallback
+  in `src/data/events.ts`), not live `public/content/events.json` — a
+  relative `fetch()` inside `useContent` can't resolve during Node-side
+  prerendering. The plan's Phase 2.2 flagged inlining live content at
+  prerender time as a "reuse" opportunity, not a hard requirement, so this
+  was left as-is. If pursued later: pass build-time-loaded JSON into routes
+  via `vite-react-ssg`'s route `loader`, or statically import the JSON like
+  the JSON-LD component below already does.
+
+**Verification:** `npm run lint` / `npm test` (32 tests) / `npm run
+validate:content` all green. `npm run build` prerenders all 10 routes with
+`data-server-rendered="true"` roots, deduplicated per-route metadata, and a
+wired hydration script (`assets/app-*.js`).
+
+---
+
+## Phase 3.2 — Social share image + structured data ✅
+
+Commit: `8726aa2`. **Only 3.2 was done** — see the gating note below.
+
+- `scripts/generate-og-image.mjs` — one-off generator (rerun manually if
+  brand/copy changes) that rasterizes a branded 1200×630 `public/og-image.png`
+  from the site logo + brand tokens via `sharp` (already a dependency).
+  Wired as `og:image`/`twitter:image` in `index.html`; `twitter:card` switched
+  to `summary_large_image`.
+- `src/pages/Naptar.tsx` — new `EventsJsonLd` component emits schema.org
+  `Event` JSON-LD per entry, extending the existing `Organization` JSON-LD
+  in `index.html`. **Sourced from a static import of
+  `public/content/events.json` directly** (not the page's own
+  `useContent`/`eventsStatic` render path) — this matches what the hydrated
+  page shows once the client fetch resolves, avoiding a mismatch between
+  structured data and the (stale-fallback) crawled snapshot described above.
+
+**Verification:** build emits 5 `Event` JSON-LD blocks on `/naptar` (schema
+validated by hand — `@type`, `name`, `startDate`, `location`, `organizer`
+all present) plus the unchanged `Organization` block; `og-image.png` ships to
+`dist/`. Lint/tests/content-validation all green.
+
+### 3.1 / 3.3 — deliberately NOT done — READ BEFORE TOUCHING
+
+The plan states: *"Execute when the owner is ready to make beta the real
+site."* This is the actual SEO cutover — lifting `noindex`, changing the
+canonical to the final serving origin, regenerating `sitemap.xml`/
+`robots.txt`, and setting up 301s from WordPress. It is **not a reversible
+code tweak** — once Google crawls an indexable `beta.vac811.hu`, that's live
+in search regardless of readiness.
+
+**Do not implement 3.1/3.3 just because someone asks to "finish Phase 3."**
+Confirm explicitly that the owner wants beta live as the public site *now*,
+and confirm the final domain, before touching `index.html`'s `noindex`/
+canonical, `public/sitemap.xml`, or `public/robots.txt`.
+
+---
+
+## Phase 4 — Content fast-path via edge storage (not started)
+
+**Goal:** decouple content edits (CMS, ECSET sync, curate, Instagram sync)
+from full-app redeploys. Currently every content commit triggers a full
+`npm ci` + Vite build + Pages deploy (`deploy-content.yml` was deleted during
+the FTP→Pages migration since Pages has no partial-deploy equivalent).
+
+**Recommended approach (per the original plan):** a
+`functions/content/[file].ts` Pages Function reading from Workers KV, with
+content writers (Sveltia commit hook / `google-git-proxy` / the
+`scripts/*.mjs` pipelines) writing to KV in addition to git. Point
+`useContent` (`src/hooks/useContent.ts:31`) at `/content/<file>` — same URL,
+now KV-backed, so edits go live in seconds with no rebuild. Keep git as the
+audit trail; keep `scripts/validate-content.mjs` (zod) as the gate before any
+KV write.
+
+Neither Worker uses KV/R2 today — this is greenfield binding config, not a
+migration of existing infra.
+
+---
+
+## Phase 5 — Security & auth consolidation (not started)
+
+- **5.1** Cloudflare Access in front of `/admin/*` (Sveltia CMS) and
+  `/admin/kuracio` (Curate) — gate on `@vac811.hu` Google identity before the
+  app loads. Would need `public/_headers` CSP/frame-policy review if Access
+  injects its own login flow.
+- **5.2** Finish Google-SSO "Scope 2" per `docs/google-sso-setup.md` — fork
+  `sveltia-cms-auth` into the repo (`workers/sveltia-cms-auth/`), add a
+  `verifyGoogle()` gate mirroring the pattern in
+  `workers/google-git-proxy/index.js:40-62`, so one `@vac811.hu` login serves
+  both CMS and Curate.
+- **5.3** Move Workers off the personal `dudas-adam99.workers.dev` account to
+  an org-owned account on `*.vac811.hu` subdomains; update `base_url` in
+  `public/admin/config.yml` and `VITE_PROXY_URL`.
+
+---
+
+## Phase 6 — Longer-term edge consolidation (parked, not started)
+
+**Explicitly not actionable yet.** The plan gates this on Phases 4 and 5
+existing and having proven the Pages Functions runtime in this repo — there
+is no concrete Phase 6 task list until then. Don't invent speculative work
+here; the plan itself says "don't build speculatively."
+
+Once 4/5 land: consider folding `google-git-proxy` (and `sveltia-cms-auth`)
+into Pages Functions colocated with the app, and consider edge middleware for
+A/B tests / feature flags / bot filtering *only* if a real need appears.
+
+---
+
+## Repo landmines for whoever picks this up
+
+- **`.npmrc` has `legacy-peer-deps=true`** and **`patches/` has a
+  `react-router-dom` patch applied via `postinstall`**. Both exist solely to
+  make `vite-react-ssg` work with RR7 (see Phase 2 section above). Don't
+  remove either without understanding why they're there — `npm ci` will
+  either fail (peer conflict) or `vite-react-ssg build` will throw
+  `ERR_PACKAGE_PATH_NOT_EXPORTED` (missing shim).
+- **`npm run build` now runs `vite-react-ssg build`, not `vite build`.**
+  Same for `dev`. If someone reverts `package.json` scripts without
+  reverting `main.tsx`/`vite.config.ts`, the build breaks.
+- **`/naptar`'s prerendered HTML shows stale fallback event data** (see
+  Phase 2 known limitation above) — this is expected, not a regression.
+- **Site is still `noindex`.** Don't remove it without an explicit go-live
+  confirmation (see Phase 3.1/3.3 section).
+
+---
+
+## Verification checklist (rerun after any further phase)
+
+```bash
+npm run lint
+npm test
+npm run validate:content
+npm run build   # confirms all 10 static routes still prerender cleanly
+```
+
+Inspect `dist/<route>.html` for `data-server-rendered="true"` and
+route-specific `<title>`/canonical if touching anything SSG-related.

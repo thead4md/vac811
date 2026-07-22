@@ -1,5 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+/* eslint-disable react-refresh/only-export-components --
+ * This is the route-configuration entry module consumed by main.tsx (it
+ * exports the `routes` array alongside the layout components used only here).
+ * React Fast Refresh's "only export components" constraint doesn't apply to a
+ * router-definition file, and vite-react-ssg expects routes co-located here. */
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useEffect, lazy, Suspense } from 'react';
+import { Head, type RouteRecord } from 'vite-react-ssg';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import BackgroundField from './components/BackgroundField';
@@ -7,29 +13,18 @@ import ScrollProgress from './components/ScrollProgress';
 // Home is the most-visited landing page — keep it in the main chunk so first
 // paint isn't gated on a second chunk fetch. Every other route (including the
 // admin-only Curate tool, which pulls in auth libs no visitor else needs) is
-// lazy-loaded so its code doesn't ship to someone just viewing Home.
+// lazy-loaded so its code doesn't ship to someone just viewing Home. The
+// data-router `lazy` convention below adapts our default-exported pages
+// ({ Component: default }) and lets vite-react-ssg fully resolve each chunk
+// at prerender time — no renderToString/Suspense race.
 import Home from './pages/Home';
-const About = lazy(() => import('./pages/About'));
-const History = lazy(() => import('./pages/History'));
-const Leaders = lazy(() => import('./pages/Leaders'));
-const Rajok = lazy(() => import('./pages/Rajok'));
-const Camps = lazy(() => import('./pages/Camps'));
-const Naptar = lazy(() => import('./pages/Naptar'));
-const GaleriaPage = lazy(() => import('./pages/GaleriaPage'));
-const Join = lazy(() => import('./pages/Join'));
-const Contact = lazy(() => import('./pages/Contact'));
-const NotFound = lazy(() => import('./pages/NotFound'));
-const Scouting = lazy(() => import('./pages/Scouting'));
+// Curate (admin-only, auth libs) lazy-loaded at module scope — never during
+// render, which would recreate the component type on every render.
 const Curate = lazy(() => import('./pages/Curate'));
 
-// Scroll to top on route change
-function ScrollReset() {
-  const { pathname } = useLocation();
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [pathname]);
-  return null;
-}
+// Origin baked into canonical/OG URLs of the prerendered HTML. Kept in sync
+// with index.html's canonical; Phase 3 reconciles this at the SEO cutover.
+const SITE_ORIGIN = 'https://beta.vac811.hu';
 
 // Per-route SEO: title + meta description. Descriptions are unique per page so
 // search engines don't see duplicate snippets across the site.
@@ -52,28 +47,36 @@ const pageSeo: Record<string, RouteSeo> = {
   '/kapcsolat': { title: 'Kapcsolat – 811. Cserkészcsapat', description: 'Lépj kapcsolatba a 811. Szent József Cserkészcsapattal Vácon – cím, e-mail és közösségi média.' },
 };
 
-function setMeta(selector: string, attr: 'content' | 'href', value: string) {
-  const el = document.head.querySelector<HTMLElement>(selector);
-  if (el) el.setAttribute(attr, value);
-}
-
-function SeoManager() {
+// Scroll to top on route change
+function ScrollReset() {
   const { pathname } = useLocation();
   useEffect(() => {
-    const seo = pageSeo[pathname] ?? { title: DEFAULT_TITLE, description: DEFAULT_DESC };
-    const url = `${window.location.origin}${import.meta.env.BASE_URL.replace(/\/$/, '')}${pathname}`;
-
-    document.title = seo.title;
-    setMeta('meta[name="description"]', 'content', seo.description);
-    setMeta('meta[property="og:title"]', 'content', seo.title);
-    setMeta('meta[property="og:description"]', 'content', seo.description);
-    setMeta('meta[property="og:url"]', 'content', url);
-    setMeta('meta[name="twitter:title"]', 'content', seo.title);
-    setMeta('meta[name="twitter:description"]', 'content', seo.description);
-    // Self-referential canonical for the actual deployment URL.
-    setMeta('link[rel="canonical"]', 'href', url);
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }, [pathname]);
   return null;
+}
+
+// Bakes per-route <title>/description/canonical/OG into the static HTML at
+// prerender time (via vite-react-ssg's Head → react-helmet-async) and keeps
+// them in sync on client-side route transitions. Replaces the old post-mount
+// DOM-mutation SeoManager, which was invisible to crawlers.
+function RouteHead() {
+  const { pathname } = useLocation();
+  const seo = pageSeo[pathname] ?? { title: DEFAULT_TITLE, description: DEFAULT_DESC };
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+  const url = `${SITE_ORIGIN}${base}${pathname === '/' ? '/' : pathname}`;
+  return (
+    <Head>
+      <title>{seo.title}</title>
+      <meta name="description" content={seo.description} />
+      <meta property="og:title" content={seo.title} />
+      <meta property="og:description" content={seo.description} />
+      <meta property="og:url" content={url} />
+      <meta name="twitter:title" content={seo.title} />
+      <meta name="twitter:description" content={seo.description} />
+      <link rel="canonical" href={url} />
+    </Head>
+  );
 }
 
 function AppLayout() {
@@ -85,24 +88,9 @@ function AppLayout() {
       <Navbar />
       <div id="main-content">
         <ScrollReset />
-        <SeoManager />
+        <RouteHead />
         <Suspense fallback={null}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/rolunk" element={<About />} />
-            <Route path="/tortenet" element={<History />} />
-            <Route path="/vezetok" element={<Leaders />} />
-            <Route path="/rajok" element={<Rajok />} />
-            <Route path="/taborok" element={<Camps />} />
-            <Route path="/naptar" element={<Naptar />} />
-            {/* Faithful slug kept; the beta's /hirek redirects here */}
-            <Route path="/hirek" element={<Navigate to="/naptar" replace />} />
-            <Route path="/galeria" element={<GaleriaPage />} />
-            <Route path="/csatlakozas" element={<Join />} />
-            <Route path="/kapcsolat" element={<Contact />} />
-            <Route path="/cserkeszet" element={<Scouting />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Outlet />
         </Suspense>
       </div>
       <Footer />
@@ -110,11 +98,15 @@ function AppLayout() {
   );
 }
 
-// /admin/kuracio rendered outside the AppLayout shell (no Navbar/Footer, full-screen)
+// /admin/kuracio rendered outside the AppLayout shell (no Navbar/Footer,
+// full-screen) and never prerendered — excluded from includedRoutes, served
+// client-only via the _redirects catch-all.
 function CurateLayout() {
   return (
     <>
-      <meta name="robots" content="noindex" />
+      <Head>
+        <meta name="robots" content="noindex" />
+      </Head>
       <a
         href="/admin/"
         style={{
@@ -137,14 +129,33 @@ function CurateLayout() {
   );
 }
 
-export default function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/admin/kuracio" element={<CurateLayout />} />
-        <Route path="/kuracio" element={<Navigate to="/admin/kuracio" replace />} />
-        <Route path="/*" element={<AppLayout />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
+export const routes: RouteRecord[] = [
+  {
+    path: '/',
+    element: <AppLayout />,
+    children: [
+      { index: true, Component: Home },
+      { path: 'rolunk', lazy: async () => ({ Component: (await import('./pages/About')).default }) },
+      { path: 'tortenet', lazy: async () => ({ Component: (await import('./pages/History')).default }) },
+      { path: 'cserkeszet', lazy: async () => ({ Component: (await import('./pages/Scouting')).default }) },
+      { path: 'vezetok', lazy: async () => ({ Component: (await import('./pages/Leaders')).default }) },
+      { path: 'rajok', lazy: async () => ({ Component: (await import('./pages/Rajok')).default }) },
+      { path: 'taborok', lazy: async () => ({ Component: (await import('./pages/Camps')).default }) },
+      { path: 'naptar', lazy: async () => ({ Component: (await import('./pages/Naptar')).default }) },
+      // Faithful slug kept; the beta's /hirek redirects here
+      { path: 'hirek', element: <Navigate to="/naptar" replace /> },
+      { path: 'galeria', lazy: async () => ({ Component: (await import('./pages/GaleriaPage')).default }) },
+      { path: 'csatlakozas', lazy: async () => ({ Component: (await import('./pages/Join')).default }) },
+      { path: 'kapcsolat', lazy: async () => ({ Component: (await import('./pages/Contact')).default }) },
+      { path: '*', lazy: async () => ({ Component: (await import('./pages/NotFound')).default }) },
+    ],
+  },
+  {
+    path: '/admin/kuracio',
+    element: <CurateLayout />,
+  },
+  {
+    path: '/kuracio',
+    element: <Navigate to="/admin/kuracio" replace />,
+  },
+];

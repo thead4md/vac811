@@ -15,27 +15,25 @@
       })();
     </script>
 
-    <!-- Primary SEO -->
-    <title>811. Szent József Cserkészcsapat – Vác</title>
-    <meta name="description" content="A 811. Szent József Cserkészcsapat Vác egyik legnagyobb ifjúsági szervezete. 232 aktív cserkész, 11 raj, 1929 óta. Csatlakozz a közösséghez!" />
+    <!-- Primary SEO — title/description/canonical and og/twitter title+description
+         are injected per route at prerender time by RouteHead (src/App.tsx) via
+         vite-react-ssg's <Head>. Only site-wide constants live statically here. -->
     <meta name="keywords" content="cserkész, vác, 811, szent józsef, cserkészcsapat, ifjúság, tábor, közösség" />
     <meta name="author" content="811. Szent József Cserkészcsapat" />
     <!-- beta.vac811.hu is staging alongside the WordPress apex — keep it out of search results -->
     <meta name="robots" content="noindex" />
-    <link rel="canonical" href="https://beta.vac811.hu/" />
 
-    <!-- Open Graph -->
+    <!-- Open Graph (site-wide constants; per-route og:title/description/url set by RouteHead) -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://vac811.hu/" />
-    <meta property="og:title" content="811. Szent József Cserkészcsapat – Vác" />
-    <meta property="og:description" content="A 811. Szent József Cserkészcsapat Vác egyik legnagyobb ifjúsági szervezete. 232 aktív cserkész, 11 raj, 1929 óta." />
     <meta property="og:locale" content="hu_HU" />
     <meta property="og:site_name" content="811. Cserkészcsapat – Vác" />
+    <meta property="og:image" content="https://beta.vac811.hu/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
 
     <!-- Twitter -->
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="811. Szent József Cserkészcsapat – Vác" />
-    <meta name="twitter:description" content="1929 óta cserkészkedünk Vácott. Csatlakozz te is!" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://beta.vac811.hu/og-image.png" />
 
     <!-- Structured Data: Organization -->
     <script type="application/ld+json">
