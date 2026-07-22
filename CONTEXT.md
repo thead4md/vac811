@@ -74,7 +74,6 @@ vac811/
 │   ├── workflows
 │   │   ├── ci.yml
 │   │   ├── curate-gallery.yml
-│   │   ├── deploy-content.yml
 │   │   ├── deploy.yml
 │   │   ├── sync-ecset.yml
 │   │   ├── sync-instagram-feed.yml
@@ -99,6 +98,8 @@ vac811/
 │   │   ├── leaders.json
 │   │   ├── rajok.json
 │   │   └── settings.json
+│   ├── _headers
+│   ├── _redirects
 │   ├── favicon.svg
 │   ├── icons.svg
 │   ├── logo.svg
@@ -188,7 +189,6 @@ vac811/
 │   │   ├── Contact.css
 │   │   ├── Contact.tsx
 │   │   ├── Curate.css
-│   │   ├── Curate.tsx
 │   │   └── ... (truncated)
 │   └── ... (truncated)
 └── ... (truncated)
@@ -247,20 +247,20 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+afaa0ce Merge pull request #73 from thead4md/claude/vac811-beta-deploy-env-ydyu8v
+c1fe375 Point Worker ALLOWED_ORIGIN at beta.vac811.hu
+d26f1b4 chore: curate gallery candidates from Google Drive
+9251b00 Migrate beta deploy from Rackhost FTP to Cloudflare Pages (beta.vac811.hu)
+d72597b chore: update CONTEXT.md [auto]
 adaae80 Merge pull request #68 from thead4md/dependabot/npm_and_yarn/brace-expansion-5.0.7
 efb6389 chore: update CONTEXT.md [auto]
 fd05db2 Merge pull request #70 from thead4md/dependabot/npm_and_yarn/google-auth-library-10.9.0
 9fe0e65 Merge pull request #71 from thead4md/dependabot/npm_and_yarn/vite-8.1.5
 d0d0b6e Merge pull request #72 from thead4md/dependabot/npm_and_yarn/vitejs/plugin-react-6.0.3
-f276c96 chore: sync instagram feed
-d28d77d chore: update CONTEXT.md [auto]
-8f52991 chore(deps-dev): bump @vitejs/plugin-react from 6.0.1 to 6.0.3
-8345501 chore(deps-dev): bump vite from 8.0.16 to 8.1.5
-c025abb chore(deps): bump google-auth-library from 10.7.0 to 10.9.0
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 15.5s. Stack: TypeScript / Node.js._
+_Generated in 11.8s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
