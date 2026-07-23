@@ -83,6 +83,7 @@ vac811/
 ├── docs
 │   ├── audit-and-upgrade-plan-2026-07.md
 │   ├── cloudflare-pages-deploy.md
+│   ├── cloudflare-secrets-setup.md
 │   ├── content-kv-fast-path.md
 │   ├── galeria-audit.md
 │   ├── google-sso-setup.md
@@ -188,7 +189,6 @@ vac811/
 │   │   │   ├── buildGalleryModel.ts
 │   │   │   ├── slugify.ts
 │   │   │   └── useGalleryModel.ts
-│   │   ├── galleryRepo.ts
 │   │   └── ... (truncated)
 │   └── ... (truncated)
 └── ... (truncated)
@@ -206,29 +206,35 @@ _Module map available for Python projects only._
 <!-- AUTO:START:env_vars -->
 | Variable | Default | Source |
 |----------|---------|--------|
-| `ANTHROPIC_API_KEY` | `—` | source code |
-| `DRY_RUN` | `—` | source code |
-| `GALLERY_CONCURRENCY` | `—` | source code |
-| `GALLERY_DEDUP_DISTANCE` | `—` | source code |
-| `GALLERY_DRY_RUN` | `—` | source code |
-| `GALLERY_HAIKU_BUDGET` | `—` | source code |
-| `GALLERY_MAX_PER_EVENT` | `—` | source code |
-| `GALLERY_MAX_PRIMARY_EVENT` | `—` | source code |
-| `GALLERY_MINOR_THRESHOLD` | `—` | source code |
-| `GALLERY_MODEL` | `—` | source code |
-| `GALLERY_PREFLIGHT_BUDGET` | `—` | source code |
-| `GALLERY_PREFLIGHT_INTERVAL_MS` | `—` | source code |
-| `GALLERY_PREFLIGHT_MODEL` | `—` | source code |
-| `GALLERY_PRIMARY_KEYWORDS` | `—` | source code |
-| `GALLERY_SCORE_THRESHOLD` | `—` | source code |
-| `GALLERY_YEARS` | `—` | source code |
-| `GOOGLE_DRIVE_API_KEY` | `—` | source code |
-| `GOOGLE_DRIVE_FOLDER_ID` | `—` | source code |
-| `GOOGLE_SERVICE_ACCOUNT_KEY` | `—` | source code |
-| `INSTAGRAM_SYNC_ENDPOINT` | `—` | source code |
-| `INSTAGRAM_SYNC_TOKEN` | `—` | source code |
-| `OPENAI_API_KEY` | `—` | source code |
-| `SYNC_LIMIT` | `—` | source code |
+| `ANTHROPIC_API_KEY` | `—` | .env.example |
+| `DRY_RUN` | `—` | .env.example |
+| `ECSET_PASSWORD` | `...` | .env.example |
+| `ECSET_TOTP_SECRET` | `...` | .env.example |
+| `ECSET_USERNAME` | `...` | .env.example |
+| `GALLERY_CONCURRENCY` | `—` | .env.example |
+| `GALLERY_DEDUP_DISTANCE` | `—` | .env.example |
+| `GALLERY_DRY_RUN` | `—` | .env.example |
+| `GALLERY_HAIKU_BUDGET` | `—` | .env.example |
+| `GALLERY_MAX_PER_EVENT` | `—` | .env.example |
+| `GALLERY_MAX_PRIMARY_EVENT` | `—` | .env.example |
+| `GALLERY_MINOR_THRESHOLD` | `—` | .env.example |
+| `GALLERY_MODEL` | `—` | .env.example |
+| `GALLERY_PREFLIGHT_BUDGET` | `—` | .env.example |
+| `GALLERY_PREFLIGHT_INTERVAL_MS` | `—` | .env.example |
+| `GALLERY_PREFLIGHT_MODEL` | `—` | .env.example |
+| `GALLERY_PRIMARY_KEYWORDS` | `—` | .env.example |
+| `GALLERY_SCORE_THRESHOLD` | `—` | .env.example |
+| `GALLERY_YEARS` | `—` | .env.example |
+| `GOOGLE_DRIVE_API_KEY` | `—` | .env.example |
+| `GOOGLE_DRIVE_FOLDER_ID` | `—` | .env.example |
+| `GOOGLE_SERVICE_ACCOUNT_KEY` | `—` | .env.example |
+| `INSTAGRAM_SYNC_ENDPOINT` | `—` | .env.example |
+| `INSTAGRAM_SYNC_TOKEN` | `—` | .env.example |
+| `OPENAI_API_KEY` | `—` | .env.example |
+| `SYNC_LIMIT` | `—` | .env.example |
+| `VITE_GOOGLE_CLIENT_ID` | `...apps.googleusercontent.com` | .env.example |
+| `VITE_IMAGE_CDN_URL` | `https://image-cdn.vac811.workers.dev` | .env.example |
+| `VITE_PROXY_URL` | `https://google-git-proxy.vac811.workers.dev` | .env.example |
 <!-- AUTO:END:env_vars -->
 
 ## Open TODOs
@@ -247,20 +253,20 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+163a37c Claude/cloudflare secrets env i4rwz4 (#85)
+a568ea9 chore: sync instagram feed
+b68b2ba chore: curate gallery candidates from Google Drive
+9f7361f chore: sync instagram feed
+d9805cf chore: update CONTEXT.md [auto]
 6bcafb3 chore: sync instagram feed
 2d7e2a1 chore: sync ECSET data [auto]
 b422936 chore: update CONTEXT.md [auto]
 4ef7a67 fix(ssg): resolve CountUp hydration mismatch on prerendered home page (#84)
 b904881 chore: update CONTEXT.md [auto]
-103875d fix(csp): allow required inline scripts via build-time sha256 hashes (#83)
-0449f91 chore: update CONTEXT.md [auto]
-1f31b1a fix(ssg): use defer instead of async for entry script (#82)
-ab398e8 chore: update CONTEXT.md [auto]
-365de36 Merge pull request #81 from thead4md/claude/fix-deploy-pages-project-name
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 12.9s. Stack: TypeScript / Node.js._
+_Generated in 13.1s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
