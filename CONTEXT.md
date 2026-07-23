@@ -82,6 +82,7 @@ vac811/
 │   └── dependabot.yml
 ├── docs
 │   ├── audit-and-upgrade-plan-2026-07.md
+│   ├── cloudflare-access-setup.md
 │   ├── cloudflare-pages-deploy.md
 │   ├── cloudflare-secrets-setup.md
 │   ├── content-kv-fast-path.md
@@ -188,7 +189,7 @@ vac811/
 │   │   │   ├── adaptInstagramItem.ts
 │   │   │   ├── buildGalleryModel.ts
 │   │   │   ├── slugify.ts
-│   │   │   └── useGalleryModel.ts
+│   │   │   └── ... (truncated)
 │   │   └── ... (truncated)
 │   └── ... (truncated)
 └── ... (truncated)
@@ -253,6 +254,8 @@ _No open TODOs found._
 
 <!-- AUTO:START:recent_commits -->
 ```
+b415ab1 Add R2 persistent cache tier to image-cdn; document Cloudflare Access (#86)
+b890dd0 chore: update CONTEXT.md [auto]
 163a37c Claude/cloudflare secrets env i4rwz4 (#85)
 a568ea9 chore: sync instagram feed
 b68b2ba chore: curate gallery candidates from Google Drive
@@ -261,12 +264,10 @@ d9805cf chore: update CONTEXT.md [auto]
 6bcafb3 chore: sync instagram feed
 2d7e2a1 chore: sync ECSET data [auto]
 b422936 chore: update CONTEXT.md [auto]
-4ef7a67 fix(ssg): resolve CountUp hydration mismatch on prerendered home page (#84)
-b904881 chore: update CONTEXT.md [auto]
 ```
 <!-- AUTO:END:recent_commits -->
 
 ---
 <!-- AUTO:START:meta -->
-_Generated in 13.1s. Stack: TypeScript / Node.js._
+_Generated in 12.8s. Stack: TypeScript / Node.js._
 <!-- AUTO:END:meta -->
