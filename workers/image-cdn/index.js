@@ -13,6 +13,12 @@
  * bytes from Drive are passed through unmodified, so the worker degrades to
  * "just a cache" rather than failing outright.
  *
+ * Two cache tiers sit in front of Drive: the edge cache (caches.default,
+ * ephemeral, cheapest/fastest) is checked first, and the IMAGE_CACHE R2
+ * bucket (persistent, survives edge-cache eviction) is checked on an edge
+ * miss before ever falling through to Drive. See wrangler.toml for the R2
+ * binding and its one-time bucket-creation step.
+ *
  * Route this worker at e.g. img.vac811.hu/* (see wrangler.toml). No secrets
  * required — Drive images referenced here are already public-by-link.
  */
@@ -68,6 +74,9 @@ export default {
     // Cache key normalizes width/format so equivalent requests share an entry
     // regardless of the exact query string the browser sent.
     const cacheKeyUrl = `https://image-cdn.internal/${fileId}?w=${width}&f=${format}`;
+    // Plain string key for the R2 persistent cache tier (R2 has no notion of
+    // a Request/URL cache key, just an object key).
+    const r2Key = `${fileId}-w${width}-${format}`;
     const cache = caches.default;
     const cached = await cache.match(cacheKeyUrl);
     if (cached) {
@@ -81,6 +90,31 @@ export default {
       // cached under the old value keep serving it until they expire or the
       // cache is purged, since we no longer rebuild headers on a hit.
       return cached;
+    }
+
+    // Edge cache miss: fall back to the persistent R2 tier before ever
+    // touching Drive. R2 survives edge-cache eviction (unlike caches.default,
+    // which is ephemeral per-colo), so a warm R2 entry means an evicted edge
+    // cache still avoids the throttle-prone Drive fetch.
+    if (env.IMAGE_CACHE) {
+      let r2Object = null;
+      try {
+        r2Object = await env.IMAGE_CACHE.get(r2Key);
+      } catch {
+        r2Object = null;
+      }
+      if (r2Object) {
+        const headers = new Headers();
+        headers.set('Content-Type', r2Object.httpMetadata?.contentType || 'application/octet-stream');
+        headers.set('Cache-Control', `public, max-age=${EDGE_TTL_SECONDS}, immutable`);
+        headers.set('Vary', 'Accept');
+        for (const [k, v] of Object.entries(cors(allowedOrigin))) headers.set(k, v);
+
+        const r2Response = new Response(r2Object.body, { headers });
+        // Warm the edge cache back up so subsequent requests skip R2 too.
+        ctx.waitUntil(cache.put(cacheKeyUrl, r2Response.clone()));
+        return r2Response;
+      }
     }
 
     const originUrl = `${ORIGIN}/d/${fileId}=w${width}`;
@@ -116,6 +150,13 @@ export default {
 
     const response = new Response(originRes.body, { status: originRes.status, headers });
     ctx.waitUntil(cache.put(cacheKeyUrl, response.clone()));
+    if (env.IMAGE_CACHE) {
+      ctx.waitUntil(
+        env.IMAGE_CACHE.put(r2Key, response.clone().body, {
+          httpMetadata: { contentType: response.headers.get('content-type') },
+        }),
+      );
+    }
     return response;
   },
 };

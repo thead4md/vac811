@@ -2,6 +2,10 @@ name = "vac811-google-git-proxy"
 main = "index.js"
 compatibility_date = "2024-11-01"
 
+# Optional additional layer: Cloudflare Access can gate this Worker's route at
+# Cloudflare's edge, in front of the app-level check below — see
+# docs/cloudflare-access-setup.md (dashboard-side only, nothing here to change).
+
 [vars]
 ALLOWED_DOMAIN = "vac811.hu"
 ALLOWED_ORIGIN = "https://beta.vac811.hu"

@@ -11,3 +11,14 @@ ALLOWED_ORIGIN = "https://beta.vac811.hu"
 [[routes]]
 pattern = "img.vac811.hu/*"
 zone_name = "vac811.hu"
+
+# Persistent second-tier cache in front of Drive: the edge cache
+# (caches.default) is ephemeral and can be evicted, forcing a re-fetch from
+# Drive's throttle-prone endpoint. R2 sits behind the edge cache so an
+# eviction falls back to R2 instead of Drive. One-time manual step (R2
+# buckets cannot be created from wrangler.toml alone — run this once against
+# the Cloudflare account):
+#   wrangler r2 bucket create vac811-image-cache
+[[r2_buckets]]
+binding = "IMAGE_CACHE"
+bucket_name = "vac811-image-cache"
