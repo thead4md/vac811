@@ -149,12 +149,19 @@ export default {
     for (const [k, v] of Object.entries(cors(allowedOrigin))) headers.set(k, v);
 
     const response = new Response(originRes.body, { status: originRes.status, headers });
-    ctx.waitUntil(cache.put(cacheKeyUrl, response.clone()));
+
+    // Clone both responses upfront before dispatching any waitUntil.
+    // Cloning after one waitUntil has started consuming the body risks a
+    // locked/consumed stream for the second write (race condition).
+    const edgeClone = response.clone();
+    const r2Clone = response.clone();
+
+    ctx.waitUntil(cache.put(cacheKeyUrl, edgeClone));
     if (env.IMAGE_CACHE) {
       ctx.waitUntil(
-        env.IMAGE_CACHE.put(r2Key, response.clone().body, {
+        env.IMAGE_CACHE.put(r2Key, r2Clone.body, {
           httpMetadata: { contentType: response.headers.get('content-type') },
-        }),
+        }).catch((err) => console.error('[image-cdn] R2 put failed:', err)),
       );
     }
     return response;
