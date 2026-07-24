@@ -4,6 +4,7 @@ import { useReveal } from '../hooks/useReveal';
 import { type Event, eventsStatic } from '../data/events';
 import { eventsSchema } from '../schemas/content';
 import EventCalendar from '../components/EventCalendar';
+import EventJsonLd from '../components/EventJsonLd';
 import NeckerchiefDivider from '../components/NeckerchiefDivider';
 import './Naptar.css';
 
@@ -25,6 +26,10 @@ export default function Naptar() {
 
   return (
     <main aria-label="Naptár oldal">
+      {/* At prerender time useContent is still `loading`, so this reflects the
+          static fallback (src/data/events.ts), same as Home's hero stats —
+          same known CMS/static drift as everywhere else useContent is used. */}
+      <EventJsonLd events={events} />
       <section className="page-hero" aria-labelledby="naptar-page-heading">
         <div className="container">
           <div className="hero-badge">Naptár</div>

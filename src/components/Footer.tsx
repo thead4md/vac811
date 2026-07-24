@@ -103,7 +103,15 @@ export default function Footer() {
 
         <div className="footer__bottom">
           <p>© {year} 811. Szent József Cserkészcsapat, Vác. Magyar Cserkészszövetség tagcsapata.</p>
-          <p className="footer__legal">Weboldal tartalma tájékoztató jellegű.</p>
+          <p className="footer__legal">
+            Weboldal tartalma tájékoztató jellegű.{' '}
+            {/* Points at the retired WordPress site, kept reachable during the
+                cutover. Only resolves once that site is actually relocated to
+                this path — see docs/seo-plan.md "WordPress apex retirement". */}
+            <a href="https://vac811.hu/old" className="footer__legal-link">
+              Régi weboldal
+            </a>
+          </p>
         </div>
       </div>
     </footer>

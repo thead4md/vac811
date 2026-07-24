@@ -1,4 +1,3 @@
-# Only honoured when served from the domain root. See docs/seo-plan.md.
 User-agent: *
 Allow: /
 Disallow: /admin/

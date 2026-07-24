@@ -28,9 +28,18 @@ export const pageSeo: Record<string, RouteSeo> = {
   '/kapcsolat': { title: 'Kapcsolat – 811. Cserkészcsapat', description: 'Lépj kapcsolatba a 811. Szent József Cserkészcsapattal Vácon – cím, e-mail és közösségi média.' },
 };
 
-// Canonical / OG origin. beta.vac811.hu is the current serving origin; Phase 3
-// (SEO cutover) reconciles this to the final apex when beta goes public.
-export const SITE_ORIGIN = 'https://beta.vac811.hu';
+// Canonical / OG origin.
+//
+// IMPORTANT SEQUENCING NOTE: this is set to the vac811.hu apex ahead of the
+// actual DNS cutover (per owner decision — see PR discussion), while the site
+// is still actually served at beta.vac811.hu and vac811.hu still serves the
+// old WordPress site. A canonical URL that doesn't match the domain serving it
+// is normally a red flag (crawlers may ignore it, or treat beta.vac811.hu's
+// pages as unindexable duplicates of a different, unrelated live site). Do
+// not merge/deploy this to production until vac811.hu's DNS actually points
+// at this Cloudflare Pages project — otherwise flip this back to
+// 'https://beta.vac811.hu' first.
+export const SITE_ORIGIN = 'https://vac811.hu';
 
 // Normalize a router pathname to a pageSeo key: strip any trailing slash so a
 // direct load of "/rolunk/" (some hosts add the slash) still resolves the same

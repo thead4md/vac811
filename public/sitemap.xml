@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- NOTE: only honoured when served from the domain root (https://vac811.hu/sitemap.xml).
-     While the app lives under /beta/ this is not yet submittable — see docs/seo-plan.md. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://vac811.hu/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://vac811.hu/rolunk</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
