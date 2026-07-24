@@ -1,6 +1,9 @@
 const SESSION_KEY = 'gh_token';
 
-let _token: string | null = sessionStorage.getItem(SESSION_KEY);
+// Guarded so importing this module doesn't throw where sessionStorage is absent
+// (e.g. during vite-react-ssg prerendering).
+let _token: string | null =
+  typeof sessionStorage !== 'undefined' ? sessionStorage.getItem(SESSION_KEY) : null;
 
 export function getToken(): string | null {
   return _token;

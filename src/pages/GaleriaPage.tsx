@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Head } from 'vite-react-ssg';
 import GalleriaHero from '../components/gallery/GalleriaHero';
 import FeaturedEventBlock from '../components/gallery/FeaturedEventBlock';
 import EventGroupSection from '../components/gallery/EventGroupSection';
@@ -96,6 +97,13 @@ export default function GaleriaPage() {
 
   return (
     <main aria-label="Galéria oldal">
+      {/* /galeria is a client-only route (not prerendered), so it sets its own
+          document head after hydration rather than via the SSG SeoHead. */}
+      <Head>
+        <title>Galéria – 811. Cserkészcsapat</title>
+        <meta name="description" content="Fotók táborainkról, portyáinkról és közösségi életünkről a 811. cserkészcsapatnál." />
+        <link rel="canonical" href="https://beta.vac811.hu/galeria" />
+      </Head>
       <GalleriaHero activeView={view} onViewChange={handleViewChange} />
 
       {loading && (

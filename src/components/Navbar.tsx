@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logoUrl from '/logo.svg?url';
+import { readTheme, setTheme, subscribeTheme, getServerTheme } from '../lib/theme';
 import './Navbar.css';
 
 const navItems = [
@@ -24,19 +25,14 @@ const navItems = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    const stored = localStorage.getItem('theme');
-    if (stored === 'light' || stored === 'dark') return stored;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
+  // Theme is browser-only state read through an external store: the server
+  // snapshot ('light') matches the prerendered HTML, and React adopts the real
+  // client theme right after hydration with no mismatch. Reading
+  // localStorage/matchMedia directly in render would throw during SSG.
+  const theme = useSyncExternalStore(subscribeTheme, readTheme, getServerTheme);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const location = useLocation();
   const navRef = useRef<HTMLElement>(null);
-
-  // Sync the chosen theme to the DOM (runs on mount and whenever it changes).
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -55,9 +51,7 @@ export default function Navbar() {
   }, []);
 
   const toggleTheme = () => {
-    const next = theme === 'light' ? 'dark' : 'light';
-    setTheme(next);
-    localStorage.setItem('theme', next);
+    setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   // Close the mobile menu / open dropdown after navigating.

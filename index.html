@@ -15,27 +15,22 @@
       })();
     </script>
 
-    <!-- Primary SEO -->
-    <title>811. Szent József Cserkészcsapat – Vác</title>
-    <meta name="description" content="A 811. Szent József Cserkészcsapat Vác egyik legnagyobb ifjúsági szervezete. 232 aktív cserkész, 11 raj, 1929 óta. Csatlakozz a közösséghez!" />
+    <!-- Primary SEO. The page title, description, canonical, and og/twitter tags
+         are emitted per-route by src/components/SeoHead.tsx (prerendered routes)
+         and each route's own vite-react-ssg Head (e.g. Galéria, Kuráció), so no
+         static title lives here — that would double up with the injected one. -->
     <meta name="keywords" content="cserkész, vác, 811, szent józsef, cserkészcsapat, ifjúság, tábor, közösség" />
     <meta name="author" content="811. Szent József Cserkészcsapat" />
     <!-- beta.vac811.hu is staging alongside the WordPress apex — keep it out of search results -->
     <meta name="robots" content="noindex" />
-    <link rel="canonical" href="https://beta.vac811.hu/" />
 
-    <!-- Open Graph -->
+    <!-- Open Graph (site-wide constants; og:title/description/url are per-route via SeoHead) -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://vac811.hu/" />
-    <meta property="og:title" content="811. Szent József Cserkészcsapat – Vác" />
-    <meta property="og:description" content="A 811. Szent József Cserkészcsapat Vác egyik legnagyobb ifjúsági szervezete. 232 aktív cserkész, 11 raj, 1929 óta." />
     <meta property="og:locale" content="hu_HU" />
     <meta property="og:site_name" content="811. Cserkészcsapat – Vác" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="811. Szent József Cserkészcsapat – Vác" />
-    <meta name="twitter:description" content="1929 óta cserkészkedünk Vácott. Csatlakozz te is!" />
 
     <!-- Structured Data: Organization -->
     <script type="application/ld+json">

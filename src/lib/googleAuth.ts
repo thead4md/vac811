@@ -12,7 +12,10 @@
 const GSI_SCRIPT_URL = 'https://accounts.google.com/gsi/client';
 const SESSION_KEY = 'gsi_credential';
 
-let _credential: string | null = sessionStorage.getItem(SESSION_KEY);
+// Guarded so importing this module doesn't throw where sessionStorage is absent
+// (e.g. during vite-react-ssg prerendering).
+let _credential: string | null =
+  typeof sessionStorage !== 'undefined' ? sessionStorage.getItem(SESSION_KEY) : null;
 
 export function getCredential(): string | null {
   return _credential;

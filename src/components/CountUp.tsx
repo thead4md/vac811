@@ -23,9 +23,13 @@ interface Props {
 // final value immediately — no animation.
 export default function CountUp({ value, suffix = '', duration = 1400 }: Props) {
   const ref = useRef<HTMLSpanElement>(null);
-  // Reduced-motion / no-IO environments start (and stay) at the final value, so
-  // the effect never needs a synchronous setState (react-hooks/set-state-in-effect).
-  const [display, setDisplay] = useState(() => (skipAnimation() ? value : 0));
+  // Start at the final `value` so the server-prerendered HTML and the client's
+  // first (hydration) render agree — initialising to 0 on the client while the
+  // server emitted the final number would trip a hydration mismatch, and it also
+  // keeps the real figure in the static HTML for crawlers/no-JS. The count-up
+  // animation (0 → value) is kicked off from the effect, post-hydration, when the
+  // element scrolls into view.
+  const [display, setDisplay] = useState(value);
 
   useEffect(() => {
     const el = ref.current;
@@ -35,6 +39,7 @@ export default function CountUp({ value, suffix = '', duration = 1400 }: Props) 
     let started = false;
 
     const run = () => {
+      setDisplay(0);
       let start: number | null = null;
       const step = (ts: number) => {
         if (start === null) start = ts;
