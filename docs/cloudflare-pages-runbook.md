@@ -35,23 +35,36 @@ require touching git history or re-running CI.
 
 ## PR preview deployments
 
-Every pull request now gets its own Cloudflare Pages preview build via the
-`preview` job in `deploy.yml`:
+This is already handled — **no changes needed in this repo.** The Cloudflare
+Pages project (`vac811`) has its own **Git integration** connected directly
+(the `cloudflare-workers-and-pages[bot]` GitHub App), independent of
+`deploy.yml`. Every push to every branch — including PR branches — gets
+built and deployed automatically by Cloudflare itself, which then posts a
+PR comment with two URLs:
 
-- Triggered on `pull_request` (any branch, targeting any base).
-- Runs the same `test` job first, then builds and deploys with
-  `branch: ${{ github.head_ref }}` instead of `main` — Cloudflare Pages
-  treats any non-production branch as a preview deployment, so this never
-  touches the live `beta.vac811.hu` site.
-- The workflow posts (and updates, on re-push) a PR comment with the
-  preview URL (`*.vac811-beta.pages.dev`).
-- Use the preview URL as the test target for CMS (`/admin`) and Curate
-  (`/admin/kuracio`) changes instead of only testing against live beta.
+- a **per-commit** preview URL (`https://<hash>.vac811.pages.dev`)
+- a stable **per-branch** preview URL (`https://<branch-slug>.vac811.pages.dev`)
 
-Concurrency: production and preview deploys use separate concurrency groups
-(`pages-deploy-main` vs `pages-deploy-<PR number>`), so a preview build can't
-block or be blocked by a production deploy. Preview runs cancel superseded
-in-flight builds on the same PR; production runs queue instead of cancelling.
+Use either as the test target for CMS (`/admin`) and Curate
+(`/admin/kuracio`) changes instead of only testing against live beta.
+
+We deliberately did **not** add a second, Actions-driven preview job for
+this — the Cloudflare GitHub App already builds and deploys every PR branch
+on its own, so an Actions-based `pages-action` preview step would just be a
+redundant, competing deployment of the same branch to the same project.
+
+### Open question worth resolving with the project owner
+
+Since Git integration deploys **every** push (including to `main`), and
+`deploy.yml`'s `deploy` job *also* runs `cloudflare/pages-action` on every
+push to `main`, production may currently be getting deployed **twice** per
+push through two independent mechanisms. This wasn't introduced by this
+runbook — it predates it — but it's worth confirming with whoever manages
+the Cloudflare dashboard whether Git integration should be disabled (keeping
+Actions as the single source of truth, so `npm ci`/lint/test gate every
+deploy) or whether the Actions-based `deploy` job should be retired in favor
+of just the Git integration (losing the lint/test/content-validation gate
+and the smoke-check, unless replicated as an integration build step).
 
 ## Known gaps / follow-ups
 
